@@ -1,0 +1,29 @@
+// Bacterial genome
+
+model_type = "GHMM"
+
+observations = [ "A", "C", "G", "T" ]
+
+states = [
+  "NonCoding" : [ "duration": geometric(),
+                  "emission": model("emission.chai") ],
+
+  "Coding"    : [ "duration": model("duration.chai"),
+                  "emission": model("emission.chai") ],
+
+  "Start"     : [ "duration": fixed(15),
+                  "emission": model("emission.chai") ],
+
+  "Stop"      : [ "duration": fixed(15), 
+                  "emission": model("emission.chai") ]
+]
+
+initial_probabilities = [ "NonCoding": 1.0 ]
+
+transition_probabilities = [
+  "NonCoding" | "NonCoding": 0.999,
+  "Start"     | "NonCoding": 0.001,
+  "Coding"    | "Start"    : 1.0,
+  "Stop"      | "Coding"   : 1.0,
+  "NonCoding" | "Stop"     : 1.0
+]
