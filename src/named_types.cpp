@@ -96,7 +96,7 @@ class Printer {
   }
 
   template<typename T>
-  std::ostream &to_ostream(std::ostream &os, const T &value) {
+  std::ostream &to_ostream(const T &value) {
     printf(value);
     return os;
   }
@@ -109,9 +109,8 @@ class Printer {
     printr('"'); printr(string); printr('"');
   }
 
-  template<typename T>
-  auto printf(const T &value)
-      -> std::enable_if_t<std::is_function<T>::value> {
+  template<typename Return, typename... Params>
+  auto printf(const std::function<Return(Params...)> &function) {
     printr("function");
   }
 
@@ -149,11 +148,11 @@ class Printer {
       -> std::enable_if_t<is_named_tuple<Tuple>::value> {
     for_each([this](const auto &tag, const auto &value) {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
-      if (Tuple::template tag_index<Tag>::value > 0) newline();
-      indent();
-      printr(typename Tag::value_type().str());
-      printr(" = ");
-      printf(value);
+      if (Tuple::template tag_index<Tag>::value > 0) this->newline();
+      this->indent();
+      this->printr(typename Tag::value_type().str());
+      this->printr(" = ");
+      this->printf(value);
     }, tuple);
   }
 
@@ -186,7 +185,7 @@ class Printer {
 template<typename... Ts>
 std::ostream &operator<<(
     std::ostream &os, const named_types::named_tuple<Ts...> &tuple) {
-  return Printer(os).to_ostream(os, tuple);
+  return Printer(os).to_ostream(tuple);
 }
 
 /*
@@ -343,11 +342,13 @@ int main() {
   auto upcasted_ghmm_config = static_cast<ModelConfig>(ghmm_config);
   std::cout << upcasted_ghmm_config << std::endl;
 
+  using feature_function = std::function<
+    double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)
+  >;
+
   using LCCRFConfig
     = config_with_options<
-        std::vector<
-          std::function<double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)>
-        >(decltype("features"_t))
+        std::vector<feature_function>(decltype("feature_functions"_t))
       >::extending<ModelConfig>::type;
 
   LCCRFConfig lccrf_config {
@@ -373,9 +374,9 @@ int main() {
     }
   };
 
-  // std::cout << "===========================================" << std::endl;
-  // std::cout << lccrf_config << std::endl;
-  // std::cout << "===========================================" << std::endl;
+  std::cout << "===========================================" << std::endl;
+  std::cout << lccrf_config << std::endl;
+  std::cout << "===========================================" << std::endl;
 
   return 0;
 }
