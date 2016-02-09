@@ -39,6 +39,9 @@ using FeatureFunction = std::function<
 template<typename Base, typename... Options> class basic_config;
 template<> class basic_config<void>;
 
+using InterfaceConfig = basic_config<void>;
+using InterfaceConfigPtr = std::shared_ptr<basic_config<void>>;
+
 class ConfigVisitor {
  public:
   // Purely virtual methods
@@ -46,15 +49,15 @@ class ConfigVisitor {
   virtual void visit(const std::vector<std::string> &) = 0;
   virtual void visit(const std::vector<FeatureFunction> &) = 0;
   virtual void visit(const std::map<std::string, double> &) = 0;
-  virtual void visit(const std::map<std::string, std::map<std::string, std::string>> &) = 0;
+  virtual void visit(const std::map<std::string, std::map<std::string, InterfaceConfigPtr>> &) = 0;
 
   virtual void visit_tag(const std::string &, unsigned int) = 0;
 
   // Concrete methods
   template<typename Base, typename... Options>
-  void visit(const basic_config<Base, Options...> &config) {
+  void visit(std::shared_ptr<basic_config<Base, Options...>> config_ptr) {
     unsigned int count = 0;
-    config.for_each([this, &count](const auto &tag, const auto &value) {
+    config_ptr->for_each([this, &count](const auto &tag, const auto &value) {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
       this->visit_tag(typename Tag::value_type().str(), count);
       this->visit(value);
@@ -67,7 +70,7 @@ class ConfigVisitor {
 };
 
 template<>
-void ConfigVisitor::visit(const basic_config<void> &config) {}
+void ConfigVisitor::visit(std::shared_ptr<basic_config<void>> /* config_ptr */) {}
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -95,6 +98,7 @@ template<typename Base, typename... Options>
 class basic_config : public Base {
  public:
   // Alias
+  using Self = basic_config<Base, Options...>;
   using tuple_type = named_types::named_tuple<Options...>;
 
   // Constructors
@@ -105,15 +109,13 @@ class basic_config : public Base {
     this->initialize(std::forward<Args>(args)...);
   }
 
+  // Overriden methods
+  void accept(ConfigVisitor &visitor) const override {
+    visitor.visit(std::static_pointer_cast<Self>(
+      const_cast<Self*>(this)->shared_from_this()));
+  }
+
   // Concrete methods
-  void accept(ConfigVisitor &visitor) const {
-    visitor.visit(*this);
-  }
-
-  void accept(ConfigVisitor &visitor) {
-    const_cast<const basic_config<Base, Options...> *>(this)->accept(visitor);
-  }
-
   template<typename Func>
   void for_each(Func&& func) const {
     this->Base::for_each(func);
@@ -143,11 +145,16 @@ class basic_config : public Base {
 };
 
 template<>
-class basic_config<void> {
+class basic_config<void>
+    : public std::enable_shared_from_this<basic_config<void>> {
  public:
-  // Concrete methods
-  void accept(ConfigVisitor &/* visitor */) const {}
+  // Alias
+  using Self = basic_config<void>;
 
+  // Purely virtual methods
+  virtual void accept(ConfigVisitor &/* visitor */) const = 0;
+
+  // Concrete methods
   template<typename Func>
   void for_each(Func&& /* func */) const {}
 
@@ -184,8 +191,8 @@ struct config_with_options {
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-------------------------------------------------------------------------------
-                                    OPTIONS
+ ------------------------------------------------------------------------------
+                                    CONFIGS
  ------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
 */
@@ -197,26 +204,12 @@ constexpr decltype(auto) operator ""_t () {
 
 #define CONFIG_OPTION(config_name, ...) \
   using config_name##_t = __VA_ARGS__; \
-  using attr_##config_name = __VA_ARGS__(decltype(#config_name##_t)) \
+  using attr_##config_name = __VA_ARGS__(decltype(#config_name##_t))
 
-CONFIG_OPTION(model_type,               std::string);
-CONFIG_OPTION(observations,             std::vector<std::string>);
-CONFIG_OPTION(initial_probabilities,    std::map<std::string, double>);
-CONFIG_OPTION(emission_probabilities,   std::map<std::string, double>);
-CONFIG_OPTION(transition_probabilities, std::map<std::string, double>);
-CONFIG_OPTION(states,                   std::map<
-                                          std::string,
-                                          std::map<std::string, std::string>
-                                        >);
-CONFIG_OPTION(feature_functions,        std::vector<FeatureFunction>);
+/*---------------------------------------------------------------------------*/
 
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
-                                    CONFIGS
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
-*/
+CONFIG_OPTION(model_type, std::string);
+CONFIG_OPTION(observations, std::vector<std::string>);
 
 using ModelConfig
   = config_with_options<
@@ -224,10 +217,21 @@ using ModelConfig
       attr_observations
     >::type;
 
+/*---------------------------------------------------------------------------*/
+
+CONFIG_OPTION(emission_probabilities, std::map<std::string, double>);
+
 using IIDConfig
   = config_with_options<
       attr_emission_probabilities
     >::extending<ModelConfig>::type;
+
+/*---------------------------------------------------------------------------*/
+
+CONFIG_OPTION(initial_probabilities, std::map<std::string, double>);
+CONFIG_OPTION(transition_probabilities, std::map<std::string, double>);
+CONFIG_OPTION(states,
+  std::map<std::string, std::map<std::string, InterfaceConfigPtr>>);
 
 using GHMMConfig
   = config_with_options<
@@ -235,6 +239,10 @@ using GHMMConfig
       attr_transition_probabilities,
       attr_states
     >::extending<ModelConfig>::type;
+
+/*---------------------------------------------------------------------------*/
+
+CONFIG_OPTION(feature_functions, std::vector<FeatureFunction>);
 
 using LCCRFConfig
   = config_with_options<
@@ -316,7 +324,8 @@ class PrinterConfigVisitor : public ConfigVisitor {
     printf(visited);
   }
 
-  void visit(const std::map<std::string, std::map<std::string, std::string>> &visited) override {
+  void visit(const std::map<std::string,
+               std::map<std::string, InterfaceConfigPtr>> &visited) override {
     printf(visited);
   }
 
@@ -369,6 +378,16 @@ class PrinterConfigVisitor : public ConfigVisitor {
       os_ << (it == std::prev(std::end(iterable)) ? "" : ",") << "\n";
     }
     close_iterable();
+  }
+
+  auto printf(InterfaceConfigPtr config_ptr) {
+    os_ << "{ " << "\n";
+    depth_++;
+    config_ptr->accept(*this);
+    os_ << "\n";
+    depth_--;
+    indent();
+    os_ << "}";
   }
 
   void open_iterable() {
@@ -441,15 +460,15 @@ int main() {
       {
         "Fair",
         {
-          { "duration", "geometric" },
-          { "emission", "explicit" }
+          { "duration", iid_config },
+          { "emission", iid_config }
         }
       },
       {
         "Loaded",
         {
-          { "duration", "geometric" },
-          { "emission", "explicit" }
+          { "duration", iid_config },
+          { "emission", iid_config }
         }
       }
     }
