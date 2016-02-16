@@ -44,7 +44,7 @@
 # CPPFLAGS        := # Precompiler Flags
 # ASFLAGS         := # Assembly Flags
 # CFLAGS          := # C Flags
-# CXXFLAGS        := # C++ Flags
+CXXFLAGS        := -std=c++14 # C++ Flags
 # LDFLAGS         := # Linker flags
 
 # Documentation
@@ -59,4 +59,4 @@
 # 'include conf/makeball.mk' for pre-configured options
 # to use the library 'makeball'
 include conf/chaiscript.mk
-
+include conf/named_types.mk
