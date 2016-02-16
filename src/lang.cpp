@@ -25,14 +25,131 @@
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  ------------------------------------------------------------------------------
-                                FEATURE FUNCTION
+                                  HELPER TRAITS
  ------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
 */
 
+template<typename T>
+struct delayed_true : public std::true_type {};
+
+template<typename T>
+struct delayed_false : public std::false_type {};
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ ------------------------------------------------------------------------------
+                            BASIC CONFIG DECLARATION
+ ------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
+*/
+
+template<typename Base, typename... Options> class basic_config;
+template<> class basic_config<void>;
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ ------------------------------------------------------------------------------
+                                 CONFIG FACTORY
+ ------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
+*/
+
+template<typename... Options>
+struct config_with_options {
+  using type = basic_config<basic_config<void>, Options...>;
+
+  template<typename T>
+  struct extending {
+    static_assert(delayed_false<T>::value, "Is not a configuration");
+  };
+
+  template<typename BaseBase, typename... BaseOptions>
+  struct extending<basic_config<BaseBase, BaseOptions...>> {
+    using type
+      = basic_config<basic_config<BaseBase, BaseOptions...>, Options...>;
+  };
+};
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ ------------------------------------------------------------------------------
+                                    CONFIGS
+ ------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
+*/
+
+template<typename T, T... chars>
+constexpr decltype(auto) operator ""_t () {
+  return named_types::named_tag<named_types::string_literal<T, chars...>>{};
+}
+
+/*---------------------------------------------------------------------------*/
+
 using FeatureFunction = std::function<
   double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)
 >;
+
+/*---------------------------------------------------------------------------*/
+
+#define CONFIG_OPTION(config_name, ...) \
+  using config_name##_t = __VA_ARGS__; \
+  using attr_##config_name = __VA_ARGS__(decltype(#config_name##_t))
+
+/*---------------------------------------------------------------------------*/
+
+CONFIG_OPTION(model_type, std::string);
+CONFIG_OPTION(observations, std::vector<std::string>);
+
+using ModelConfig
+  = config_with_options<
+      attr_model_type,
+      attr_observations
+    >::type;
+
+using ModelConfigPtr = std::shared_ptr<ModelConfig>;
+
+/*---------------------------------------------------------------------------*/
+
+CONFIG_OPTION(emission_probabilities, std::map<std::string, double>);
+
+using IIDConfig
+  = config_with_options<
+      attr_emission_probabilities
+    >::extending<ModelConfig>::type;
+
+/*---------------------------------------------------------------------------*/
+
+using StateConfig
+  = config_with_options<
+      ModelConfigPtr(decltype("duration"_t)),
+      ModelConfigPtr(decltype("emission"_t))
+    >::type;
+
+using StateConfigPtr = std::shared_ptr<StateConfig>;
+
+/*---------------------------------------------------------------------------*/
+
+CONFIG_OPTION(initial_probabilities, std::map<std::string, double>);
+CONFIG_OPTION(transition_probabilities, std::map<std::string, double>);
+CONFIG_OPTION(states,
+  std::map<std::string, std::map<std::string, ModelConfigPtr>>);
+
+using GHMMConfig
+  = config_with_options<
+      attr_initial_probabilities,
+      attr_transition_probabilities,
+      attr_states
+    >::extending<ModelConfig>::type;
+
+/*---------------------------------------------------------------------------*/
+
+CONFIG_OPTION(feature_functions, std::vector<FeatureFunction>);
+
+using LCCRFConfig
+  = config_with_options<
+      attr_feature_functions
+    >::extending<ModelConfig>::type;
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -42,12 +159,6 @@ using FeatureFunction = std::function<
 ///////////////////////////////////////////////////////////////////////////////
 */
 
-template<typename Base, typename... Options> class basic_config;
-template<> class basic_config<void>;
-
-using InterfaceConfig = basic_config<void>;
-using InterfaceConfigPtr = std::shared_ptr<basic_config<void>>;
-
 class ConfigVisitor {
  public:
   // Purely virtual methods
@@ -55,7 +166,7 @@ class ConfigVisitor {
   virtual void visit(std::vector<std::string> &) = 0;
   virtual void visit(std::vector<FeatureFunction> &) = 0;
   virtual void visit(std::map<std::string, double> &) = 0;
-  virtual void visit(std::map<std::string, std::map<std::string, InterfaceConfigPtr>> &) = 0;
+  virtual void visit(std::map<std::string, std::map<std::string, ModelConfigPtr>> &) = 0;
 
   virtual void visit_tag(const std::string &, unsigned int) = 0;
 
@@ -82,21 +193,7 @@ void ConfigVisitor::visit(std::shared_ptr<basic_config<void>> /* config_ptr */) 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  ------------------------------------------------------------------------------
-                                  HELPER TRAITS
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
-*/
-
-template<typename T>
-struct delayed_true : public std::true_type {};
-
-template<typename T>
-struct delayed_false : public std::false_type {};
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
-                                   BASIC CONFIG
+                             BASIC CONFIG DEFINITION
  ------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
 */
@@ -247,90 +344,6 @@ decltype(auto) get(basic_config<Base, Options...> &&input) {
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  ------------------------------------------------------------------------------
-                                 CONFIG FACTORY
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
-*/
-
-template<typename... Options>
-struct config_with_options {
-  using type = basic_config<basic_config<void>, Options...>;
-
-  template<typename T>
-  struct extending {
-    static_assert(delayed_false<T>::value, "Is not a configuration");
-  };
-
-  template<typename BaseBase, typename... BaseOptions>
-  struct extending<basic_config<BaseBase, BaseOptions...>> {
-    using type
-      = basic_config<basic_config<BaseBase, BaseOptions...>, Options...>;
-  };
-};
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
-                                    CONFIGS
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
-*/
-
-template<typename T, T... chars>
-constexpr decltype(auto) operator ""_t () {
-  return named_types::named_tag<named_types::string_literal<T, chars...>>{};
-}
-
-#define CONFIG_OPTION(config_name, ...) \
-  using config_name##_t = __VA_ARGS__; \
-  using attr_##config_name = __VA_ARGS__(decltype(#config_name##_t))
-
-/*---------------------------------------------------------------------------*/
-
-CONFIG_OPTION(model_type, std::string);
-CONFIG_OPTION(observations, std::vector<std::string>);
-
-using ModelConfig
-  = config_with_options<
-      attr_model_type,
-      attr_observations
-    >::type;
-
-/*---------------------------------------------------------------------------*/
-
-CONFIG_OPTION(emission_probabilities, std::map<std::string, double>);
-
-using IIDConfig
-  = config_with_options<
-      attr_emission_probabilities
-    >::extending<ModelConfig>::type;
-
-/*---------------------------------------------------------------------------*/
-
-CONFIG_OPTION(initial_probabilities, std::map<std::string, double>);
-CONFIG_OPTION(transition_probabilities, std::map<std::string, double>);
-CONFIG_OPTION(states,
-  std::map<std::string, std::map<std::string, InterfaceConfigPtr>>);
-
-using GHMMConfig
-  = config_with_options<
-      attr_initial_probabilities,
-      attr_transition_probabilities,
-      attr_states
-    >::extending<ModelConfig>::type;
-
-/*---------------------------------------------------------------------------*/
-
-CONFIG_OPTION(feature_functions, std::vector<FeatureFunction>);
-
-using LCCRFConfig
-  = config_with_options<
-      attr_feature_functions
-    >::extending<ModelConfig>::type;
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
                                   PRINTER HELPERS
  ------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
@@ -409,7 +422,7 @@ class PrinterConfigVisitor : public ConfigVisitor {
   }
 
   void visit(std::map<std::string,
-               std::map<std::string, InterfaceConfigPtr>> &visited) override {
+               std::map<std::string, ModelConfigPtr>> &visited) override {
     printf(visited);
     separate_if_end_of_section();
   }
@@ -471,7 +484,7 @@ class PrinterConfigVisitor : public ConfigVisitor {
     close_iterable();
   }
 
-  auto printf(InterfaceConfigPtr config_ptr) {
+  auto printf(ModelConfigPtr config_ptr) {
     os_ << "{ " << "\n";
     depth_++;
     config_ptr->accept(PrinterConfigVisitor(os_, depth_));
@@ -535,7 +548,7 @@ class RegisterConfigVisitor : public ConfigVisitor {
   }
 
   void visit(std::map<std::string,
-               std::map<std::string, InterfaceConfigPtr>> &visited) override {
+               std::map<std::string, ModelConfigPtr>> &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
@@ -568,7 +581,7 @@ class RegisterConfigVisitor : public ConfigVisitor {
 class Interpreter {
  public:
   // Concrete methods
-  InterfaceConfigPtr eval_file(const std::string &path) {
+  ModelConfigPtr eval_file(const std::string &path) {
     auto found = path.find_last_of("/\\");
 
     File file {
@@ -587,7 +600,7 @@ class Interpreter {
   };
 
   // Concrete methods
-  InterfaceConfigPtr eval_file(const File &file) {
+  ModelConfigPtr eval_file(const File &file) {
     auto model_type = find_model_type(file);
 
     if (model_type == "GHMM") {
@@ -655,7 +668,7 @@ class Interpreter {
     }), "=");
 
     chai.add(fun([this, &chai] (
-        std::map<std::string, std::map<std::string, InterfaceConfigPtr>> &conv,
+        std::map<std::string, std::map<std::string, ModelConfigPtr>> &conv,
         const std::map<std::string, Boxed_Value> &orig) {
       for (auto &pair : orig) {
         auto inner_orig
