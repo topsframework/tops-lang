@@ -664,6 +664,7 @@ class Interpreter {
   std::shared_ptr<Config> fill_config(const File &file) {
     chaiscript::ChaiScript chai;
     register_helpers(chai, file);
+    register_constants(chai, file);
     register_attributions(chai, file);
     register_concatenations(chai, file);
 
@@ -696,6 +697,13 @@ class Interpreter {
     chai.add(fun([] (unsigned int size) {
       return std::string("fixed");
     }), "fixed");
+  }
+
+  void register_constants(chaiscript::ChaiScript &chai,
+                          const File &main) {
+    using namespace chaiscript;
+    chai.add(var(std::string("duration")), "duration");
+    chai.add(var(std::string("emission")), "emission");
   }
 
   void register_attributions(chaiscript::ChaiScript &chai,
