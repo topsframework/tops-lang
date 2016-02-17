@@ -120,9 +120,18 @@ using IIDConfig
 
 /*---------------------------------------------------------------------------*/
 
+using DurationConfig
+  = config_with_options<
+      std::string(decltype("duration_type"_t))
+    >::type;
+
+using DurationConfigPtr = std::shared_ptr<DurationConfig>;
+
+/*---------------------------------------------------------------------------*/
+
 using StateConfig
   = config_with_options<
-      ModelConfigPtr(decltype("duration"_t)),
+      DurationConfigPtr(decltype("duration"_t)),
       ModelConfigPtr(decltype("emission"_t))
     >::type;
 
@@ -132,8 +141,7 @@ using StateConfigPtr = std::shared_ptr<StateConfig>;
 
 CONFIG_OPTION(initial_probabilities, std::map<std::string, double>);
 CONFIG_OPTION(transition_probabilities, std::map<std::string, double>);
-CONFIG_OPTION(states,
-  std::map<std::string, std::map<std::string, ModelConfigPtr>>);
+CONFIG_OPTION(states, std::map<std::string, StateConfigPtr>);
 
 using GHMMConfig
   = config_with_options<
@@ -166,7 +174,10 @@ class ConfigVisitor {
   virtual void visit(std::vector<std::string> &) = 0;
   virtual void visit(std::vector<FeatureFunction> &) = 0;
   virtual void visit(std::map<std::string, double> &) = 0;
-  virtual void visit(std::map<std::string, std::map<std::string, ModelConfigPtr>> &) = 0;
+  virtual void visit(std::map<std::string, StateConfigPtr> &) = 0;
+
+  virtual void visit(StateConfigPtr) = 0;
+  virtual void visit(DurationConfigPtr) = 0;
 
   virtual void visit_tag(const std::string &, unsigned int) = 0;
 
@@ -421,8 +432,17 @@ class PrinterConfigVisitor : public ConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visit(std::map<std::string,
-               std::map<std::string, ModelConfigPtr>> &visited) override {
+  void visit(std::map<std::string, StateConfigPtr> &visited) override {
+    printf(visited);
+    separate_if_end_of_section();
+  }
+
+  void visit(StateConfigPtr visited) override {
+    printf(visited);
+    separate_if_end_of_section();
+  }
+
+  void visit(DurationConfigPtr visited) override {
     printf(visited);
     separate_if_end_of_section();
   }
@@ -484,7 +504,28 @@ class PrinterConfigVisitor : public ConfigVisitor {
     close_iterable();
   }
 
-  auto printf(ModelConfigPtr config_ptr) {
+  void printf(StateConfigPtr state_ptr) {
+    os_ << "[ " << "\n";
+    depth_++;
+    indent();
+    os_ << "duration = ";
+    printf(std::get<decltype("duration"_t)>(*state_ptr));
+    os_ << "," << std::endl;
+    indent();
+    os_ << "emission = ";
+    printf(std::get<decltype("emission"_t)>(*state_ptr));
+    depth_--;
+    indent();
+    os_ << "\n";
+    indent();
+    os_ << "]";
+  }
+
+  void printf(DurationConfigPtr duration_ptr) {
+    printf(std::get<decltype("duration_type"_t)>(*duration_ptr));
+  }
+
+  void printf(ModelConfigPtr config_ptr) {
     os_ << "{ " << "\n";
     depth_++;
     config_ptr->accept(PrinterConfigVisitor(os_, depth_));
@@ -547,8 +588,15 @@ class RegisterConfigVisitor : public ConfigVisitor {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(std::map<std::string,
-               std::map<std::string, ModelConfigPtr>> &visited) override {
+  void visit(std::map<std::string, StateConfigPtr> &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visit(StateConfigPtr visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visit(DurationConfigPtr visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
@@ -642,11 +690,11 @@ class Interpreter {
     }), "model");
 
     chai.add(fun([]() {
-      return "geometric";
+      return std::string("geometric");
     }), "geometric");
 
     chai.add(fun([] (unsigned int size) {
-      return "fixed";
+      return std::string("fixed");
     }), "fixed");
   }
 
@@ -668,16 +716,23 @@ class Interpreter {
     }), "=");
 
     chai.add(fun([this, &chai] (
-        std::map<std::string, std::map<std::string, ModelConfigPtr>> &conv,
+        std::map<std::string, StateConfigPtr> &conv,
         const std::map<std::string, Boxed_Value> &orig) {
       for (auto &pair : orig) {
         auto inner_orig
           = chai.boxed_cast<std::map<std::string, Boxed_Value> &>(pair.second);
-        for (auto &inner_pair : inner_orig) {
-          if (inner_pair.first == "duration") continue;
-          auto filename = chai.boxed_cast<std::string>(inner_pair.second);
-          conv[pair.first][inner_pair.first] = this->eval_file(filename);
-        }
+
+        conv[pair.first] = std::make_shared<StateConfig>();
+
+        std::get<decltype("duration"_t)>(*conv[pair.first])
+          = std::make_shared<DurationConfig>();
+        std::get<decltype("duration_type"_t)>(
+          *std::get<decltype("duration"_t)>(*conv[pair.first]))
+            = chai.boxed_cast<std::string>(inner_orig["duration"]);
+
+        auto filename = chai.boxed_cast<std::string>(inner_orig["emission"]);
+        std::get<decltype("emission"_t)>(*conv[pair.first])
+          = this->eval_file(filename);
       }
     }), "=");
   }
