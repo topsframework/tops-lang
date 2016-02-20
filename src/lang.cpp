@@ -210,8 +210,6 @@ class ConfigVisitor {
     });
   }
 
-  void visit(std::shared_ptr<basic_config<void>> config_ptr) {}
-
   // Virtual destructor
   virtual ~ConfigVisitor() = default;
 
