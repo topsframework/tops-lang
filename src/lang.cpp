@@ -86,78 +86,106 @@ constexpr decltype(auto) operator ""_t () {
 
 /*---------------------------------------------------------------------------*/
 
-using FeatureFunction = std::function<
-  double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)
->;
+namespace config_option {
+
+using type = std::string;
+using alphabet = std::vector<std::string>;
+
+}  // namespace config_option
 
 /*---------------------------------------------------------------------------*/
-
-#define CONFIG_OPTION(config_name, ...) \
-  using config_name##_t = __VA_ARGS__; \
-  using attr_##config_name = __VA_ARGS__(decltype(#config_name##_t))
-
-/*---------------------------------------------------------------------------*/
-
-CONFIG_OPTION(model_type, std::string);
-CONFIG_OPTION(observations, std::vector<std::string>);
 
 using ModelConfig
   = config_with_options<
-      attr_model_type,
-      attr_observations
+      config_option::type(decltype("model_type"_t)),
+      config_option::alphabet(decltype("observations"_t))
     >::type;
 
 using ModelConfigPtr = std::shared_ptr<ModelConfig>;
 
 /*---------------------------------------------------------------------------*/
 
-CONFIG_OPTION(emission_probabilities, std::map<std::string, double>);
-
-using IIDConfig
-  = config_with_options<
-      attr_emission_probabilities
-    >::extending<ModelConfig>::type;
-
-/*---------------------------------------------------------------------------*/
-
 using DurationConfig
   = config_with_options<
-      std::string(decltype("duration_type"_t))
+      config_option::type(decltype("duration_type"_t))
     >::type;
 
 using DurationConfigPtr = std::shared_ptr<DurationConfig>;
 
 /*---------------------------------------------------------------------------*/
 
+namespace config_option {
+
+using model = ModelConfigPtr;
+using duration = DurationConfigPtr;
+
+}  // namespace config_option
+
+/*---------------------------------------------------------------------------*/
+
 using StateConfig
   = config_with_options<
-      DurationConfigPtr(decltype("duration"_t)),
-      ModelConfigPtr(decltype("emission"_t))
+      config_option::duration(decltype("duration"_t)),
+      config_option::model(decltype("emission"_t))
     >::type;
 
 using StateConfigPtr = std::shared_ptr<StateConfig>;
 
 /*---------------------------------------------------------------------------*/
 
-CONFIG_OPTION(initial_probabilities, std::map<std::string, double>);
-CONFIG_OPTION(transition_probabilities, std::map<std::string, double>);
-CONFIG_OPTION(states, std::map<std::string, StateConfigPtr>);
+namespace config_option {
 
-using GHMMConfig
-  = config_with_options<
-      attr_initial_probabilities,
-      attr_transition_probabilities,
-      attr_states
-    >::extending<ModelConfig>::type;
+using probabilities = std::map<std::string, double>;
+
+}  // namespace config_option
 
 /*---------------------------------------------------------------------------*/
 
-CONFIG_OPTION(feature_functions, std::vector<FeatureFunction>);
+using IIDConfig
+  = config_with_options<
+      config_option::probabilities(decltype("emission_probabilities"_t))
+    >::extending<ModelConfig>::type;
+
+using IIDConfigPtr = std::shared_ptr<IIDConfig>;
+
+/*---------------------------------------------------------------------------*/
+
+namespace config_option {
+
+using state = StateConfigPtr;
+using states = std::map<std::string, StateConfigPtr>;
+
+}  // namespace config_option
+
+/*---------------------------------------------------------------------------*/
+
+using GHMMConfig
+  = config_with_options<
+      config_option::probabilities(decltype("initial_probabilities"_t)),
+      config_option::probabilities(decltype("transition_probabilities"_t)),
+      config_option::states(decltype("states"_t))
+    >::extending<ModelConfig>::type;
+
+using GHMMConfigPtr = std::shared_ptr<GHMMConfig>;
+
+/*---------------------------------------------------------------------------*/
+
+namespace config_option {
+
+using feature_function = std::function<
+  double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)>;
+using feature_functions = std::map<std::string, feature_function>;
+
+}  // namespace config_option
+
+/*---------------------------------------------------------------------------*/
 
 using LCCRFConfig
   = config_with_options<
-      attr_feature_functions
+      config_option::feature_functions(decltype("feature_functions"_t))
     >::extending<ModelConfig>::type;
+
+using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -169,18 +197,6 @@ using LCCRFConfig
 
 class ConfigVisitor {
  public:
-  // Purely virtual methods
-  virtual void visit(std::string &) = 0;
-  virtual void visit(std::vector<std::string> &) = 0;
-  virtual void visit(std::vector<FeatureFunction> &) = 0;
-  virtual void visit(std::map<std::string, double> &) = 0;
-  virtual void visit(std::map<std::string, StateConfigPtr> &) = 0;
-
-  virtual void visit(StateConfigPtr) = 0;
-  virtual void visit(DurationConfigPtr) = 0;
-
-  virtual void visit_tag(const std::string &, unsigned int) = 0;
-
   // Concrete methods
   template<typename Base, typename... Options>
   void visit(std::shared_ptr<basic_config<Base, Options...>> config_ptr) {
@@ -194,12 +210,22 @@ class ConfigVisitor {
     });
   }
 
+  void visit(std::shared_ptr<basic_config<void>> config_ptr) {}
+
   // Virtual destructor
   virtual ~ConfigVisitor() = default;
-};
 
-template<>
-void ConfigVisitor::visit(std::shared_ptr<basic_config<void>> /* config_ptr */) {}
+ protected:
+  // Purely virtual methods
+  virtual void visit(config_option::type &) = 0;
+  virtual void visit(config_option::alphabet &) = 0;
+  virtual void visit(config_option::probabilities &) = 0;
+
+  virtual void visit(config_option::states &) = 0;
+  virtual void visit(config_option::feature_functions &) = 0;
+
+  virtual void visit_tag(const std::string &, unsigned int) = 0;
+};
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -411,38 +437,29 @@ class PrinterConfigVisitor : public ConfigVisitor {
       : os_(os), depth_(depth), initial_depth_(depth) {
   }
 
+ protected:
   // Overriden functions
-  void visit(std::string &visited) override {
+  void visit(config_option::type &visited) override {
     printf(visited);
     separate_if_end_of_section();
   }
 
-  void visit(std::vector<std::string> &visited) override {
+  void visit(config_option::alphabet &visited) override {
     printf(visited);
     separate_if_end_of_section();
   }
 
-  void visit(std::vector<FeatureFunction> &visited) override {
+  void visit(config_option::probabilities &visited) override {
     printf(visited);
     separate_if_end_of_section();
   }
 
-  void visit(std::map<std::string, double> &visited) override {
+  void visit(config_option::states &visited) override {
     printf(visited);
     separate_if_end_of_section();
   }
 
-  void visit(std::map<std::string, StateConfigPtr> &visited) override {
-    printf(visited);
-    separate_if_end_of_section();
-  }
-
-  void visit(StateConfigPtr visited) override {
-    printf(visited);
-    separate_if_end_of_section();
-  }
-
-  void visit(DurationConfigPtr visited) override {
+  void visit(config_option::feature_functions &visited) override {
     printf(visited);
     separate_if_end_of_section();
   }
@@ -571,32 +588,25 @@ class RegisterConfigVisitor : public ConfigVisitor {
   RegisterConfigVisitor(chaiscript::ChaiScript &chai) : chai_(chai) {
   }
 
+ protected:
   // Overriden functions
-  void visit(std::string &visited) override {
+  void visit(config_option::type &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(std::vector<std::string> &visited) override {
+  void visit(config_option::alphabet &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(std::vector<FeatureFunction> &visited) override {
+  void visit(config_option::probabilities &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(std::map<std::string, double> &visited) override {
+  void visit(config_option::states &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(std::map<std::string, StateConfigPtr> &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visit(StateConfigPtr visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visit(DurationConfigPtr visited) override {
+  void visit(config_option::feature_functions &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
