@@ -44,8 +44,8 @@ struct delayed_false : public std::false_type {};
 ///////////////////////////////////////////////////////////////////////////////
 */
 
-class basic_config_interface;
-template<typename Base, typename... Options> class basic_config;
+class BasicConfigInterface;
+template<typename Base, typename... Options> class BasicConfig;
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -57,7 +57,7 @@ template<typename Base, typename... Options> class basic_config;
 
 template<typename... Options>
 struct config_with_options {
-  using type = basic_config<basic_config_interface, Options...>;
+  using type = BasicConfig<BasicConfigInterface, Options...>;
 
   template<typename T>
   struct extending {
@@ -65,9 +65,9 @@ struct config_with_options {
   };
 
   template<typename BaseBase, typename... BaseOptions>
-  struct extending<basic_config<BaseBase, BaseOptions...>> {
+  struct extending<BasicConfig<BaseBase, BaseOptions...>> {
     using type
-      = basic_config<basic_config<BaseBase, BaseOptions...>, Options...>;
+      = BasicConfig<BasicConfig<BaseBase, BaseOptions...>, Options...>;
   };
 };
 
@@ -199,7 +199,7 @@ class ConfigVisitor {
  public:
   // Concrete methods
   template<typename Base, typename... Options>
-  void visit(std::shared_ptr<basic_config<Base, Options...>> config_ptr) {
+  void visit(std::shared_ptr<BasicConfig<Base, Options...>> config_ptr) {
     unsigned int count = 0;
     config_ptr->for_each([this, &count](const auto &tag, auto &value) {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
@@ -233,11 +233,11 @@ class ConfigVisitor {
 ///////////////////////////////////////////////////////////////////////////////
 */
 
-class basic_config_interface
-    : public std::enable_shared_from_this<basic_config_interface> {
+class BasicConfigInterface
+    : public std::enable_shared_from_this<BasicConfigInterface> {
  public:
   // Alias
-  using Self = basic_config_interface;
+  using Self = BasicConfigInterface;
 
   // Purely virtual methods
   virtual void accept(ConfigVisitor &/* visitor */) const = 0;
@@ -254,21 +254,21 @@ class basic_config_interface
   inline constexpr decltype(auto) get() const {};
 
   // Destructor
-  virtual ~basic_config_interface() = default;
+  virtual ~BasicConfigInterface() = default;
 };
 
 template<typename Base, typename... Options>
-class basic_config : public Base {
+class BasicConfig : public Base {
  public:
   // Alias
-  using Self = basic_config<Base, Options...>;
+  using Self = BasicConfig<Base, Options...>;
   using tuple_type = named_types::named_tuple<Options...>;
 
   // Constructors
-  explicit basic_config() : attrs_() {}
+  explicit BasicConfig() : attrs_() {}
 
   template<typename... Args>
-  basic_config(Args&&... args) : attrs_() {
+  BasicConfig(Args&&... args) : attrs_() {
     this->initialize(std::forward<Args>(args)...);
   }
 
@@ -311,7 +311,7 @@ class basic_config : public Base {
   }
 
   template<class Tag> inline constexpr auto get() const &
-      -> std::enable_if_t<!std::is_same<Base, basic_config_interface>::value,
+      -> std::enable_if_t<!std::is_same<Base, BasicConfigInterface>::value,
                           const decltype(this->Base::template get<Tag>())> {
     return this->Base::template get<Tag>();
   };
@@ -321,7 +321,7 @@ class basic_config : public Base {
   };
 
   template<class Tag> inline auto get() &
-      -> std::enable_if_t<!std::is_same<Base, basic_config_interface>::value,
+      -> std::enable_if_t<!std::is_same<Base, BasicConfigInterface>::value,
                           decltype(this->Base::template get<Tag>())> {
     return this->Base::template get<Tag>();
   };
@@ -331,7 +331,7 @@ class basic_config : public Base {
   };
 
   template<class Tag> inline auto get() &&
-      -> std::enable_if_t<!std::is_same<Base, basic_config_interface>::value,
+      -> std::enable_if_t<!std::is_same<Base, BasicConfigInterface>::value,
                           decltype(this->Base::template get<Tag>())> {
     return this->Base::template get<Tag>();
   };
@@ -356,17 +356,17 @@ class basic_config : public Base {
 namespace std {
 
 template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(basic_config<Base, Options...> const &input) {
+decltype(auto) get(BasicConfig<Base, Options...> const &input) {
   return input.template get<Tag>();
 };
 
 template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(basic_config<Base, Options...> &input) {
+decltype(auto) get(BasicConfig<Base, Options...> &input) {
   return input.template get<Tag>();
 };
 
 template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(basic_config<Base, Options...> &&input) {
+decltype(auto) get(BasicConfig<Base, Options...> &&input) {
   return move(input).template get<Tag>();
 };
 
@@ -562,7 +562,7 @@ class PrinterConfigVisitor : public ConfigVisitor {
 };
 
 template<typename... Ts>
-std::ostream &operator<<(std::ostream &os, const basic_config<Ts...> &config) {
+std::ostream &operator<<(std::ostream &os, const BasicConfig<Ts...> &config) {
   auto visitor = std::make_shared<PrinterConfigVisitor>(os);
   config.accept(*std::static_pointer_cast<ConfigVisitor>(visitor));
   return os;
