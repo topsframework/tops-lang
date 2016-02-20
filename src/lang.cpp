@@ -44,8 +44,8 @@ struct delayed_false : public std::false_type {};
 ///////////////////////////////////////////////////////////////////////////////
 */
 
+class basic_config_interface;
 template<typename Base, typename... Options> class basic_config;
-template<> class basic_config<void>;
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -57,7 +57,7 @@ template<> class basic_config<void>;
 
 template<typename... Options>
 struct config_with_options {
-  using type = basic_config<basic_config<void>, Options...>;
+  using type = basic_config<basic_config_interface, Options...>;
 
   template<typename T>
   struct extending {
@@ -233,6 +233,30 @@ class ConfigVisitor {
 ///////////////////////////////////////////////////////////////////////////////
 */
 
+class basic_config_interface
+    : public std::enable_shared_from_this<basic_config_interface> {
+ public:
+  // Alias
+  using Self = basic_config_interface;
+
+  // Purely virtual methods
+  virtual void accept(ConfigVisitor &/* visitor */) const = 0;
+  virtual void accept(ConfigVisitor &&/* visitor */) const = 0;
+
+  // Concrete methods
+  template<typename Func>
+  void for_each(Func&& /* func */) const {}
+
+  template<typename... Args>
+  void initialize(Args&&... /* args */) const {}
+
+  template<class Tag>
+  inline constexpr decltype(auto) get() const {};
+
+  // Destructor
+  virtual ~basic_config_interface() = default;
+};
+
 template<typename Base, typename... Options>
 class basic_config : public Base {
  public:
@@ -287,7 +311,7 @@ class basic_config : public Base {
   }
 
   template<class Tag> inline constexpr auto get() const &
-      -> std::enable_if_t<!std::is_same<Base, basic_config<void>>::value,
+      -> std::enable_if_t<!std::is_same<Base, basic_config_interface>::value,
                           const decltype(this->Base::template get<Tag>())> {
     return this->Base::template get<Tag>();
   };
@@ -297,7 +321,7 @@ class basic_config : public Base {
   };
 
   template<class Tag> inline auto get() &
-      -> std::enable_if_t<!std::is_same<Base, basic_config<void>>::value,
+      -> std::enable_if_t<!std::is_same<Base, basic_config_interface>::value,
                           decltype(this->Base::template get<Tag>())> {
     return this->Base::template get<Tag>();
   };
@@ -307,7 +331,7 @@ class basic_config : public Base {
   };
 
   template<class Tag> inline auto get() &&
-      -> std::enable_if_t<!std::is_same<Base, basic_config<void>>::value,
+      -> std::enable_if_t<!std::is_same<Base, basic_config_interface>::value,
                           decltype(this->Base::template get<Tag>())> {
     return this->Base::template get<Tag>();
   };
@@ -319,34 +343,6 @@ class basic_config : public Base {
 
  private:
   tuple_type attrs_;
-};
-
-template<>
-class basic_config<void>
-    : public std::enable_shared_from_this<basic_config<void>> {
- public:
-  // Alias
-  using Self = basic_config<void>;
-
-  // Purely virtual methods
-  virtual void accept(ConfigVisitor &/* visitor */) const = 0;
-  virtual void accept(ConfigVisitor &&/* visitor */) const = 0;
-
-  // Concrete methods
-  template<typename Func>
-  void for_each(Func&& /* func */) const {}
-
-  template<typename... Args>
-  void initialize(Args&&... /* args */) const {}
-
-  template<class Tag>
-  inline constexpr decltype(auto) get() const {
-    // static_assert(delayed_false<Tag>::value, "Type not found");
-    assert(false);
-  };
-
-  // Destructor
-  virtual ~basic_config<void>() = default;
 };
 
 /*
