@@ -12,7 +12,7 @@
 #include <cassert>
 
 // Internal headers
-#include "meta.hpp"
+#include "ParameterPack.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
