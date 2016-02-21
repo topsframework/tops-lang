@@ -503,9 +503,7 @@ class PrinterConfigVisitor : public ConfigVisitor {
 
   template<typename Iterable>
   auto printf(const Iterable &iterable)
-      -> std::enable_if_t<
-           is_iterable<Iterable>::value
-           && !std::is_convertible<Iterable, std::string>::value> {
+      -> std::enable_if_t<is_iterable<Iterable>::value> {
     open_iterable();
     for (auto it = std::begin(iterable); it != std::end(iterable); ++it) {
       indent();
