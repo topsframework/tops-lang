@@ -297,17 +297,8 @@ class BasicConfig : public Base {
     static_assert(sizeof...(Args) >= sizeof...(Options),
       "Must have least as many arguments as options in `initialize`");
 
-    forward_subpack([this](auto&&... types) {
-      this->Base::initialize(std::forward<decltype(types)>(types)...);
-    },
-    index_range<0, sizeof...(Args) - sizeof...(Options)>(),
-    std::forward<Args>(args)...);
-
-    forward_subpack([this](auto&&... types) {
-      attrs_ = tuple_type(std::forward<decltype(types)>(types)...);
-    },
-    index_range<sizeof...(Args) - sizeof...(Options), sizeof...(Args)>(),
-    std::forward<Args>(args)...);
+    initialize_base(std::forward<Args>(args)...);
+    initialize_tuple(std::forward<Args>(args)...);
   }
 
   template<class Tag> inline constexpr auto get() const &
@@ -342,7 +333,27 @@ class BasicConfig : public Base {
   };
 
  private:
+  // Instance variables
   tuple_type attrs_;
+
+  // Concrete methods
+  template<typename... Args>
+  void initialize_base(Args&&... args) {
+    forward_subpack(
+      [this](auto&&... types) {
+        this->Base::initialize(std::forward<decltype(types)>(types)...); },
+      index_range<0, sizeof...(Args) - sizeof...(Options)>(),
+      std::forward<Args>(args)...);
+  }
+
+  template<typename... Args>
+  void initialize_tuple(Args&&... args) {
+    forward_subpack(
+      [this](auto&&... types) {
+        attrs_ = tuple_type(std::forward<decltype(types)>(types)...); },
+      index_range<sizeof...(Args) - sizeof...(Options), sizeof...(Args)>(),
+      std::forward<Args>(args)...);
+  }
 };
 
 /*
