@@ -548,11 +548,11 @@ class PrinterConfigVisitor : public ConfigVisitor {
     os_ << "[ " << "\n";
     depth_++;
     indent();
-    os_ << "duration = ";
+    os_ << "duration : ";
     print(std::get<decltype("duration"_t)>(*state_ptr));
     os_ << "," << std::endl;
     indent();
-    os_ << "emission = ";
+    os_ << "emission : ";
     print(std::get<decltype("emission"_t)>(*state_ptr));
     depth_--;
     indent();
