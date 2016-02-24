@@ -19,16 +19,18 @@
 
 // Standard headers
 #include <map>
-#include <tuple>
 #include <memory>
 #include <string>
 #include <vector>
-#include <sstream>
+#include <cstdlib>
 #include <utility>
 #include <iostream>
-#include <exception>
-
-#include <cassert>
+#include <iterator>
+#include <typeinfo>
+#include <algorithm>
+#include <stdexcept>
+#include <functional>
+#include <type_traits>
 
 // Internal headers
 #include "ParameterPack.hpp"
