@@ -19,10 +19,12 @@
 
 // Standard headers
 #include <map>
+#include <list>
 #include <memory>
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <fstream>
 #include <utility>
 #include <iostream>
 #include <iterator>
@@ -222,6 +224,8 @@ class ConfigVisitor {
   template<typename Base, typename... Options>
   void visit(std::shared_ptr<BasicConfig<Base, Options...>> config_ptr) {
     unsigned int count = 0;
+    this->start_visit();
+    this->visit_path(config_ptr->path());
     config_ptr->for_each([this, &count](const auto &tag, auto &value) {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
       using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
@@ -229,6 +233,7 @@ class ConfigVisitor {
       this->visit(const_cast<Value&>(value));
       count++;
     });
+    this->end_visit();
   }
 
   // Virtual destructor
@@ -244,6 +249,10 @@ class ConfigVisitor {
   virtual void visit(config_option::feature_functions &) = 0;
 
   virtual void visit_tag(const std::string &, unsigned int) = 0;
+  virtual void visit_path(const std::string &) = 0;
+
+  virtual void start_visit() = 0;
+  virtual void end_visit() = 0;
 };
 
 /*
@@ -260,11 +269,23 @@ class BasicConfigInterface
   // Alias
   using Self = BasicConfigInterface;
 
+  // Constructors
+  explicit BasicConfigInterface(const std::string &path) : path_(path) {
+  }
+
   // Purely virtual methods
   virtual void accept(ConfigVisitor &/* visitor */) const = 0;
   virtual void accept(ConfigVisitor &&/* visitor */) const = 0;
 
   // Concrete methods
+  virtual std::string path() {
+    return path_;
+  }
+
+  virtual const std::string path() const {
+    return path_;
+  }
+
   template<typename Func>
   void for_each(Func&& /* func */) const {}
 
@@ -276,6 +297,9 @@ class BasicConfigInterface
 
   // Destructor
   virtual ~BasicConfigInterface() = default;
+
+ private:
+  std::string path_;
 };
 
 template<typename Base, typename... Options>
@@ -286,11 +310,7 @@ class BasicConfig : public Base {
   using tuple_type = named_types::named_tuple<Options...>;
 
   // Constructors
-  BasicConfig() = default;
-
-  template<typename... Args>
-  explicit BasicConfig(Args&&... args) : attrs_() {
-    this->initialize(std::forward<Args>(args)...);
+  explicit BasicConfig(const std::string &path = {}) : Base(path) {
   }
 
   // Overriden methods
@@ -495,6 +515,15 @@ class PrinterConfigVisitor : public ConfigVisitor {
     os_ << tag << " = ";
   }
 
+  void visit_path(const std::string &path) override {
+  }
+
+  void start_visit() override {
+  }
+
+  void end_visit() override {
+  }
+
  private:
   // Instance variables
   std::ostream &os_;
@@ -600,6 +629,166 @@ std::ostream &operator<<(std::ostream &os, const BasicConfig<Ts...> &config) {
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  ------------------------------------------------------------------------------
+                               SERIALIZER VISITOR
+ ------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
+*/
+
+class ConfigSerializer : public ConfigVisitor {
+ public:
+  // Constructors
+  explicit ConfigSerializer(const std::string &root_dir)
+      : root_dir_(root_dir), os_(), depth_(0) {
+  }
+
+ protected:
+  // Overriden functions
+  void visit(config_option::type &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visit(config_option::alphabet &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visit(config_option::probabilities &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visit(config_option::states &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visit(config_option::feature_functions &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visit_tag(const std::string &tag, unsigned int count) override {
+    if (count > 0) os_ << "\n";
+    indent();
+    os_ << tag << " = ";
+  }
+
+  void visit_path(const std::string &path) override {
+    os_ = std::move(std::ofstream(root_dir_ + path));
+  }
+
+  void start_visit() override {
+  }
+
+  void end_visit() override {
+    for (auto &submodel : submodels_) {
+      submodel->accept(ConfigSerializer(root_dir_));
+    }
+  }
+
+ private:
+  // Instance variables
+  std::string root_dir_;
+
+  std::ofstream os_;
+  unsigned int depth_;
+
+  std::list<ModelConfigPtr> submodels_;
+
+  // Concrete methods
+  void separate_if_end_of_section() {
+    os_ << "\n";
+  }
+
+  void print(const std::string &string) {
+    os_ << '"' << string << '"';
+  }
+
+  auto print(float num) {
+    os_ << num;
+  }
+
+  auto print(double num) {
+    os_ << num;
+  }
+
+  template<typename Return, typename... Params>
+  auto print(const std::function<Return(Params...)> &/* function */) {
+    os_ << "function";
+  }
+
+  template<typename Pair>
+  auto print(const Pair &pair)
+      -> std::enable_if_t<is_pair<Pair>::value> {
+    print(pair.first);
+    os_ << ": ";
+    print(pair.second);
+  }
+
+  template<typename Iterable>
+  auto print(const Iterable &iterable)
+      -> std::enable_if_t<is_iterable<Iterable>::value> {
+    open_iterable();
+    for (auto it = std::begin(iterable); it != std::end(iterable); ++it) {
+      indent();
+      print(*it);
+      os_ << (it == std::prev(std::end(iterable)) ? "" : ",") << "\n";
+    }
+    close_iterable();
+  }
+
+  void print(StateConfigPtr state_ptr) {
+    os_ << "[ " << "\n";
+    depth_++;
+    indent();
+    os_ << "duration : ";
+    print(std::get<decltype("duration"_t)>(*state_ptr));
+    os_ << "," << std::endl;
+    indent();
+    os_ << "emission : ";
+    print(std::get<decltype("emission"_t)>(*state_ptr));
+    depth_--;
+    indent();
+    os_ << "\n";
+    indent();
+    os_ << "]";
+  }
+
+  void print(DurationConfigPtr duration_ptr) {
+    print(std::get<decltype("duration_type"_t)>(*duration_ptr));
+  }
+
+  void print(ModelConfigPtr config_ptr) {
+    submodels_.push_back(config_ptr);
+    os_ << "model(\"" << config_ptr->path() << "\")";
+  }
+
+  void open_iterable() {
+    os_ << "[ " << "\n";
+    depth_++;
+  }
+
+  void close_iterable() {
+    depth_--;
+    indent();
+    os_ << "]";
+  }
+
+  void indent() {
+    std::fill_n(std::ostreambuf_iterator<char>(os_), 2*depth_, ' ');
+  }
+
+  std::string remove_trailing_bar(std::string str) {
+    while (str.size() > 1 && str.find_last_of("/\\") == str.size()-1)
+      str.erase(str.size()-1);
+    return str;
+  }
+};
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ ------------------------------------------------------------------------------
                                 REGISTER VISITOR
  ------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
@@ -636,6 +825,15 @@ class RegisterConfigVisitor : public ConfigVisitor {
 
   void visit_tag(const std::string &tag, unsigned int count) override {
     tag_ = tag;
+  }
+
+  void visit_path(const std::string &path) override {
+  }
+
+  void start_visit() override {
+  }
+
+  void end_visit() override {
   }
 
  private:
@@ -694,7 +892,7 @@ class Interpreter {
     register_attributions(chai, file);
     register_concatenations(chai, file);
 
-    auto cfg = std::make_shared<Config>();
+    auto cfg = std::make_shared<Config>(file.name);
     cfg->accept(RegisterConfigVisitor(chai));
 
     // Explicitly ignore all errors (will be handled later)
@@ -796,8 +994,9 @@ class Interpreter {
 */
 
 int main(int argc, char **argv) {
-  if (argc != 2) {
-    std::cerr << "USAGE: " << argv[0] << " hmm_script_name" << std::endl;
+  if (argc <= 1 || argc >= 4) {
+    std::cerr << "USAGE: " << argv[0] << " hmm_script_name [output_dir]"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -807,7 +1006,11 @@ int main(int argc, char **argv) {
 
   Interpreter interpreter;
   auto model_architecture_ptr = interpreter.eval_file(argv[1]);
-  std::cout << *model_architecture_ptr;
+
+  switch (argc) {
+    case 2: std::cout << *model_architecture_ptr; break;
+    case 3: model_architecture_ptr->accept(ConfigSerializer(argv[2])); break;
+  }
 
   return EXIT_SUCCESS;
 }
