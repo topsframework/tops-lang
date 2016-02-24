@@ -1,3 +1,22 @@
+/***********************************************************************/
+/*  Copyright 2016 ToPS                                                */
+/*                                                                     */
+/*  This program is free software; you can redistribute it and/or      */
+/*  modify it under the terms of the GNU  General Public License as    */
+/*  published by the Free Software Foundation; either version 3 of     */
+/*  the License, or (at your option) any later version.                */
+/*                                                                     */
+/*  This program is distributed in the hope that it will be useful,    */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of     */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the      */
+/*  GNU General Public License for more details.                       */
+/*                                                                     */
+/*  You should have received a copy of the GNU General Public License  */
+/*  along with this program; if not, write to the Free Software        */
+/*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,         */
+/*  MA 02110-1301, USA.                                                */
+/***********************************************************************/
+
 // Standard headers
 #include <map>
 #include <tuple>
@@ -251,7 +270,7 @@ class BasicConfigInterface
   void initialize(Args&&... /* args */) const {}
 
   template<class Tag>
-  inline constexpr decltype(auto) get() const {};
+  inline constexpr decltype(auto) get() const {}
 
   // Destructor
   virtual ~BasicConfigInterface() = default;
@@ -265,10 +284,10 @@ class BasicConfig : public Base {
   using tuple_type = named_types::named_tuple<Options...>;
 
   // Constructors
-  explicit BasicConfig() : attrs_() {}
+  BasicConfig() = default;
 
   template<typename... Args>
-  BasicConfig(Args&&... args) : attrs_() {
+  explicit BasicConfig(Args&&... args) : attrs_() {
     this->initialize(std::forward<Args>(args)...);
   }
 
@@ -369,17 +388,17 @@ namespace std {
 template<typename Tag, typename Base, typename... Options>
 decltype(auto) get(BasicConfig<Base, Options...> const &input) {
   return input.template get<Tag>();
-};
+}
 
 template<typename Tag, typename Base, typename... Options>
 decltype(auto) get(BasicConfig<Base, Options...> &input) {
   return input.template get<Tag>();
-};
+}
 
 template<typename Tag, typename Base, typename... Options>
 decltype(auto) get(BasicConfig<Base, Options...> &&input) {
   return move(input).template get<Tag>();
-};
+}
 
 }  // namespace std
 
@@ -401,12 +420,11 @@ using std::to_string;
 // is_iterable
 
 template<typename T>
-auto is_iterable_impl(void *)
--> decltype (
-    begin(std::declval<T&>()) != end(std::declval<T&>()), // begin/end and operator !=
-    ++std::declval<decltype(begin(std::declval<T&>()))&>(), // operator ++
-    *begin(std::declval<T&>()), // operator*
-    std::true_type{});
+auto is_iterable_impl(void * = nullptr)
+    -> decltype(begin(std::declval<T>()) != end(std::declval<T>()),
+                ++std::declval<decltype(begin(std::declval<T>()))>(),
+                *begin(std::declval<T>()),
+                std::true_type{});
 
 template<typename T>
 std::false_type is_iterable_impl(...);
@@ -419,7 +437,7 @@ struct is_pair_impl : std::false_type {};
 template<typename F, typename S>
 struct is_pair_impl<std::pair<F, S>> : std::true_type {};
 
-}
+}  // namespace detail
 
 template <typename T>
 using is_iterable = decltype(detail::is_iterable_impl<T>(nullptr));
@@ -438,34 +456,34 @@ using is_pair = detail::is_pair_impl<T>;
 class PrinterConfigVisitor : public ConfigVisitor {
  public:
   // Constructors
-  PrinterConfigVisitor(std::ostream &os, unsigned int depth = 0)
+  explicit PrinterConfigVisitor(std::ostream &os, unsigned int depth = 0)
       : os_(os), depth_(depth), initial_depth_(depth) {
   }
 
  protected:
   // Overriden functions
   void visit(config_option::type &visited) override {
-    printf(visited);
+    print(visited);
     separate_if_end_of_section();
   }
 
   void visit(config_option::alphabet &visited) override {
-    printf(visited);
+    print(visited);
     separate_if_end_of_section();
   }
 
   void visit(config_option::probabilities &visited) override {
-    printf(visited);
+    print(visited);
     separate_if_end_of_section();
   }
 
   void visit(config_option::states &visited) override {
-    printf(visited);
+    print(visited);
     separate_if_end_of_section();
   }
 
   void visit(config_option::feature_functions &visited) override {
-    printf(visited);
+    print(visited);
     separate_if_end_of_section();
   }
 
@@ -487,53 +505,53 @@ class PrinterConfigVisitor : public ConfigVisitor {
     if (depth_ == initial_depth_) os_ << "\n";
   }
 
-  void printf(const std::string &string) {
+  void print(const std::string &string) {
     os_ << '"' << string << '"';
   }
 
-  auto printf(float num) {
+  auto print(float num) {
     os_ << num;
   }
 
-  auto printf(double num) {
+  auto print(double num) {
     os_ << num;
   }
 
   template<typename Return, typename... Params>
-  auto printf(const std::function<Return(Params...)> &/* function */) {
+  auto print(const std::function<Return(Params...)> &/* function */) {
     os_ << "function";
   }
 
   template<typename Pair>
-  auto printf(const Pair &pair)
+  auto print(const Pair &pair)
       -> std::enable_if_t<is_pair<Pair>::value> {
-    printf(pair.first);
+    print(pair.first);
     os_ << ": ";
-    printf(pair.second);
+    print(pair.second);
   }
 
   template<typename Iterable>
-  auto printf(const Iterable &iterable)
+  auto print(const Iterable &iterable)
       -> std::enable_if_t<is_iterable<Iterable>::value> {
     open_iterable();
     for (auto it = std::begin(iterable); it != std::end(iterable); ++it) {
       indent();
-      printf(*it);
+      print(*it);
       os_ << (it == std::prev(std::end(iterable)) ? "" : ",") << "\n";
     }
     close_iterable();
   }
 
-  void printf(StateConfigPtr state_ptr) {
+  void print(StateConfigPtr state_ptr) {
     os_ << "[ " << "\n";
     depth_++;
     indent();
     os_ << "duration = ";
-    printf(std::get<decltype("duration"_t)>(*state_ptr));
+    print(std::get<decltype("duration"_t)>(*state_ptr));
     os_ << "," << std::endl;
     indent();
     os_ << "emission = ";
-    printf(std::get<decltype("emission"_t)>(*state_ptr));
+    print(std::get<decltype("emission"_t)>(*state_ptr));
     depth_--;
     indent();
     os_ << "\n";
@@ -541,11 +559,11 @@ class PrinterConfigVisitor : public ConfigVisitor {
     os_ << "]";
   }
 
-  void printf(DurationConfigPtr duration_ptr) {
-    printf(std::get<decltype("duration_type"_t)>(*duration_ptr));
+  void print(DurationConfigPtr duration_ptr) {
+    print(std::get<decltype("duration_type"_t)>(*duration_ptr));
   }
 
-  void printf(ModelConfigPtr config_ptr) {
+  void print(ModelConfigPtr config_ptr) {
     os_ << "{ " << "\n";
     depth_++;
     config_ptr->accept(PrinterConfigVisitor(os_, depth_));
@@ -588,7 +606,8 @@ std::ostream &operator<<(std::ostream &os, const BasicConfig<Ts...> &config) {
 class RegisterConfigVisitor : public ConfigVisitor {
  public:
   // Constructors
-  RegisterConfigVisitor(chaiscript::ChaiScript &chai) : chai_(chai) {
+  explicit RegisterConfigVisitor(chaiscript::ChaiScript &chai)
+      : chai_(chai) {
   }
 
  protected:
@@ -638,8 +657,8 @@ class Interpreter {
     auto found = path.find_last_of("/\\");
 
     File file {
-      path.substr(0, found + 1), // path
-      path.substr(found + 1)     // name
+      path.substr(0, found + 1),  // path
+      path.substr(found + 1)      // name
     };
 
     return eval_file(file);
@@ -689,31 +708,33 @@ class Interpreter {
 
   void register_helpers(chaiscript::ChaiScript &chai,
                         const File &main) {
-    using namespace chaiscript;
+    using chaiscript::fun;
 
-    chai.add(fun([&main] (const std::string &file) {
+    chai.add(chaiscript::fun([&main] (const std::string &file) {
       return main.path + file;
     }), "model");
 
-    chai.add(fun([]() {
+    chai.add(chaiscript::fun([]() {
       return std::string("geometric");
     }), "geometric");
 
-    chai.add(fun([] (unsigned int size) {
+    chai.add(chaiscript::fun([] (unsigned int size) {
       return std::string("fixed");
     }), "fixed");
   }
 
   void register_constants(chaiscript::ChaiScript &chai,
                           const File &main) {
-    using namespace chaiscript;
-    chai.add(var(std::string("duration")), "duration");
-    chai.add(var(std::string("emission")), "emission");
+    using chaiscript::var;
+
+    chai.add(chaiscript::var(std::string("duration")), "duration");
+    chai.add(chaiscript::var(std::string("emission")), "emission");
   }
 
   void register_attributions(chaiscript::ChaiScript &chai,
                              const File &/* main */) {
-    using namespace chaiscript;
+    using chaiscript::fun;
+    using chaiscript::Boxed_Value;
 
     chai.add(fun([this, &chai] (
         std::vector<std::string> &conv, const std::vector<Boxed_Value> &orig) {
@@ -752,7 +773,7 @@ class Interpreter {
 
   void register_concatenations(chaiscript::ChaiScript &chai,
                                const File &/* main */) {
-    using namespace chaiscript;
+    using chaiscript::fun;
 
     chai.add(fun([] (const std::string &lhs, const std::string &rhs) {
       return lhs + " | " + rhs;
@@ -773,7 +794,6 @@ class Interpreter {
 */
 
 int main(int argc, char **argv) {
-
   if (argc != 2) {
     std::cerr << "USAGE: " << argv[0] << " hmm_script_name" << std::endl;
     return EXIT_FAILURE;
