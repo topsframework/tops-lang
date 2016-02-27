@@ -1,3 +1,22 @@
+/***********************************************************************/
+/*  Copyright 2016 ToPS                                                */
+/*                                                                     */
+/*  This program is free software; you can redistribute it and/or      */
+/*  modify it under the terms of the GNU  General Public License as    */
+/*  published by the Free Software Foundation; either version 3 of     */
+/*  the License, or (at your option) any later version.                */
+/*                                                                     */
+/*  This program is distributed in the hope that it will be useful,    */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of     */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the      */
+/*  GNU General Public License for more details.                       */
+/*                                                                     */
+/*  You should have received a copy of the GNU General Public License  */
+/*  along with this program; if not, write to the Free Software        */
+/*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,         */
+/*  MA 02110-1301, USA.                                                */
+/***********************************************************************/
+
 // Standard headers
 #include <map>
 #include <tuple>
@@ -49,7 +68,8 @@ class ConfigVisitor {
   virtual void visit(const std::vector<std::string> &) = 0;
   virtual void visit(const std::vector<FeatureFunction> &) = 0;
   virtual void visit(const std::map<std::string, double> &) = 0;
-  virtual void visit(const std::map<std::string, std::map<std::string, InterfaceConfigPtr>> &) = 0;
+  virtual void visit(const
+    std::map<std::string, std::map<std::string, InterfaceConfigPtr>> &) = 0;
 
   virtual void visit_tag(const std::string &, unsigned int) = 0;
 
@@ -65,12 +85,11 @@ class ConfigVisitor {
     });
   }
 
+  void visit(InterfaceConfigPtr config_ptr) {}
+
   // Virtual destructor
   virtual ~ConfigVisitor() = default;
 };
-
-template<>
-void ConfigVisitor::visit(std::shared_ptr<basic_config<void>> /* config_ptr */) {}
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -102,10 +121,10 @@ class basic_config : public Base {
   using tuple_type = named_types::named_tuple<Options...>;
 
   // Constructors
-  explicit basic_config() : attrs_() {}
+  basic_config() : attrs_() {}
 
   template<typename... Args>
-  basic_config(Args&&... args) : attrs_() {
+  explicit basic_config(Args&&... args) : attrs_() {
     this->initialize(std::forward<Args>(args)...);
   }
 
@@ -267,12 +286,11 @@ using std::to_string;
 // is_iterable
 
 template<typename T>
-auto is_iterable_impl(void *)
--> decltype (
-    begin(std::declval<T&>()) != end(std::declval<T&>()), // begin/end and operator !=
-    ++std::declval<decltype(begin(std::declval<T&>()))&>(), // operator ++
-    *begin(std::declval<T&>()), // operator*
-    std::true_type{});
+auto is_iterable_impl(void * = nullptr)
+-> decltype(begin(std::declval<T&>()) != end(std::declval<T&>()),
+            ++std::declval<decltype(begin(std::declval<T&>()))&>(),
+            *begin(std::declval<T&>()),
+            std::true_type{});
 
 template<typename T>
 std::false_type is_iterable_impl(...);
@@ -285,7 +303,7 @@ struct is_pair_impl : std::false_type {};
 template<typename F, typename S>
 struct is_pair_impl<std::pair<F, S>> : std::true_type {};
 
-}
+}  // namespace detail
 
 template <typename T>
 using is_iterable = decltype(detail::is_iterable_impl<T>(nullptr));
@@ -304,29 +322,29 @@ using is_pair = detail::is_pair_impl<T>;
 class PrinterConfigVisitor : public ConfigVisitor {
  public:
   // Constructors
-  PrinterConfigVisitor(std::ostream &os) : os_(os) {
+  explicit PrinterConfigVisitor(std::ostream &os) : os_(os) {
   }
 
   // Overriden functions
   void visit(const std::string &visited) override {
-    printf(visited);
+    print(visited);
   }
 
   void visit(const std::vector<std::string> &visited) override {
-    printf(visited);
+    print(visited);
   }
 
   void visit(const std::vector<FeatureFunction> &visited) override {
-    printf(visited);
+    print(visited);
   }
 
   void visit(const std::map<std::string, double> &visited) override {
-    printf(visited);
+    print(visited);
   }
 
   void visit(const std::map<std::string,
                std::map<std::string, InterfaceConfigPtr>> &visited) override {
-    printf(visited);
+    print(visited);
   }
 
   void visit_tag(const std::string &tag, unsigned int count) override {
@@ -341,46 +359,46 @@ class PrinterConfigVisitor : public ConfigVisitor {
   unsigned int depth_ = 0;
 
   // Concrete methods
-  void printf(const std::string &string) {
+  void print(const std::string &string) {
     os_ << '"' << string << '"';
   }
 
-  auto printf(float num) {
+  auto print(float num) {
     os_ << num;
   }
 
-  auto printf(double num) {
+  auto print(double num) {
     os_ << num;
   }
 
   template<typename Return, typename... Params>
-  auto printf(const std::function<Return(Params...)> &/* function */) {
+  auto print(const std::function<Return(Params...)> &/* function */) {
     os_ << "function";
   }
 
   template<typename Pair>
-  auto printf(const Pair &pair)
+  auto print(const Pair &pair)
       -> std::enable_if_t<is_pair<Pair>::value> {
-    printf(pair.first);
+    print(pair.first);
     os_ << ": ";
-    printf(pair.second);
+    print(pair.second);
   }
 
   template<typename Iterable>
-  auto printf(const Iterable &iterable)
+  auto print(const Iterable &iterable)
       -> std::enable_if_t<
            is_iterable<Iterable>::value
            && !std::is_convertible<Iterable, std::string>::value> {
     open_iterable();
     for (auto it = std::begin(iterable); it != std::end(iterable); ++it) {
       indent();
-      printf(*it);
+      print(*it);
       os_ << (it == std::prev(std::end(iterable)) ? "" : ",") << "\n";
     }
     close_iterable();
   }
 
-  auto printf(InterfaceConfigPtr config_ptr) {
+  auto print(InterfaceConfigPtr config_ptr) {
     os_ << "{ " << "\n";
     depth_++;
     config_ptr->accept(*this);
@@ -425,7 +443,7 @@ int main() {
   auto model_config = std::make_shared<ModelConfig>(
     model_type_t{"IID"},
     observations_t{ "A", "T", "C", "G" }
-  );
+  );  // NOLINT
 
   std::cout << "===========================================" << std::endl;
   std::cout << *model_config << std::endl;
@@ -437,7 +455,7 @@ int main() {
     emission_probabilities_t{
       {"A", 0.25}, {"T", 0.25}, {"C", 0.25}, {"G", 0.25}
     }
-  );
+  );  // NOLINT
 
   std::cout << "===========================================" << std::endl;
   std::cout << *iid_config << std::endl;
@@ -472,7 +490,7 @@ int main() {
         }
       }
     }
-  );
+  );  // NOLINT
 
   std::cout << "===========================================" << std::endl;
   std::cout << *ghmm_config << std::endl;
@@ -484,26 +502,26 @@ int main() {
     feature_functions_t{
       [](unsigned int prev, unsigned int curr,
          std::vector<unsigned int>, unsigned int) {
-        if (prev == 1 and curr == 0) return 0.1; // Loaded → Fair
-        else return 0.0;
+        if (prev == 1 && curr == 0) return 0.1;  // Loaded → Fair
+        return 0.0;
       },
       [](unsigned int prev, unsigned int curr,
          std::vector<unsigned int>, unsigned int) {
-        if (prev == 0 and curr == 0) return 0.9; // Fair → Fair
-        else return 0.0;
+        if (prev == 0 && curr == 0) return 0.9;  // Fair → Fair
+        return 0.0;
       },
       [](unsigned int prev, unsigned int curr,
          std::vector<unsigned int>, unsigned int) {
-        if (prev == 0 and curr == 1) return 0.1; // Fair → Loaded
-        else return 0.0;
+        if (prev == 0 && curr == 1) return 0.1;  // Fair → Loaded
+        return 0.0;
       },
       [](unsigned int prev, unsigned int curr,
          std::vector<unsigned int>, unsigned int) {
-        if (prev == 1 and curr == 1) return 0.9; // Loaded → Loaded
-        else return 0.0;
+        if (prev == 1 && curr == 1) return 0.9;  // Loaded → Loaded
+        return 0.0;
       }
     }
-  );
+  );  // NOLINT
 
   std::cout << "===========================================" << std::endl;
   std::cout << *lccrf_config << std::endl;
