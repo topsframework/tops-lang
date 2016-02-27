@@ -1,8 +1,29 @@
+/***********************************************************************/
+/*  Copyright 2016 ToPS                                                */
+/*                                                                     */
+/*  This program is free software; you can redistribute it and/or      */
+/*  modify it under the terms of the GNU  General Public License as    */
+/*  published by the Free Software Foundation; either version 3 of     */
+/*  the License, or (at your option) any later version.                */
+/*                                                                     */
+/*  This program is distributed in the hope that it will be useful,    */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of     */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the      */
+/*  GNU General Public License for more details.                       */
+/*                                                                     */
+/*  You should have received a copy of the GNU General Public License  */
+/*  along with this program; if not, write to the Free Software        */
+/*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,         */
+/*  MA 02110-1301, USA.                                                */
+/***********************************************************************/
+
 // Standard headers
 #include <map>
 #include <string>
+#include <vector>
 #include <cstdlib>
 #include <iomanip>
+#include <utility>
 #include <iostream>
 
 // External headers
@@ -10,11 +31,11 @@
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 
 /*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
                                     PRINTER
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 */
 
 template<typename T, typename U>
@@ -78,11 +99,11 @@ std::ostream &operator<<(std::ostream &os, const std::vector<T> &vector) {
 }
 
 /*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
-                                    CONFIG
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
+                                     CONFIG
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 */
 
 /*----------------------------------------------------------------------------*/
@@ -95,7 +116,7 @@ struct ModelConfig {
 };
 
 void register_params(ModelConfig &cfg, chaiscript::ChaiScript &chai) {
-  using namespace chaiscript;
+  using chaiscript::var;
   chai.add(var(&cfg.model_type), "model_type");
   chai.add(var(&cfg.observations), "observations");
 }
@@ -115,7 +136,7 @@ struct IIDConfig : public ModelConfig {
 };
 
 void register_params(IIDConfig &cfg, chaiscript::ChaiScript &chai) {
-  using namespace chaiscript;
+  using chaiscript::var;
   register_params(static_cast<ModelConfig &>(cfg), chai);
   chai.add(var(&cfg.emission_probabilities), "emission_probabilities");
 }
@@ -137,7 +158,7 @@ struct GHMMConfig : public ModelConfig {
 };
 
 void register_params(GHMMConfig &cfg, chaiscript::ChaiScript &chai) {
-  using namespace chaiscript;
+  using chaiscript::var;
   register_params(static_cast<ModelConfig &>(cfg), chai);
   chai.add(var(&cfg.initial_probabilities), "initial_probabilities");
   chai.add(var(&cfg.transition_probabilities), "transition_probabilities");
@@ -147,17 +168,18 @@ void register_params(GHMMConfig &cfg, chaiscript::ChaiScript &chai) {
 std::ostream &operator<<(std::ostream &os, const GHMMConfig &cfg) {
   os << static_cast<const ModelConfig &>(cfg);
   os << "initial_probabilities = " << cfg.initial_probabilities << std::endl;
-  os << "transition_probabilities = " << cfg.transition_probabilities << std::endl;
+  os << "transition_probabilities = " << cfg.transition_probabilities
+     << std::endl;
   os << "states = " << cfg.states << std::endl;
   return os;
 }
 
 /*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
                                     HELPERS
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 */
 
 std::string model(const std::string &file) {
@@ -173,18 +195,19 @@ std::string fixed(unsigned int size) {
 }
 
 /*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
-                                  INTERPRETER
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
+                                   INTERPRETER
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 */
 
 class Interpreter {
  public:
   // Constructors
   Interpreter() : chai_{} {
-    using namespace chaiscript;
+    using chaiscript::fun;
+    using chaiscript::Boxed_Value;
 
     // Add helpers
     chai_.add(fun(&model), "model");
@@ -206,11 +229,12 @@ class Interpreter {
     }), "=");
 
     // Add overload of operator '=' to make variable attribution
-    chai_.add(fun([this] (std::map<std::string, std::map<std::string, std::string>> &conv,
-                          const std::map<std::string, Boxed_Value> &orig) {
+    chai_.add(fun([this] (
+        std::map<std::string, std::map<std::string, std::string>> &conv,
+        const std::map<std::string, Boxed_Value> &orig) {
       for (auto &pair : orig) {
-        for (auto &deep_pair
-            : chai_.boxed_cast<std::map<std::string, Boxed_Value> &>(pair.second)) {
+        for (auto &deep_pair : chai_.boxed_cast<
+            std::map<std::string, Boxed_Value> &>(pair.second)) {
           conv[pair.first][deep_pair.first]
             = chai_.boxed_cast<std::string>(deep_pair.second);
         }
@@ -225,8 +249,6 @@ class Interpreter {
 
   // Concrete methods
   void eval_file(const std::string &file) {
-    using namespace chaiscript;
-
     auto model_type = find_model_type(file);
 
     if (model_type == "GHMM") {
@@ -242,13 +264,6 @@ class Interpreter {
     } else {
       std::cerr << "Unknown model" << std::endl;
     }
-
-    // GHMMConfig ghmm_cfg;
-    // register_params(ghmm_cfg, chai_);
-    //
-    // chai_.eval_file(file);
-    //
-    // std::cout << ghmm_cfg;
   }
 
  private:
@@ -267,23 +282,22 @@ class Interpreter {
 };
 
 /*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
-                                     MAIN
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
+                                      MAIN
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 */
 
 int main(int argc, char **argv) {
-
   if (argc != 2) {
     std::cerr << "USAGE: " << argv[0] << " hmm_script_name" << std::endl;
     return EXIT_FAILURE;
   }
 
-  /*-------------------------------------------------------------------------*/
-  /*                                REGISTER                                 */
-  /*-------------------------------------------------------------------------*/
+  /*--------------------------------------------------------------------------*/
+  /*                                REGISTER                                  */
+  /*--------------------------------------------------------------------------*/
 
   Interpreter interpreter;
   interpreter.eval_file(argv[1]);
