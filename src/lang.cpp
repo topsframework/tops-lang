@@ -970,8 +970,14 @@ namespace lang {
 
 class Interpreter {
  public:
+  // Inner struct
+  struct Environment {
+    config::ModelConfigPtr model_config_ptr;
+    config::ConverterPtr converter_ptr;
+  };
+
   // Concrete methods
-  config::ModelConfigPtr eval_file(const std::string &path) {
+  Environment eval_file(const std::string &path) {
     auto found = path.find_last_of("/\\");
 
     File file {
@@ -990,7 +996,13 @@ class Interpreter {
   };
 
   // Concrete methods
-  config::ModelConfigPtr eval_file(const File &file) {
+  Environment eval_file(const File &file) {
+    auto model_cfg = get_model_config(file);
+    auto converter = get_converter(model_cfg);
+    return { model_cfg, converter };
+  }
+
+  config::ModelConfigPtr get_model_config(const File &file) {
     auto model_type = find_model_type(file);
 
     if (model_type == "GHMM") {
@@ -1000,6 +1012,16 @@ class Interpreter {
     } else {
       throw std::logic_error("Unknown model \"" + model_type + "\"");
     }
+  }
+
+  config::ConverterPtr get_converter(config::ModelConfigPtr model_cfg) {
+    return std::make_shared<config::Converter>(
+      std::get<decltype("observations"_t)>(*model_cfg.get()));
+  }
+
+  std::string find_model_type(const File &file) {
+    auto model_cfg = fill_config<config::ModelConfig>(file);
+    return std::get<decltype("model_type"_t)>(*model_cfg.get());
   }
 
   template<typename Config>
@@ -1017,11 +1039,6 @@ class Interpreter {
     try { chai.eval_file(file.path + file.name); } catch (...) {}
 
     return cfg;
-  }
-
-  std::string find_model_type(const File &file) {
-    auto model_cfg = fill_config<config::ModelConfig>(file);
-    return std::get<decltype("model_type"_t)>(*model_cfg.get());
   }
 
   void register_helpers(chaiscript::ChaiScript &chai,
@@ -1084,7 +1101,7 @@ class Interpreter {
 
         auto filename = chai.boxed_cast<std::string>(inner_orig["emission"]);
         std::get<decltype("emission"_t)>(*conv[pair.first])
-          = this->eval_file(filename);
+          = this->eval_file(filename).model_config_ptr;
       }
     }), "=");
   }
@@ -1105,12 +1122,13 @@ class Interpreter {
 
 }  // namespace lang
 
+
 /*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
                                      MAIN
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 */
 
 int main(int argc, char **argv) {
@@ -1120,16 +1138,12 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  /*-------------------------------------------------------------------------*/
-  /*                                REGISTER                                 */
-  /*-------------------------------------------------------------------------*/
-
   lang::Interpreter interpreter;
-  auto model_architecture_ptr = interpreter.eval_file(argv[1]);
+  auto env = interpreter.eval_file(argv[1]);
 
   switch (argc) {
-    case 2: std::cout << *model_architecture_ptr; break;
-    case 3: model_architecture_ptr->accept(lang::ConfigSerializer(argv[2]));
+    case 2: std::cout << *env.model_config_ptr; break;
+    case 3: env.model_config_ptr->accept(lang::ConfigSerializer(argv[2]));
             break;
   }
 
