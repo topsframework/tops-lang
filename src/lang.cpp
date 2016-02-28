@@ -1132,8 +1132,8 @@ class Interpreter {
 */
 
 int main(int argc, char **argv) {
-  if (argc <= 1 || argc >= 4) {
-    std::cerr << "USAGE: " << argv[0] << " hmm_script_name [output_dir]"
+  if (argc <= 1 || argc >= 5) {
+    std::cerr << "USAGE: " << argv[0] << " model_config [dataset] [output_dir]"
               << std::endl;
     return EXIT_FAILURE;
   }
@@ -1141,9 +1141,35 @@ int main(int argc, char **argv) {
   lang::Interpreter interpreter;
   auto env = interpreter.eval_file(argv[1]);
 
+  /*--------------------------------------------------------------------------*/
+  /*                                CONVERSOR                                 */
+  /*--------------------------------------------------------------------------*/
+
+  if (argc >= 3) {
+    std::fstream dataset(argv[2]);
+
+    std::string line;
+    while (std::getline(dataset, line)) {
+      std::cout << std::endl;
+
+      std::cout << "Input: " << line << std::endl;
+
+      std::cout << "Output: ";
+      for (unsigned int n : env.converter_ptr->convert(line)) std::cout << n;
+      std::cout << std::endl;
+    }
+
+    std::cout << std::endl;
+  }
+
+  /*--------------------------------------------------------------------------*/
+  /*                           PRINTER / SERIALIZER                           */
+  /*--------------------------------------------------------------------------*/
+
   switch (argc) {
-    case 2: std::cout << *env.model_config_ptr; break;
-    case 3: env.model_config_ptr->accept(lang::ConfigSerializer(argv[2]));
+    case 2: /* fall through */
+    case 3: std::cout << *env.model_config_ptr; break;
+    case 4: env.model_config_ptr->accept(lang::ConfigSerializer(argv[3]));
             break;
   }
 
