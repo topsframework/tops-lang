@@ -20,6 +20,7 @@
 // Standard headers
 #include <map>
 #include <list>
+#include <regex>
 #include <memory>
 #include <string>
 #include <vector>
@@ -450,6 +451,77 @@ decltype(auto) get(config::BasicConfig<Base, Options...> &&input) {
 }
 
 }  // namespace std
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
+                                   SEQUENCE
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+*/
+
+namespace model {
+
+using Symbol = unsigned int;
+using Sequence = std::vector<Symbol>;
+
+}  // namespace model
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
+                                   CONVERSOR
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+*/
+
+namespace config {
+
+class Converter {
+ public:
+  // Constructors
+  explicit Converter(const option::Alphabet &alphabet)
+    : alphabet_(alphabet), tokens_(createRegex(alphabet)) {
+  }
+
+  // Concrete methods
+  model::Sequence convert(std::string orig) {
+    model::Sequence conv;
+    std::smatch match;
+
+    while (std::regex_search(orig, match, tokens_)) {
+      conv.emplace_back(map.at(match.str()));
+      orig = match.suffix().str();
+    }
+
+    return conv;
+  }
+
+ private:
+  // Instance variables
+  option::Alphabet alphabet_;
+  std::map<option::Letter, model::Symbol> map;
+  std::regex tokens_;
+
+  // Concrete methods
+  std::string createRegex(const option::Alphabet &alphabet) {
+    if (alphabet.size() == 0) return {};
+
+    std::string regex_text { alphabet.front() };
+    map[alphabet.front()] = 0;
+
+    for (std::size_t i = 1; i < alphabet.size(); ++i) {
+      regex_text += "|" + alphabet[i];
+      map[alphabet[i]] = i;
+    }
+
+    return regex_text;
+  }
+};
+
+using ConverterPtr = std::shared_ptr<Converter>;
+
+}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
