@@ -53,22 +53,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 */
 
+namespace config {
+
 template<typename T>
 struct delayed_true : public std::true_type {};
 
 template<typename T>
 struct delayed_false : public std::false_type {};
 
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                             BASIC CONFIG DECLARATION
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-class BasicConfigInterface;
-template<typename Base, typename... Options> class BasicConfig;
+}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -77,6 +70,12 @@ template<typename Base, typename... Options> class BasicConfig;
  -------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////
 */
+
+namespace config {
+
+// Forward declaration
+class BasicConfigInterface;
+template<typename Base, typename... Options> class BasicConfig;
 
 template<typename... Options>
 struct config_with_options {
@@ -94,6 +93,8 @@ struct config_with_options {
   };
 };
 
+}  // namespace config
+
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  -------------------------------------------------------------------------------
@@ -107,22 +108,24 @@ constexpr decltype(auto) operator ""_t () {
   return named_types::named_tag<named_types::string_literal<T, chars...>>{};
 }
 
+namespace config {
+
 /*----------------------------------------------------------------------------*/
 
-namespace config_option {
+namespace option {
 
 using Type = std::string;
 using Letter = std::string;
 using Alphabet = std::vector<Letter>;
 
-}  // namespace config_option
+}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
 using ModelConfig
   = config_with_options<
-      config_option::Type(decltype("model_type"_t)),
-      config_option::Alphabet(decltype("observations"_t))
+      option::Type(decltype("model_type"_t)),
+      option::Alphabet(decltype("observations"_t))
     >::type;
 
 using ModelConfigPtr = std::shared_ptr<ModelConfig>;
@@ -131,86 +134,88 @@ using ModelConfigPtr = std::shared_ptr<ModelConfig>;
 
 using DurationConfig
   = config_with_options<
-      config_option::Type(decltype("duration_type"_t))
+      option::Type(decltype("duration_type"_t))
     >::type;
 
 using DurationConfigPtr = std::shared_ptr<DurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
-namespace config_option {
+namespace option {
 
 using Model = ModelConfigPtr;
 using Duration = DurationConfigPtr;
 
-}  // namespace config_option
+}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
 using StateConfig
   = config_with_options<
-      config_option::Duration(decltype("duration"_t)),
-      config_option::Model(decltype("emission"_t))
+      option::Duration(decltype("duration"_t)),
+      option::Model(decltype("emission"_t))
     >::type;
 
 using StateConfigPtr = std::shared_ptr<StateConfig>;
 
 /*----------------------------------------------------------------------------*/
 
-namespace config_option {
+namespace option {
 
 using Probability = double;
 using Probabilities = std::map<std::string, Probability>;
 
-}  // namespace config_option
+}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
 using IIDConfig
   = config_with_options<
-      config_option::Probabilities(decltype("emission_probabilities"_t))
+      option::Probabilities(decltype("emission_probabilities"_t))
     >::extending<ModelConfig>::type;
 
 using IIDConfigPtr = std::shared_ptr<IIDConfig>;
 
 /*----------------------------------------------------------------------------*/
 
-namespace config_option {
+namespace option {
 
 using State = StateConfigPtr;
 using States = std::map<std::string, State>;
 
-}  // namespace config_option
+}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
 using GHMMConfig
   = config_with_options<
-      config_option::Probabilities(decltype("initial_probabilities"_t)),
-      config_option::Probabilities(decltype("transition_probabilities"_t)),
-      config_option::States(decltype("states"_t))
+      option::Probabilities(decltype("initial_probabilities"_t)),
+      option::Probabilities(decltype("transition_probabilities"_t)),
+      option::States(decltype("states"_t))
     >::extending<ModelConfig>::type;
 
 using GHMMConfigPtr = std::shared_ptr<GHMMConfig>;
 
 /*----------------------------------------------------------------------------*/
 
-namespace config_option {
+namespace option {
 
 using FeatureFunction = std::function<
   double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)>;
 using FeatureFunctions = std::map<std::string, FeatureFunction>;
 
-}  // namespace config_option
+}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
 using LCCRFConfig
   = config_with_options<
-      config_option::FeatureFunctions(decltype("feature_functions"_t))
+      option::FeatureFunctions(decltype("feature_functions"_t))
     >::extending<ModelConfig>::type;
 
 using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
+
+}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -219,6 +224,8 @@ using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
  -------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////
 */
+
+namespace config {
 
 class ConfigVisitor {
  public:
@@ -243,12 +250,12 @@ class ConfigVisitor {
 
  protected:
   // Purely virtual methods
-  virtual void visit(config_option::Type &) = 0;
-  virtual void visit(config_option::Alphabet &) = 0;
-  virtual void visit(config_option::Probabilities &) = 0;
+  virtual void visit(option::Type &) = 0;
+  virtual void visit(option::Alphabet &) = 0;
+  virtual void visit(option::Probabilities &) = 0;
 
-  virtual void visit(config_option::States &) = 0;
-  virtual void visit(config_option::FeatureFunctions &) = 0;
+  virtual void visit(option::States &) = 0;
+  virtual void visit(option::FeatureFunctions &) = 0;
 
   virtual void visit_tag(const std::string &, unsigned int) = 0;
   virtual void visit_path(const std::string &) = 0;
@@ -257,13 +264,17 @@ class ConfigVisitor {
   virtual void end_visit() = 0;
 };
 
+}  // namespace config
+
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  -------------------------------------------------------------------------------
-                             BASIC CONFIG DEFINITION
+                             BASIC CONFIG INTERFACE
  -------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////
 */
+
+namespace config {
 
 class BasicConfigInterface
     : public std::enable_shared_from_this<BasicConfigInterface> {
@@ -303,6 +314,18 @@ class BasicConfigInterface
  private:
   std::string path_;
 };
+
+}  // namespace config
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
+                           BASIC CONFIG IMPLEMENTATION
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+*/
+
+namespace config {
 
 template<typename Base, typename... Options>
 class BasicConfig : public Base {
@@ -399,6 +422,8 @@ class BasicConfig : public Base {
   }
 };
 
+}  // namespace config
+
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  -------------------------------------------------------------------------------
@@ -410,17 +435,17 @@ class BasicConfig : public Base {
 namespace std {
 
 template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(BasicConfig<Base, Options...> const &input) {
+decltype(auto) get(config::BasicConfig<Base, Options...> const &input) {
   return input.template get<Tag>();
 }
 
 template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(BasicConfig<Base, Options...> &input) {
+decltype(auto) get(config::BasicConfig<Base, Options...> &input) {
   return input.template get<Tag>();
 }
 
 template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(BasicConfig<Base, Options...> &&input) {
+decltype(auto) get(config::BasicConfig<Base, Options...> &&input) {
   return move(input).template get<Tag>();
 }
 
@@ -433,6 +458,8 @@ decltype(auto) get(BasicConfig<Base, Options...> &&input) {
  -------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////
 */
+
+namespace lang {
 
 namespace detail {
 
@@ -469,6 +496,8 @@ using is_iterable = decltype(detail::is_iterable_impl<T>(nullptr));
 template <typename T>
 using is_pair = detail::is_pair_impl<T>;
 
+}  // namespace lang
+
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  -------------------------------------------------------------------------------
@@ -477,7 +506,9 @@ using is_pair = detail::is_pair_impl<T>;
 ////////////////////////////////////////////////////////////////////////////////
 */
 
-class PrinterConfigVisitor : public ConfigVisitor {
+namespace lang {
+
+class PrinterConfigVisitor : public config::ConfigVisitor {
  public:
   // Constructors
   explicit PrinterConfigVisitor(std::ostream &os, unsigned int depth = 0)
@@ -486,27 +517,27 @@ class PrinterConfigVisitor : public ConfigVisitor {
 
  protected:
   // Overriden functions
-  void visit(config_option::Type &visited) override {
+  void visit(config::option::Type &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config_option::Alphabet &visited) override {
+  void visit(config::option::Alphabet &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config_option::Probabilities &visited) override {
+  void visit(config::option::Probabilities &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config_option::States &visited) override {
+  void visit(config::option::States &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config_option::FeatureFunctions &visited) override {
+  void visit(config::option::FeatureFunctions &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -575,7 +606,7 @@ class PrinterConfigVisitor : public ConfigVisitor {
     close_iterable();
   }
 
-  void print(StateConfigPtr state_ptr) {
+  void print(config::StateConfigPtr state_ptr) {
     os_ << "[ " << "\n";
     depth_++;
     indent();
@@ -592,11 +623,11 @@ class PrinterConfigVisitor : public ConfigVisitor {
     os_ << "]";
   }
 
-  void print(DurationConfigPtr duration_ptr) {
+  void print(config::DurationConfigPtr duration_ptr) {
     print(std::get<decltype("duration_type"_t)>(*duration_ptr));
   }
 
-  void print(ModelConfigPtr config_ptr) {
+  void print(config::ModelConfigPtr config_ptr) {
     os_ << "{ " << "\n";
     depth_++;
     config_ptr->accept(PrinterConfigVisitor(os_, depth_));
@@ -621,10 +652,13 @@ class PrinterConfigVisitor : public ConfigVisitor {
   }
 };
 
+}  // namespace lang
+
 template<typename... Ts>
-std::ostream &operator<<(std::ostream &os, const BasicConfig<Ts...> &config) {
-  auto visitor = std::make_shared<PrinterConfigVisitor>(os);
-  config.accept(*std::static_pointer_cast<ConfigVisitor>(visitor));
+std::ostream &operator<<(std::ostream &os,
+                         const config::BasicConfig<Ts...> &config) {
+  auto visitor = std::make_shared<lang::PrinterConfigVisitor>(os);
+  config.accept(*std::static_pointer_cast<config::ConfigVisitor>(visitor));
   return os;
 }
 
@@ -636,7 +670,9 @@ std::ostream &operator<<(std::ostream &os, const BasicConfig<Ts...> &config) {
 ///////////////////////////////////////////////////////////////////////////////
 */
 
-class ConfigSerializer : public ConfigVisitor {
+namespace lang {
+
+class ConfigSerializer : public config::ConfigVisitor {
  public:
   // Constructors
   explicit ConfigSerializer(const std::string &root_dir)
@@ -645,27 +681,27 @@ class ConfigSerializer : public ConfigVisitor {
 
  protected:
   // Overriden functions
-  void visit(config_option::Type &visited) override {
+  void visit(config::option::Type &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config_option::Alphabet &visited) override {
+  void visit(config::option::Alphabet &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config_option::Probabilities &visited) override {
+  void visit(config::option::Probabilities &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config_option::States &visited) override {
+  void visit(config::option::States &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config_option::FeatureFunctions &visited) override {
+  void visit(config::option::FeatureFunctions &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -677,7 +713,7 @@ class ConfigSerializer : public ConfigVisitor {
   }
 
   void visit_path(const std::string &path) override {
-    os_ = std::move(std::ofstream(root_dir_ + path));
+    os_ = std::ofstream(root_dir_ + path);
   }
 
   void start_visit() override {
@@ -696,7 +732,7 @@ class ConfigSerializer : public ConfigVisitor {
   std::ofstream os_;
   unsigned int depth_;
 
-  std::list<ModelConfigPtr> submodels_;
+  std::list<config::ModelConfigPtr> submodels_;
 
   // Concrete methods
   void separate_if_end_of_section() {
@@ -740,7 +776,7 @@ class ConfigSerializer : public ConfigVisitor {
     close_iterable();
   }
 
-  void print(StateConfigPtr state_ptr) {
+  void print(config::StateConfigPtr state_ptr) {
     os_ << "[ " << "\n";
     depth_++;
     indent();
@@ -757,11 +793,11 @@ class ConfigSerializer : public ConfigVisitor {
     os_ << "]";
   }
 
-  void print(DurationConfigPtr duration_ptr) {
+  void print(config::DurationConfigPtr duration_ptr) {
     print(std::get<decltype("duration_type"_t)>(*duration_ptr));
   }
 
-  void print(ModelConfigPtr config_ptr) {
+  void print(config::ModelConfigPtr config_ptr) {
     submodels_.push_back(config_ptr);
     os_ << "model(\"" << config_ptr->path() << "\")";
   }
@@ -788,6 +824,8 @@ class ConfigSerializer : public ConfigVisitor {
   }
 };
 
+}  // namespace lang
+
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  ------------------------------------------------------------------------------
@@ -796,7 +834,9 @@ class ConfigSerializer : public ConfigVisitor {
 ///////////////////////////////////////////////////////////////////////////////
 */
 
-class RegisterConfigVisitor : public ConfigVisitor {
+namespace lang {
+
+class RegisterConfigVisitor : public config::ConfigVisitor {
  public:
   // Constructors
   explicit RegisterConfigVisitor(chaiscript::ChaiScript &chai)
@@ -805,23 +845,23 @@ class RegisterConfigVisitor : public ConfigVisitor {
 
  protected:
   // Overriden functions
-  void visit(config_option::Type &visited) override {
+  void visit(config::option::Type &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config_option::Alphabet &visited) override {
+  void visit(config::option::Alphabet &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config_option::Probabilities &visited) override {
+  void visit(config::option::Probabilities &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config_option::States &visited) override {
+  void visit(config::option::States &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config_option::FeatureFunctions &visited) override {
+  void visit(config::option::FeatureFunctions &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
@@ -844,6 +884,8 @@ class RegisterConfigVisitor : public ConfigVisitor {
   std::string tag_;
 };
 
+}  // namespace lang
+
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  -------------------------------------------------------------------------------
@@ -852,10 +894,12 @@ class RegisterConfigVisitor : public ConfigVisitor {
 ////////////////////////////////////////////////////////////////////////////////
 */
 
+namespace lang {
+
 class Interpreter {
  public:
   // Concrete methods
-  ModelConfigPtr eval_file(const std::string &path) {
+  config::ModelConfigPtr eval_file(const std::string &path) {
     auto found = path.find_last_of("/\\");
 
     File file {
@@ -874,13 +918,13 @@ class Interpreter {
   };
 
   // Concrete methods
-  ModelConfigPtr eval_file(const File &file) {
+  config::ModelConfigPtr eval_file(const File &file) {
     auto model_type = find_model_type(file);
 
     if (model_type == "GHMM") {
-      return fill_config<GHMMConfig>(file);
+      return fill_config<config::GHMMConfig>(file);
     } else if (model_type == "IID") {
-      return fill_config<IIDConfig>(file);
+      return fill_config<config::IIDConfig>(file);
     } else {
       throw std::logic_error("Unknown model \"" + model_type + "\"");
     }
@@ -904,7 +948,7 @@ class Interpreter {
   }
 
   std::string find_model_type(const File &file) {
-    auto model_cfg = fill_config<ModelConfig>(file);
+    auto model_cfg = fill_config<config::ModelConfig>(file);
     return std::get<decltype("model_type"_t)>(*model_cfg.get());
   }
 
@@ -952,16 +996,16 @@ class Interpreter {
     }), "=");
 
     chai.add(fun([this, &chai] (
-        std::map<std::string, StateConfigPtr> &conv,
+        std::map<std::string, config::StateConfigPtr> &conv,
         const std::map<std::string, Boxed_Value> &orig) {
       for (auto &pair : orig) {
         auto inner_orig
           = chai.boxed_cast<std::map<std::string, Boxed_Value> &>(pair.second);
 
-        conv[pair.first] = std::make_shared<StateConfig>();
+        conv[pair.first] = std::make_shared<config::StateConfig>();
 
         std::get<decltype("duration"_t)>(*conv[pair.first])
-          = std::make_shared<DurationConfig>();
+          = std::make_shared<config::DurationConfig>();
         std::get<decltype("duration_type"_t)>(
           *std::get<decltype("duration"_t)>(*conv[pair.first]))
             = chai.boxed_cast<std::string>(inner_orig["duration"]);
@@ -987,6 +1031,8 @@ class Interpreter {
   }
 };
 
+}  // namespace lang
+
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  ------------------------------------------------------------------------------
@@ -1006,12 +1052,13 @@ int main(int argc, char **argv) {
   /*                                REGISTER                                 */
   /*-------------------------------------------------------------------------*/
 
-  Interpreter interpreter;
+  lang::Interpreter interpreter;
   auto model_architecture_ptr = interpreter.eval_file(argv[1]);
 
   switch (argc) {
     case 2: std::cout << *model_architecture_ptr; break;
-    case 3: model_architecture_ptr->accept(ConfigSerializer(argv[2])); break;
+    case 3: model_architecture_ptr->accept(lang::ConfigSerializer(argv[2]));
+            break;
   }
 
   return EXIT_SUCCESS;
