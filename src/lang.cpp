@@ -179,6 +179,15 @@ using IIDConfigPtr = std::shared_ptr<IIDConfig>;
 
 /*----------------------------------------------------------------------------*/
 
+using VLMCConfig
+  = config_with_options<
+      option::Probabilities(decltype("context_probabilities"_t))
+    >::extending<ModelConfig>::type;
+
+using VLMCConfigPtr = std::shared_ptr<VLMCConfig>;
+
+/*----------------------------------------------------------------------------*/
+
 namespace option {
 
 using State = StateConfigPtr;
@@ -1009,6 +1018,8 @@ class Interpreter {
       return fill_config<config::GHMMConfig>(file);
     } else if (model_type == "IID") {
       return fill_config<config::IIDConfig>(file);
+    } else if (model_type == "VLMC") {
+      return fill_config<config::VLMCConfig>(file);
     } else {
       throw std::logic_error("Unknown model \"" + model_type + "\"");
     }
