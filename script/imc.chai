@@ -7,3 +7,5 @@ position_specific_distributions = [
   model("vlmc.chai"),
   model("vlmc.chai")
 ]
+
+phased = true

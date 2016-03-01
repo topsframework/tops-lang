@@ -191,6 +191,7 @@ using VLMCConfigPtr = std::shared_ptr<VLMCConfig>;
 namespace option {
 
 using Models = std::vector<ModelConfigPtr>;
+using Boolean = bool;
 
 }  // namespace option
 
@@ -198,7 +199,8 @@ using Models = std::vector<ModelConfigPtr>;
 
 using IMCConfig
   = config_with_options<
-      option::Models(decltype("position_specific_distributions"_t))
+      option::Models(decltype("position_specific_distributions"_t)),
+      option::Boolean(decltype("phased"_t))
     >::extending<ModelConfig>::type;
 
 using IMCConfigPtr = std::shared_ptr<VLMCConfig>;
@@ -281,6 +283,7 @@ class ConfigVisitor {
   virtual void visit(option::Alphabet &) = 0;
   virtual void visit(option::Probabilities &) = 0;
   virtual void visit(option::Models &) = 0;
+  virtual void visit(option::Boolean &) = 0;
 
   virtual void visit(option::States &) = 0;
   virtual void visit(option::FeatureFunctions &) = 0;
@@ -636,6 +639,11 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
+  void visit(config::option::Boolean &visited) override {
+    print("TODO");
+    separate_if_end_of_section();
+  }
+
   void visit(config::option::States &visited) override {
     print(visited);
     separate_if_end_of_section();
@@ -805,6 +813,11 @@ class ConfigSerializer : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
+  void visit(config::option::Boolean &visited) override {
+    print("TODO");
+    separate_if_end_of_section();
+  }
+
   void visit(config::option::States &visited) override {
     print(visited);
     separate_if_end_of_section();
@@ -967,6 +980,10 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
   }
 
   void visit(config::option::Models &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visit(config::option::Boolean &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 

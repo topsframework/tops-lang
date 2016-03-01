@@ -24,6 +24,6 @@ states = [
   "Start"     : [ duration : fixed(27),
                   emission : model("StartEmission.chai") ],
 
-  "Stop"      : [ duration : fixed(27), 
+  "Stop"      : [ duration : fixed(27),
                   emission : model("StopEmission.chai") ]
 ]
