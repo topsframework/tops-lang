@@ -1072,7 +1072,8 @@ class Interpreter {
     } else if (model_type == "IMC") {
       return fill_config<config::IMCConfig>(file);
     } else {
-      throw std::logic_error("Unknown model \"" + model_type + "\"");
+      throw std::logic_error(
+        file.path + file.name + ": Unknown model \"" + model_type + "\"");
     }
   }
 
@@ -1082,25 +1083,50 @@ class Interpreter {
   }
 
   std::string find_model_type(const File &file) {
-    auto model_cfg = fill_config<config::ModelConfig>(file);
-    return std::get<decltype("model_type"_t)>(*model_cfg.get());
-  }
-
-  template<typename Config>
-  std::shared_ptr<Config> fill_config(const File &file) {
     chaiscript::ChaiScript chai;
-    register_helpers(chai, file);
-    register_constants(chai, file);
-    register_attributions(chai, file);
-    register_concatenations(chai, file);
+    initialize_chaiscript(chai, file);
 
-    auto cfg = std::make_shared<Config>(file.name);
+    auto cfg = std::make_shared<config::ModelConfig>(file.name);
     cfg->accept(RegisterConfigVisitor(chai));
 
     // Explicitly ignore all errors (will be handled later)
     try { chai.eval_file(file.path + file.name); } catch (...) {}
 
+    return std::get<decltype("model_type"_t)>(*cfg.get());
+  }
+
+  template<typename Config>
+  std::shared_ptr<Config> fill_config(const File &file) {
+    chaiscript::ChaiScript chai;
+    initialize_chaiscript(chai, file);
+
+    auto cfg = std::make_shared<Config>(file.name);
+    cfg->accept(RegisterConfigVisitor(chai));
+
+    chai.eval_file(file.path + file.name);
+
     return cfg;
+  }
+
+  void initialize_chaiscript(chaiscript::ChaiScript &chai, const File &file) {
+    register_types(chai, file);
+    register_helpers(chai, file);
+    register_constants(chai, file);
+    register_attributions(chai, file);
+    register_concatenations(chai, file);
+  }
+
+  void register_types(chaiscript::ChaiScript &chai,
+                      const File &main) {
+    using chaiscript::user_type;
+
+    chai.add(user_type<config::option::Type>(), "Type");
+    chai.add(user_type<config::option::Alphabet>(), "Alphabet");
+    chai.add(user_type<config::option::Probabilities>(), "Probabilities");
+    chai.add(user_type<config::option::Models>(), "Models");
+    chai.add(user_type<config::option::Boolean>(), "Boolean");
+    chai.add(user_type<config::option::States>(), "States");
+    chai.add(user_type<config::option::FeatureFunctions>(), "FeatureFunctions");
   }
 
   void register_helpers(chaiscript::ChaiScript &chai,
