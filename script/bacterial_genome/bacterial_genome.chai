@@ -1,4 +1,4 @@
-// Bacterial genome
+// Bacterial Genome
 
 model_type = "GHMM"
 

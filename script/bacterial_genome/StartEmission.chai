@@ -1,35 +1,37 @@
+// Start Emission
+
 model_type = "IMC"
 
 observations = [ "A", "C", "G", "T" ]
 
 position_specific_distributions = [
-  model("StartEmissionPhase1.chai"),
-  model("StartEmissionPhase2.chai"),
-  model("StartEmissionPhase3.chai"),
-  model("StartEmissionPhase4.chai"),
-  model("StartEmissionPhase5.chai"),
-  model("StartEmissionPhase6.chai"),
-  model("StartEmissionPhase7.chai"),
-  model("StartEmissionPhase8.chai"),
-  model("StartEmissionPhase9.chai"),
-  model("StartEmissionPhase10.chai"),
-  model("StartEmissionPhase11.chai"),
-  model("StartEmissionPhase12.chai"),
-  model("StartEmissionPhase13.chai"),
-  model("StartEmissionPhase14.chai"),
-  model("StartEmissionPhase15.chai"),
-  model("StartEmissionPhase16.chai"),
-  model("StartEmissionPhase17.chai"),
-  model("StartEmissionPhase18.chai"),
-  model("StartEmissionPhase19.chai"),
-  model("StartEmissionPhase20.chai"),
-  model("StartEmissionPhase21.chai"),
-  model("StartEmissionPhase22.chai"),
-  model("StartEmissionPhase23.chai"),
-  model("StartEmissionPhase24.chai"),
-  model("StartEmissionPhase25.chai"),
-  model("StartEmissionPhase26.chai"),
-  model("StartEmissionPhase27.chai")
+  model("StartEmission/Phase01.chai"),
+  model("StartEmission/Phase02.chai"),
+  model("StartEmission/Phase03.chai"),
+  model("StartEmission/Phase04.chai"),
+  model("StartEmission/Phase05.chai"),
+  model("StartEmission/Phase06.chai"),
+  model("StartEmission/Phase07.chai"),
+  model("StartEmission/Phase08.chai"),
+  model("StartEmission/Phase09.chai"),
+  model("StartEmission/Phase10.chai"),
+  model("StartEmission/Phase11.chai"),
+  model("StartEmission/Phase12.chai"),
+  model("StartEmission/Phase13.chai"),
+  model("StartEmission/Phase14.chai"),
+  model("StartEmission/Phase15.chai"),
+  model("StartEmission/Phase16.chai"),
+  model("StartEmission/Phase17.chai"),
+  model("StartEmission/Phase18.chai"),
+  model("StartEmission/Phase19.chai"),
+  model("StartEmission/Phase20.chai"),
+  model("StartEmission/Phase21.chai"),
+  model("StartEmission/Phase22.chai"),
+  model("StartEmission/Phase23.chai"),
+  model("StartEmission/Phase24.chai"),
+  model("StartEmission/Phase25.chai"),
+  model("StartEmission/Phase26.chai"),
+  model("StartEmission/Phase27.chai")
 ]
 
 phased = false
