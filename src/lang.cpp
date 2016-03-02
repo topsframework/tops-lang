@@ -1134,20 +1134,27 @@ class Interpreter {
     using chaiscript::Boxed_Value;
 
     chai.add(fun([this, &chai] (
-        std::vector<std::string> &conv, const std::vector<Boxed_Value> &orig) {
+        config::option::Alphabet &conv, const std::vector<Boxed_Value> &orig) {
       for (const auto &bv : orig)
         conv.emplace_back(chai.boxed_cast<std::string>(bv));
     }), "=");
 
     chai.add(fun([this, &chai] (
-        std::map<std::string, double> &conv,
+        config::option::Probabilities &conv,
         const std::map<std::string, Boxed_Value> &orig) {
       for (const auto &pair : orig)
         conv[pair.first] = chai.boxed_cast<double>(pair.second);
     }), "=");
 
     chai.add(fun([this, &chai] (
-        std::map<std::string, config::StateConfigPtr> &conv,
+        config::option::Probabilities &conv,
+        const std::map<std::string, Boxed_Value> &orig) {
+      for (const auto &pair : orig)
+        conv[pair.first] = chai.boxed_cast<double>(pair.second);
+    }), "=");
+
+    chai.add(fun([this, &chai] (
+        config::option::States &conv,
         const std::map<std::string, Boxed_Value> &orig) {
       for (auto &pair : orig) {
         auto inner_orig
