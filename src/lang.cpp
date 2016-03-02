@@ -203,7 +203,7 @@ using IMCConfig
       option::Boolean(decltype("phased"_t))
     >::extending<ModelConfig>::type;
 
-using IMCConfigPtr = std::shared_ptr<VLMCConfig>;
+using IMCConfigPtr = std::shared_ptr<IMCConfig>;
 
 /*----------------------------------------------------------------------------*/
 
