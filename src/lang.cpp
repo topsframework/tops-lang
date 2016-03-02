@@ -199,11 +199,19 @@ using Boolean = bool;
 
 using IMCConfig
   = config_with_options<
-      option::Models(decltype("position_specific_distributions"_t)),
-      option::Boolean(decltype("phased"_t))
+      option::Models(decltype("position_specific_distributions"_t))
     >::extending<ModelConfig>::type;
 
 using IMCConfigPtr = std::shared_ptr<IMCConfig>;
+
+/*----------------------------------------------------------------------------*/
+
+using PeriodicIMCConfig
+  = config_with_options<
+      option::Models(decltype("position_specific_distributions"_t))
+    >::extending<ModelConfig>::type;
+
+using PeriodicIMCConfigPtr = std::shared_ptr<PeriodicIMCConfig>;
 
 /*----------------------------------------------------------------------------*/
 
@@ -1079,6 +1087,8 @@ class Interpreter {
       return fill_config<config::VLMCConfig>(file);
     } else if (model_type == "IMC") {
       return fill_config<config::IMCConfig>(file);
+    } else if (model_type == "PeriodicIMC") {
+      return fill_config<config::PeriodicIMCConfig>(file);
     } else {
       throw std::logic_error(
         file.path + file.name + ": Unknown model \"" + model_type + "\"");

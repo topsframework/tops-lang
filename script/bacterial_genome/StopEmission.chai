@@ -33,5 +33,3 @@ position_specific_distributions = [
   model("StopEmission/Phase26.chai"),
   model("StopEmission/Phase27.chai")
 ]
-
-phased = false

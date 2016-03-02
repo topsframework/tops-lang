@@ -1,6 +1,6 @@
 // Coding Emission
 
-model_type = "IMC"
+model_type = "PeriodicIMC"
 
 observations = [ "A", "C", "G", "T" ]
 
@@ -9,5 +9,3 @@ position_specific_distributions = [
   model("CodingEmission/Phase02.chai"),
   model("CodingEmission/Phase03.chai")
 ]
-
-phased = true
