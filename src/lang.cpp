@@ -635,12 +635,12 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
   }
 
   void visit(config::option::Models &visited) override {
-    print("TODO");
+    print(visited);
     separate_if_end_of_section();
   }
 
   void visit(config::option::Boolean &visited) override {
-    print("TODO");
+    print(visited);
     separate_if_end_of_section();
   }
 
@@ -685,12 +685,16 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
     os_ << '"' << string << '"';
   }
 
-  auto print(float num) {
+  void print(float num) {
     os_ << num;
   }
 
-  auto print(double num) {
+  void print(double num) {
     os_ << num;
+  }
+
+  void print(bool boolean) {
+    os_ << std::boolalpha << boolean;
   }
 
   template<typename Return, typename... Params>
@@ -809,12 +813,12 @@ class ConfigSerializer : public config::ConfigVisitor {
   }
 
   void visit(config::option::Models &visited) override {
-    print("TODO");
+    print(visited);
     separate_if_end_of_section();
   }
 
   void visit(config::option::Boolean &visited) override {
-    print("TODO");
+    print(visited);
     separate_if_end_of_section();
   }
 
@@ -865,12 +869,16 @@ class ConfigSerializer : public config::ConfigVisitor {
     os_ << '"' << string << '"';
   }
 
-  auto print(float num) {
+  void print(float num) {
     os_ << num;
   }
 
-  auto print(double num) {
+  void print(double num) {
     os_ << num;
+  }
+
+  void print(bool boolean) {
+    os_ << std::boolalpha << boolean;
   }
 
   template<typename Return, typename... Params>
@@ -1159,6 +1167,8 @@ class Interpreter {
     using chaiscript::fun;
     using chaiscript::Boxed_Value;
 
+    chai.add(chaiscript::type_conversion<int, double>());
+
     chai.add(fun([this, &chai] (
         config::option::Alphabet &conv, const std::vector<Boxed_Value> &orig) {
       for (const auto &bv : orig)
@@ -1197,6 +1207,14 @@ class Interpreter {
         auto filename = chai.boxed_cast<std::string>(inner_orig["emission"]);
         std::get<decltype("emission"_t)>(*conv[pair.first])
           = this->eval_file(filename).model_config_ptr;
+      }
+    }), "=");
+
+    chai.add(fun([this, &chai] (
+        config::option::Models &conv, const std::vector<Boxed_Value> &orig) {
+      for (const auto &bv : orig) {
+        auto filename = chai.boxed_cast<std::string>(bv);
+        conv.push_back(this->eval_file(filename).model_config_ptr);
       }
     }), "=");
   }
