@@ -1177,31 +1177,25 @@ class Interpreter {
     using chaiscript::fun;
     using chaiscript::Boxed_Value;
 
+    using Map = std::map<std::string, Boxed_Value>;
+    using Vector = std::vector<Boxed_Value>;
+
     chai.add(chaiscript::type_conversion<int, double>());
 
-    chai.add(fun([this, &chai] (
-        config::option::Alphabet &conv, const std::vector<Boxed_Value> &orig) {
+    chai.add(fun([this, &chai] (config::option::Alphabet &conv,
+                                const Vector &orig) {
       for (const auto &bv : orig)
         conv.emplace_back(chai.boxed_cast<std::string>(bv));
     }), "=");
 
-    chai.add(fun([this, &chai] (
-        config::option::Probabilities &conv,
-        const std::map<std::string, Boxed_Value> &orig) {
+    chai.add(fun([this, &chai] (config::option::Probabilities &conv,
+                                const Map &orig) {
       for (const auto &pair : orig)
         conv[pair.first] = chai.boxed_cast<double>(pair.second);
     }), "=");
 
-    chai.add(fun([this, &chai] (
-        config::option::Probabilities &conv,
-        const std::map<std::string, Boxed_Value> &orig) {
-      for (const auto &pair : orig)
-        conv[pair.first] = chai.boxed_cast<double>(pair.second);
-    }), "=");
-
-    chai.add(fun([this, &chai] (
-        config::option::States &conv,
-        const std::map<std::string, Boxed_Value> &orig) {
+    chai.add(fun([this, &chai] (config::option::States &conv,
+                                const Map &orig) {
       for (auto &pair : orig) {
         auto inner_orig
           = chai.boxed_cast<std::map<std::string, Boxed_Value> &>(pair.second);
@@ -1220,8 +1214,8 @@ class Interpreter {
       }
     }), "=");
 
-    chai.add(fun([this, &chai] (
-        config::option::Models &conv, const std::vector<Boxed_Value> &orig) {
+    chai.add(fun([this, &chai] (config::option::Models &conv,
+                                const Vector &orig) {
       for (const auto &bv : orig) {
         auto filename = chai.boxed_cast<std::string>(bv);
         conv.push_back(this->eval_file(filename).model_config_ptr);
