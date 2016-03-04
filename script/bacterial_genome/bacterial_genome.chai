@@ -18,7 +18,7 @@ states = [
   "NonCoding" : [ duration : geometric(),
                   emission : model("NonCodingEmission.chai") ],
 
-  "Coding"    : [ duration : model("CodingDuration.chai"),
+  "Coding"    : [ duration : explicit("CodingDuration.chai"),
                   emission : model("CodingEmission.chai") ],
 
   "Start"     : [ duration : fixed(27),

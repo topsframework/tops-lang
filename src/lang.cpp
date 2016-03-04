@@ -1151,15 +1151,19 @@ class Interpreter {
                         const File &main) {
     using chaiscript::fun;
 
-    chai.add(chaiscript::fun([&main] (const std::string &file) {
-      return main.path + file;
+    chai.add(chaiscript::fun([this, &main] (const std::string &file) {
+      return this->eval_file(main.path + file).model_config_ptr;
     }), "model");
 
-    chai.add(chaiscript::fun([]() {
+    chai.add(chaiscript::fun([this, &main] (const std::string &file) {
+      return main.path + file;
+    }), "explicit");
+
+    chai.add(chaiscript::fun([this]() {
       return std::string("geometric");
     }), "geometric");
 
-    chai.add(chaiscript::fun([] (unsigned int size) {
+    chai.add(chaiscript::fun([this] (unsigned int size) {
       return std::string("fixed");
     }), "fixed");
   }
@@ -1191,7 +1195,7 @@ class Interpreter {
     chai.add(fun([this, &chai] (config::option::Probabilities &conv,
                                 const Map &orig) {
       for (const auto &pair : orig)
-        conv[pair.first] = chai.boxed_cast<double>(pair.second);
+        conv.emplace(pair.first, chai.boxed_cast<double>(pair.second));
     }), "=");
 
     chai.add(fun([this, &chai] (config::option::States &conv,
@@ -1208,18 +1212,15 @@ class Interpreter {
           *std::get<decltype("duration"_t)>(*conv[pair.first]))
             = chai.boxed_cast<std::string>(inner_orig["duration"]);
 
-        auto filename = chai.boxed_cast<std::string>(inner_orig["emission"]);
         std::get<decltype("emission"_t)>(*conv[pair.first])
-          = this->eval_file(filename).model_config_ptr;
+          = chai.boxed_cast<config::ModelConfigPtr>(inner_orig["emission"]);
       }
     }), "=");
 
     chai.add(fun([this, &chai] (config::option::Models &conv,
                                 const Vector &orig) {
-      for (const auto &bv : orig) {
-        auto filename = chai.boxed_cast<std::string>(bv);
-        conv.push_back(this->eval_file(filename).model_config_ptr);
-      }
+      for (const auto &bv : orig)
+        conv.emplace_back(chai.boxed_cast<config::option::Model>(bv));
     }), "=");
   }
 
