@@ -338,7 +338,7 @@ class BasicConfigInterface
   }
 
   template<typename Func>
-  void for_each(Func&& /* func */) const {}
+  constexpr void for_each(Func&& /* func */) const {}
 
   template<typename... Args>
   void initialize(Args&&... /* args */) const {}
@@ -402,7 +402,7 @@ class BasicConfig : public Base {
 
   // Concrete methods
   template<typename Func>
-  void for_each(Func&& func) const {
+  constexpr void for_each(Func&& func) const {
     this->Base::for_each(func);
     named_types::for_each(func, attrs_);
   }
