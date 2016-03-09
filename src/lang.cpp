@@ -382,7 +382,7 @@ class BasicConfig : public Base {
  public:
   // Alias
   using Self = BasicConfig<Base, Options...>;
-  using tuple_type = named_types::named_tuple<Options...>;
+  using Tuple = named_types::named_tuple<Options...>;
 
   // Constructors
   explicit BasicConfig(const std::string &path = {}) : Base(path) {
@@ -449,7 +449,7 @@ class BasicConfig : public Base {
 
  private:
   // Instance variables
-  tuple_type attrs_;
+  Tuple attrs_;
 
   // Concrete methods
   template<typename... Args>
@@ -465,7 +465,7 @@ class BasicConfig : public Base {
   void initialize_tuple(Args&&... args) {
     forward_subpack(
       [this](auto&&... types) {
-        attrs_ = tuple_type(std::forward<decltype(types)>(types)...); },
+        attrs_ = Tuple(std::forward<decltype(types)>(types)...); },
       index_range<sizeof...(Args) - sizeof...(Options), sizeof...(Args)>(),
       std::forward<Args>(args)...);
   }
