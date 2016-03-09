@@ -142,9 +142,50 @@ using DurationConfigPtr = std::shared_ptr<DurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
+using GeometricDurationConfig
+  = config_with_options<>::extending<DurationConfig>::type;
+
+using GeometricDurationConfigPtr = std::shared_ptr<GeometricDurationConfig>;
+
+/*----------------------------------------------------------------------------*/
+
+namespace option {
+
+using Size = unsigned int;
+
+}  // namespace option
+
+/*----------------------------------------------------------------------------*/
+
+using SignalDurationConfig
+  = config_with_options<
+      option::Size(decltype("size"_t))
+    >::extending<DurationConfig>::type;
+
+using SignalDurationConfigPtr = std::shared_ptr<SignalDurationConfig>;
+
+/*----------------------------------------------------------------------------*/
+
 namespace option {
 
 using Model = ModelConfigPtr;
+
+}  // namespace option
+
+/*----------------------------------------------------------------------------*/
+
+using ExplicitDurationConfig
+  = config_with_options<
+      option::Model(decltype("model"_t)),
+      option::Size(decltype("max_size"_t))
+    >::extending<DurationConfig>::type;
+
+using ExplicitDurationConfigPtr = std::shared_ptr<ExplicitDurationConfig>;
+
+/*----------------------------------------------------------------------------*/
+
+namespace option {
+
 using Duration = DurationConfigPtr;
 
 }  // namespace option
@@ -1175,16 +1216,35 @@ class Interpreter {
       return this->eval_file(main.path + file).model_config_ptr;
     }), "model");
 
-    chai.add(chaiscript::fun([this, &main] (const std::string &file) {
-      return main.path + file;
-    }), "explicit");
-
     chai.add(chaiscript::fun([this]() {
-      return std::string("geometric");
+      auto duration_cfg = std::make_shared<config::GeometricDurationConfig>();
+      std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "geometric";
+      return config::DurationConfigPtr(duration_cfg);
     }), "geometric");
 
+    chai.add(chaiscript::fun([this, &main] (const std::string &file) {
+      auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
+      std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
+      std::get<decltype("model"_t)>(*duration_cfg.get())
+        = this->eval_file(main.path + file).model_config_ptr;
+      return config::DurationConfigPtr(duration_cfg);
+    }), "explicit");
+
+    chai.add(chaiscript::fun([this, &main] (const std::string &file,
+                                            unsigned int size) {
+      auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
+      std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
+      std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
+      std::get<decltype("model"_t)>(*duration_cfg.get())
+        = this->eval_file(main.path + file).model_config_ptr;
+      return config::DurationConfigPtr(duration_cfg);
+    }), "explicit");
+
     chai.add(chaiscript::fun([this] (unsigned int size) {
-      return std::string("fixed");
+      auto duration_cfg = std::make_shared<config::SignalDurationConfig>();
+      std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "fixed";
+      std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
+      return config::DurationConfigPtr(duration_cfg);
     }), "fixed");
   }
 
@@ -1227,10 +1287,7 @@ class Interpreter {
         conv[pair.first] = std::make_shared<config::StateConfig>();
 
         std::get<decltype("duration"_t)>(*conv[pair.first])
-          = std::make_shared<config::DurationConfig>();
-        std::get<decltype("duration_type"_t)>(
-          *std::get<decltype("duration"_t)>(*conv[pair.first]))
-            = chai.boxed_cast<std::string>(inner_orig["duration"]);
+          = chai.boxed_cast<config::DurationConfigPtr>(inner_orig["duration"]);
 
         std::get<decltype("emission"_t)>(*conv[pair.first])
           = chai.boxed_cast<config::ModelConfigPtr>(inner_orig["emission"]);
