@@ -366,6 +366,17 @@ class BasicConfigInterface
 
 namespace config {
 
+template <class Tag, class... Types>
+inline constexpr bool has_tag() {
+  bool value = false;
+  using swallow = bool[];
+  (void) swallow {
+    bool{},
+    (value = value || std::is_same<
+      Tag, named_types::__ntuple_tag_spec_t<Types>>::value)... };
+  return value;
+}
+
 template<typename Base, typename... Options>
 class BasicConfig : public Base {
  public:
@@ -406,35 +417,34 @@ class BasicConfig : public Base {
     initialize_tuple(std::forward<Args>(args)...);
   }
 
-  template<class Tag> inline constexpr auto get() const &
-      -> std::enable_if_t<!std::is_same<Base, BasicConfigInterface>::value,
-                          const decltype(this->Base::template get<Tag>())> {
+  template<class Tag> inline constexpr decltype(auto) get(
+      std::enable_if_t<!has_tag<Tag, Options...>()>* = nullptr) const & {
     return this->Base::template get<Tag>();
   };
 
-  template<class Tag> inline constexpr decltype(auto) get() const & {
-    return std::get<typename named_types::named_tag<Tag>::type>(attrs_);
+  template<class Tag> inline constexpr decltype(auto) get(
+      std::enable_if_t<has_tag<Tag, Options...>()>* = nullptr) const & {
+    return std::get<Tag>(attrs_);
   };
 
-  template<class Tag> inline auto get() &
-      -> std::enable_if_t<!std::is_same<Base, BasicConfigInterface>::value,
-                          decltype(this->Base::template get<Tag>())> {
+  template<class Tag> inline decltype(auto) get(
+      std::enable_if_t<!has_tag<Tag, Options...>()>* = nullptr) & {
     return this->Base::template get<Tag>();
   };
 
-  template<class Tag> inline decltype(auto) get() & {
-    return std::get<typename named_types::named_tag<Tag>::type>(attrs_);
+  template<class Tag> inline decltype(auto) get(
+      std::enable_if_t<has_tag<Tag, Options...>()>* = nullptr) & {
+    return std::get<Tag>(attrs_);
   };
 
-  template<class Tag> inline auto get() &&
-      -> std::enable_if_t<!std::is_same<Base, BasicConfigInterface>::value,
-                          decltype(this->Base::template get<Tag>())> {
+  template<class Tag> inline decltype(auto) get(
+      std::enable_if_t<!has_tag<Tag, Options...>()>* = nullptr) && {
     return this->Base::template get<Tag>();
   };
 
-  template<class Tag> inline decltype(auto) get() && {
-    return
-      std::get<typename named_types::named_tag<Tag>::type>(std::move(attrs_));
+  template<class Tag> inline decltype(auto) get(
+      std::enable_if_t<has_tag<Tag, Options...>()>* = nullptr) && {
+    return std::get<Tag>(std::move(attrs_));
   };
 
  private:
