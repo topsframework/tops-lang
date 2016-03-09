@@ -191,7 +191,6 @@ using VLMCConfigPtr = std::shared_ptr<VLMCConfig>;
 namespace option {
 
 using Models = std::vector<ModelConfigPtr>;
-using Boolean = bool;
 
 }  // namespace option
 
@@ -291,7 +290,7 @@ class ConfigVisitor {
   virtual void visit(option::Alphabet &) = 0;
   virtual void visit(option::Probabilities &) = 0;
   virtual void visit(option::Models &) = 0;
-  virtual void visit(option::Boolean &) = 0;
+  virtual void visit(option::Size &) = 0;
 
   virtual void visit(option::States &) = 0;
   virtual void visit(option::FeatureFunctions &) = 0;
@@ -657,7 +656,7 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Boolean &visited) override {
+  void visit(config::option::Size &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -708,6 +707,10 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
   }
 
   void print(double num) {
+    os_ << num;
+  }
+
+  void print(unsigned int num) {
     os_ << num;
   }
 
@@ -835,7 +838,7 @@ class ConfigSerializer : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Boolean &visited) override {
+  void visit(config::option::Size &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -892,6 +895,10 @@ class ConfigSerializer : public config::ConfigVisitor {
   }
 
   void print(double num) {
+    os_ << num;
+  }
+
+  void print(unsigned int num) {
     os_ << num;
   }
 
@@ -1009,7 +1016,7 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config::option::Boolean &visited) override {
+  void visit(config::option::Size &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
@@ -1148,12 +1155,15 @@ class Interpreter {
                       const File &main) {
     using chaiscript::user_type;
 
-    chai.add(user_type<config::option::Type>(), "Type");
-    chai.add(user_type<config::option::Alphabet>(), "Alphabet");
-    chai.add(user_type<config::option::Probabilities>(), "Probabilities");
-    chai.add(user_type<config::option::Models>(), "Models");
-    chai.add(user_type<config::option::Boolean>(), "Boolean");
-    chai.add(user_type<config::option::States>(), "States");
+    chai.add(user_type<config::option::Type>(),             "Type");
+    chai.add(user_type<config::option::Alphabet>(),         "Alphabet");
+    chai.add(user_type<config::option::Size>(),             "Size");
+    chai.add(user_type<config::option::Probabilities>(),    "Probabilities");
+    chai.add(user_type<config::option::Duration>(),         "Duration");
+    chai.add(user_type<config::option::Model>(),            "Model");
+    chai.add(user_type<config::option::Models>(),           "Models");
+    chai.add(user_type<config::option::State>(),            "State");
+    chai.add(user_type<config::option::States>(),           "States");
     chai.add(user_type<config::option::FeatureFunctions>(), "FeatureFunctions");
   }
 
