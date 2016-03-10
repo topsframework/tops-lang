@@ -1,0 +1,24 @@
+observations = [ "1", "2", "3", "4", "5", "6" ]
+
+labels = [ "Loaded", "Fair" ]
+
+def label_loaded(x, yp, yc, i) {
+	if (yc == label("Loaded")) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+def label_fair(x, yp, yc, i) {
+	if (yc == label("Fair")) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+feature_functions = [
+  "label_loaded": label_loaded,
+  "label_fair": label_fair
+]
