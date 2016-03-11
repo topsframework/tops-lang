@@ -1147,9 +1147,12 @@ class Interpreter {
       return fill_config<config::IMCConfig>(file);
     } else if (model_type == "PeriodicIMC") {
       return fill_config<config::PeriodicIMCConfig>(file);
+    } else if (model_type == "") {
+      throw std::logic_error(
+        file.path + file.name + ": Model type not specified!");
     } else {
       throw std::logic_error(
-        file.path + file.name + ": Unknown model \"" + model_type + "\"");
+        file.path + file.name + ": Unknown model type \"" + model_type + "\"");
     }
   }
 
@@ -1165,10 +1168,18 @@ class Interpreter {
     auto cfg = std::make_shared<config::ModelConfig>(file.name);
     cfg->accept(RegisterConfigVisitor(chai));
 
-    // Explicitly ignore all errors (will be handled later)
-    try { chai.eval_file(file.path + file.name); } catch (...) {}
+    try { chai.eval_file(filepath); }
+    catch (const std::exception &e) {
+      // Explicitly ignore missing object exceptions
+      if (!missing_object_exception(e)) throw;
+    }
 
     return std::get<decltype("model_type"_t)>(*cfg.get());
+  }
+
+  bool missing_object_exception(const std::exception &e) {
+    std::string exception(e.what());
+    return exception.find("Can not find object:") != std::string::npos;
   }
 
   template<typename Config>
