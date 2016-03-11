@@ -1144,7 +1144,7 @@ class Interpreter {
   };
 
   // Concrete methods
-  Environment eval_file(const std::string &filepath) {
+  Environment eval_model(const std::string &filepath) {
     auto model_cfg = get_model_config(filepath);
     auto converter = get_converter(model_cfg);
     return { model_cfg, converter };
@@ -1257,7 +1257,7 @@ class Interpreter {
     using chaiscript::fun;
 
     chai.add(chaiscript::fun([this, root] (const std::string &file) {
-      return this->eval_file(root + file).model_config_ptr;
+      return this->eval_model(root + file).model_config_ptr;
     }), "model");
 
     chai.add(chaiscript::fun([this]() {
@@ -1270,7 +1270,7 @@ class Interpreter {
       auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("model"_t)>(*duration_cfg.get())
-        = this->eval_file(root + file).model_config_ptr;
+        = this->eval_model(root + file).model_config_ptr;
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
@@ -1280,7 +1280,7 @@ class Interpreter {
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
       std::get<decltype("model"_t)>(*duration_cfg.get())
-        = this->eval_file(root + file).model_config_ptr;
+        = this->eval_model(root + file).model_config_ptr;
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
@@ -1378,7 +1378,7 @@ int main(int argc, char **argv) {
   }
 
   lang::Interpreter interpreter;
-  auto env = interpreter.eval_file(argv[1]);
+  auto env = interpreter.eval_model(argv[1]);
 
   /*--------------------------------------------------------------------------*/
   /*                                CONVERSOR                                 */
