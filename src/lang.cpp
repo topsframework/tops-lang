@@ -1146,7 +1146,7 @@ class Interpreter {
   // Concrete methods
   Environment evalModel(const std::string &filepath) {
     auto model_cfg = makeModelConfig(filepath);
-    auto converter = getConverter(model_cfg);
+    auto converter = makeConverver(model_cfg);
     return { model_cfg, converter };
   }
 
@@ -1176,7 +1176,7 @@ class Interpreter {
     }
   }
 
-  config::ConverterPtr getConverter(config::ModelConfigPtr model_cfg) {
+  config::ConverterPtr makeConverver(config::ModelConfigPtr model_cfg) {
     return std::make_shared<config::Converter>(
       std::get<decltype("observations"_t)>(*model_cfg.get()));
   }
