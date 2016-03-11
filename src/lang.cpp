@@ -1144,29 +1144,29 @@ class Interpreter {
   };
 
   // Concrete methods
-  Environment eval_model(const std::string &filepath) {
-    auto model_cfg = get_model_config(filepath);
-    auto converter = get_converter(model_cfg);
+  Environment evalModel(const std::string &filepath) {
+    auto model_cfg = getModelConfig(filepath);
+    auto converter = getConverter(model_cfg);
     return { model_cfg, converter };
   }
 
  private:
   // Concrete methods
-  config::ModelConfigPtr get_model_config(const std::string &filepath) {
-    auto model_type = find_model_type(filepath);
+  config::ModelConfigPtr getModelConfig(const std::string &filepath) {
+    auto model_type = findModelType(filepath);
 
     if (model_type == "GHMM") {
-      return fill_config<config::GHMMConfig>(filepath);
+      return fillConfig<config::GHMMConfig>(filepath);
     } else if (model_type == "LCCRF") {
-      return fill_config<config::LCCRFConfig>(filepath);
+      return fillConfig<config::LCCRFConfig>(filepath);
     } else if (model_type == "IID") {
-      return fill_config<config::IIDConfig>(filepath);
+      return fillConfig<config::IIDConfig>(filepath);
     } else if (model_type == "VLMC") {
-      return fill_config<config::VLMCConfig>(filepath);
+      return fillConfig<config::VLMCConfig>(filepath);
     } else if (model_type == "IMC") {
-      return fill_config<config::IMCConfig>(filepath);
+      return fillConfig<config::IMCConfig>(filepath);
     } else if (model_type == "PeriodicIMC") {
-      return fill_config<config::PeriodicIMCConfig>(filepath);
+      return fillConfig<config::PeriodicIMCConfig>(filepath);
     } else if (model_type == "") {
       throw std::logic_error(
         filepath + ": Model type not specified!");
@@ -1176,14 +1176,14 @@ class Interpreter {
     }
   }
 
-  config::ConverterPtr get_converter(config::ModelConfigPtr model_cfg) {
+  config::ConverterPtr getConverter(config::ModelConfigPtr model_cfg) {
     return std::make_shared<config::Converter>(
       std::get<decltype("observations"_t)>(*model_cfg.get()));
   }
 
-  std::string find_model_type(const std::string &filepath) {
+  std::string findModelType(const std::string &filepath) {
     chaiscript::ChaiScript chai;
-    initialize_chaiscript(chai, filepath);
+    initializeChaiScript(chai, filepath);
 
     auto cfg = std::make_shared<config::ModelConfig>(filepath);
     cfg->accept(RegisterConfigVisitor(chai));
@@ -1191,21 +1191,21 @@ class Interpreter {
     try { chai.eval_file(filepath); }
     catch (const std::exception &e) {
       // Explicitly ignore missing object exceptions
-      if (!missing_object_exception(e)) throw;
+      if (!missingObjectException(e)) throw;
     }
 
     return std::get<decltype("model_type"_t)>(*cfg.get());
   }
 
-  bool missing_object_exception(const std::exception &e) {
+  bool missingObjectException(const std::exception &e) {
     std::string exception(e.what());
     return exception.find("Can not find object:") != std::string::npos;
   }
 
   template<typename Config>
-  std::shared_ptr<Config> fill_config(const std::string &filepath) {
+  std::shared_ptr<Config> fillConfig(const std::string &filepath) {
     chaiscript::ChaiScript chai;
-    initialize_chaiscript(chai, filepath);
+    initializeChaiScript(chai, filepath);
 
     auto cfg = std::make_shared<Config>(filepath);
     cfg->accept(RegisterConfigVisitor(chai));
@@ -1215,29 +1215,29 @@ class Interpreter {
     return cfg;
   }
 
-  void initialize_chaiscript(chaiscript::ChaiScript &chai,
-                             const std::string &filepath) {
-    auto root = extract_dir(filepath);
+  void initializeChaiScript(chaiscript::ChaiScript &chai,
+                            const std::string &filepath) {
+    auto root = extractDir(filepath);
 
-    register_types(chai, root);
-    register_helpers(chai, root);
-    register_constants(chai, root);
-    register_attributions(chai, root);
-    register_concatenations(chai, root);
+    registerTypes(chai, root);
+    registerHelpers(chai, root);
+    registerConstants(chai, root);
+    registerAttributions(chai, root);
+    registerConcatenations(chai, root);
   }
 
-  std::string extract_dir(const std::string &filepath) const {
+  std::string extractDir(const std::string &filepath) const {
     auto found = filepath.find_last_of("/\\");
     return filepath.substr(0, found + 1);
   }
 
-  std::string extract_basename(const std::string &filepath) const {
+  std::string extractBasename(const std::string &filepath) const {
     auto found = filepath.find_last_of("/\\");
     return filepath.substr(found + 1);
   }
 
-  void register_types(chaiscript::ChaiScript &chai,
-                      const std::string &/* root */) {
+  void registerTypes(chaiscript::ChaiScript &chai,
+                     const std::string &/* root */) {
     using chaiscript::user_type;
 
     chai.add(user_type<config::option::Type>(),             "Type");
@@ -1252,12 +1252,12 @@ class Interpreter {
     chai.add(user_type<config::option::FeatureFunctions>(), "FeatureFunctions");
   }
 
-  void register_helpers(chaiscript::ChaiScript &chai,
-                        const std::string &root) {
+  void registerHelpers(chaiscript::ChaiScript &chai,
+                       const std::string &root) {
     using chaiscript::fun;
 
     chai.add(chaiscript::fun([this, root] (const std::string &file) {
-      return this->eval_model(root + file).model_config_ptr;
+      return this->evalModel(root + file).model_config_ptr;
     }), "model");
 
     chai.add(chaiscript::fun([this]() {
@@ -1270,7 +1270,7 @@ class Interpreter {
       auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("model"_t)>(*duration_cfg.get())
-        = this->eval_model(root + file).model_config_ptr;
+        = this->evalModel(root + file).model_config_ptr;
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
@@ -1280,7 +1280,7 @@ class Interpreter {
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
       std::get<decltype("model"_t)>(*duration_cfg.get())
-        = this->eval_model(root + file).model_config_ptr;
+        = this->evalModel(root + file).model_config_ptr;
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
@@ -1292,16 +1292,16 @@ class Interpreter {
     }), "fixed");
   }
 
-  void register_constants(chaiscript::ChaiScript &chai,
-                          const std::string &/* root */) {
+  void registerConstants(chaiscript::ChaiScript &chai,
+                         const std::string &/* root */) {
     using chaiscript::var;
 
     chai.add(chaiscript::var(std::string("duration")), "duration");
     chai.add(chaiscript::var(std::string("emission")), "emission");
   }
 
-  void register_attributions(chaiscript::ChaiScript &chai,
-                             const std::string &/* root */) {
+  void registerAttributions(chaiscript::ChaiScript &chai,
+                            const std::string &/* root */) {
     using chaiscript::fun;
     using chaiscript::Boxed_Value;
 
@@ -1345,8 +1345,8 @@ class Interpreter {
     }), "=");
   }
 
-  void register_concatenations(chaiscript::ChaiScript &chai,
-                               const std::string &/* root */) {
+  void registerConcatenations(chaiscript::ChaiScript &chai,
+                              const std::string &/* root */) {
     using chaiscript::fun;
 
     chai.add(fun([] (const std::string &lhs, const std::string &rhs) {
@@ -1378,7 +1378,7 @@ int main(int argc, char **argv) {
   }
 
   lang::Interpreter interpreter;
-  auto env = interpreter.eval_model(argv[1]);
+  auto env = interpreter.evalModel(argv[1]);
 
   /*--------------------------------------------------------------------------*/
   /*                                CONVERSOR                                 */
