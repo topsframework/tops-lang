@@ -285,9 +285,31 @@ using FeatureFunctions = std::map<std::string, FeatureFunction>;
 
 /*----------------------------------------------------------------------------*/
 
+using FeatureFunctionsLibraryConfig
+  = config_with_options<
+      option::Alphabet(decltype("observations"_t)),
+      option::Alphabet(decltype("labels"_t)),
+      option::FeatureFunctions(decltype("feature_functions"_t))
+    >::type;
+
+using FeatureFunctionsLibraryConfigPtr
+  = std::shared_ptr<FeatureFunctionsLibraryConfig>;
+
+/*----------------------------------------------------------------------------*/
+
+namespace option {
+
+using FeatureFunctionsLibrary = FeatureFunctionsLibraryConfigPtr;
+
+}  // namespace option
+
+/*----------------------------------------------------------------------------*/
+
 using LCCRFConfig
   = config_with_options<
-      option::FeatureFunctions(decltype("feature_functions"_t))
+      option::Alphabet(decltype("labels"_t)),
+      option::FeatureFunctionsLibrary(decltype("feature_functions_library"_t)),
+      option::Probabilities(decltype("feature_parameters"_t))
     >::extending<ModelConfig>::type;
 
 using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
@@ -335,6 +357,7 @@ class ConfigVisitor {
 
   virtual void visit(option::States &) = 0;
   virtual void visit(option::FeatureFunctions &) = 0;
+  virtual void visit(config::option::FeatureFunctionsLibrary &) = 0;
 
   virtual void visit_tag(const std::string &, unsigned int) = 0;
   virtual void visit_path(const std::string &) = 0;
@@ -712,6 +735,10 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
+  void visit(config::option::FeatureFunctionsLibrary &) override {
+
+  }
+
   void visit_tag(const std::string &tag, unsigned int count) override {
     if (count > 0) os_ << "\n";
     indent();
@@ -894,6 +921,10 @@ class ConfigSerializer : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
+  void visit(config::option::FeatureFunctionsLibrary &) override {
+
+  }
+
   void visit_tag(const std::string &tag, unsigned int count) override {
     if (count > 0) os_ << "\n";
     indent();
@@ -1069,6 +1100,10 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
+  void visit(config::option::FeatureFunctionsLibrary &) override {
+
+  }
+
   void visit_tag(const std::string &tag, unsigned int count) override {
     tag_ = tag;
   }
@@ -1139,6 +1174,8 @@ class Interpreter {
 
     if (model_type == "GHMM") {
       return fill_config<config::GHMMConfig>(file);
+    } else if (model_type == "LCCRF") {
+      return fill_config<config::LCCRFConfig>(file);
     } else if (model_type == "IID") {
       return fill_config<config::IIDConfig>(file);
     } else if (model_type == "VLMC") {
