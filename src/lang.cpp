@@ -1145,14 +1145,14 @@ class Interpreter {
 
   // Concrete methods
   Environment evalModel(const std::string &filepath) {
-    auto model_cfg = getModelConfig(filepath);
+    auto model_cfg = makeModelConfig(filepath);
     auto converter = getConverter(model_cfg);
     return { model_cfg, converter };
   }
 
  private:
   // Concrete methods
-  config::ModelConfigPtr getModelConfig(const std::string &filepath) {
+  config::ModelConfigPtr makeModelConfig(const std::string &filepath) {
     auto model_type = findModelType(filepath);
 
     if (model_type == "GHMM") {
