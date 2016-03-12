@@ -332,16 +332,16 @@ class ConfigVisitor {
   template<typename Base, typename... Options>
   void visit(std::shared_ptr<BasicConfig<Base, Options...>> config_ptr) {
     unsigned int count = 0;
-    this->start_visit();
-    this->visit_path(config_ptr->path());
+    this->startVisit();
+    this->visitPath(config_ptr->path());
     config_ptr->for_each([this, &count](const auto &tag, auto &value) {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
       using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
-      this->visit_tag(typename Tag::value_type().str(), count);
+      this->visitTag(typename Tag::value_type().str(), count);
       this->visit(const_cast<Value&>(value));
       count++;
     });
-    this->end_visit();
+    this->endVisit();
   }
 
   // Virtual destructor
@@ -359,11 +359,11 @@ class ConfigVisitor {
   virtual void visit(option::FeatureFunctions &) = 0;
   virtual void visit(config::option::FeatureFunctionsLibrary &) = 0;
 
-  virtual void visit_tag(const std::string &, unsigned int) = 0;
-  virtual void visit_path(const std::string &) = 0;
+  virtual void visitTag(const std::string &, unsigned int) = 0;
+  virtual void visitPath(const std::string &) = 0;
 
-  virtual void start_visit() = 0;
-  virtual void end_visit() = 0;
+  virtual void startVisit() = 0;
+  virtual void endVisit() = 0;
 };
 
 }  // namespace config
@@ -739,19 +739,19 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
 
   }
 
-  void visit_tag(const std::string &tag, unsigned int count) override {
+  void visitTag(const std::string &tag, unsigned int count) override {
     if (count > 0) os_ << "\n";
     indent();
     os_ << tag << " = ";
   }
 
-  void visit_path(const std::string &path) override {
+  void visitPath(const std::string &path) override {
   }
 
-  void start_visit() override {
+  void startVisit() override {
   }
 
-  void end_visit() override {
+  void endVisit() override {
   }
 
  private:
@@ -925,20 +925,20 @@ class ConfigSerializer : public config::ConfigVisitor {
 
   }
 
-  void visit_tag(const std::string &tag, unsigned int count) override {
+  void visitTag(const std::string &tag, unsigned int count) override {
     if (count > 0) os_ << "\n";
     indent();
     os_ << tag << " = ";
   }
 
-  void visit_path(const std::string &path) override {
+  void visitPath(const std::string &path) override {
     os_ = std::ofstream(root_dir_ + path);
   }
 
-  void start_visit() override {
+  void startVisit() override {
   }
 
-  void end_visit() override {
+  void endVisit() override {
     for (auto &submodel : submodels_) {
       submodel->accept(ConfigSerializer(root_dir_));
     }
@@ -1104,17 +1104,17 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
 
   }
 
-  void visit_tag(const std::string &tag, unsigned int count) override {
+  void visitTag(const std::string &tag, unsigned int count) override {
     tag_ = tag;
   }
 
-  void visit_path(const std::string &path) override {
+  void visitPath(const std::string &path) override {
   }
 
-  void start_visit() override {
+  void startVisit() override {
   }
 
-  void end_visit() override {
+  void endVisit() override {
   }
 
  private:
