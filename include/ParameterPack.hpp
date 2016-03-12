@@ -83,14 +83,14 @@ using last_type_of_t = typename last_type_of<Ts...>::type;
 
 // Base step
 template<std::size_t I, typename T, typename... Ts>
-auto nth_value_of(T&& t, Ts&&... args)
+auto nth_value_of(T&& t, Ts&&... /* args */)
     -> std::enable_if_t<(I == 0), decltype(std::forward<T>(t))> {
   return std::forward<T>(t);
 }
 
 // Induction step
 template<std::size_t I, typename T, typename... Ts>
-auto nth_value_of(T&& t, Ts&&... args)
+auto nth_value_of(T&& /* t */, Ts&&... args)
     -> std::enable_if_t<
          (I > 0), decltype(std::forward<nth_type_of_t<I, T, Ts...>>(
                              std::declval<nth_type_of_t<I, T, Ts...>>()))> {
@@ -196,7 +196,7 @@ struct invoker : public invoker_base<Ts::index, typename Ts::type>... {
 // specified in the second argument
 template<typename F, std::size_t... Is, typename... Ts>
 void for_each_in_arg_pack_subset(
-    F&& f, std::index_sequence<Is...> const& i, Ts&&... args) {
+    F&& f, std::index_sequence<Is...> const& /* i */, Ts&&... args) {
   // Constructors of invoker's sub-objects will invoke the functor.
   // Note that argument types must be paired with numbers because the
   // implementation is based on inheritance, and one class cannot
@@ -225,7 +225,8 @@ void for_each_in_arg_pack(F&& f, Ts&&... args) {
 // arguments in whose index is contained in the index list specified
 // as the second argument.
 template<typename F, std::size_t... Is, typename... Ts>
-void forward_subpack(F&& f, std::index_sequence<Is...> const& i, Ts&&... args) {
+void forward_subpack(
+    F&& f, std::index_sequence<Is...> const& /* i */, Ts&&... args) {
   f((nth_value_of<Is>(std::forward<Ts>(args)...))...);
 }
 
