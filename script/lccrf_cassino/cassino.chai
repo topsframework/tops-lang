@@ -6,7 +6,9 @@ observations = [ "1", "2", "3", "4", "5", "6" ]
 
 labels = [ "Fair", "Loaded" ]
 
-feature_functions_library =  lib("features.chai")
+feature_function_libraries = [
+  lib("features.chai")
+]
 
 feature_parameters = [
   "label_loaded": 1.0,

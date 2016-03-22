@@ -1,24 +1,50 @@
+// Feature function library
+
 observations = [ "1", "2", "3", "4", "5", "6" ]
 
 labels = [ "Loaded", "Fair" ]
 
-def label_loaded(x, yp, yc, i) {
+// Factory for observation feature functions
+def observation(sym) {
+  return fun(x, yp, yc, i) {
+    if (x[i] == symbol(sym)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  };
+}
+
+// Factory for transition feature functions
+def transition(prev_label, curr_label) {
+  return fun(x, yp, yc, i) {
+    if (yp == label(prev_label) && yc == label(curr_label)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  };
+}
+
+// Feature functions built from factory
+feature("Fair -> Fair"    , transition("Fair"   , "Fair"  ))
+feature("Fair -> Loaded"  , transition("Fair"   , "Loaded"))
+feature("Loaded -> Fair"  , transition("Loaded" , "Fair"  ))
+feature("Loaded -> Loaded", transition("Loaded" , "Loaded"))
+
+// Feature functions built directly
+feature("label_loaded", fun(x, yp, yc, i) {
 	if (yc == label("Loaded")) {
 		return 1;
 	} else {
 		return 0;
 	}
-}
+})
 
-def label_fair(x, yp, yc, i) {
+feature("label_fair", fun(x, yp, yc, i) {
 	if (yc == label("Fair")) {
 		return 1;
 	} else {
 		return 0;
 	}
-}
-
-feature_functions = [
-  "label_loaded": label_loaded,
-  "label_fair": label_fair
-]
+})
