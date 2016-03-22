@@ -1183,6 +1183,9 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
 
 namespace lang {
 
+#define REGISTER_TYPE(type) \
+  chai.add(chaiscript::user_type<config::option::type>(), #type)
+
 class Interpreter {
  public:
   // Inner struct
@@ -1286,18 +1289,17 @@ class Interpreter {
 
   void registerTypes(chaiscript::ChaiScript &chai,
                      const std::string &/* root */) {
-    using chaiscript::user_type;
-
-    chai.add(user_type<config::option::Type>(),             "Type");
-    chai.add(user_type<config::option::Alphabet>(),         "Alphabet");
-    chai.add(user_type<config::option::Size>(),             "Size");
-    chai.add(user_type<config::option::Probabilities>(),    "Probabilities");
-    chai.add(user_type<config::option::Duration>(),         "Duration");
-    chai.add(user_type<config::option::Model>(),            "Model");
-    chai.add(user_type<config::option::Models>(),           "Models");
-    chai.add(user_type<config::option::State>(),            "State");
-    chai.add(user_type<config::option::States>(),           "States");
-    chai.add(user_type<config::option::FeatureFunctions>(), "FeatureFunctions");
+    REGISTER_TYPE(Type);
+    REGISTER_TYPE(Alphabet);
+    REGISTER_TYPE(Size);
+    REGISTER_TYPE(Probabilities);
+    REGISTER_TYPE(Duration);
+    REGISTER_TYPE(Model);
+    REGISTER_TYPE(Models);
+    REGISTER_TYPE(State);
+    REGISTER_TYPE(States);
+    REGISTER_TYPE(FeatureFunctions);
+    REGISTER_TYPE(FeatureFunctionLibraries);
   }
 
   void registerHelpers(chaiscript::ChaiScript &chai,
