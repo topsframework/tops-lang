@@ -285,21 +285,22 @@ using FeatureFunctions = std::map<std::string, FeatureFunction>;
 
 /*----------------------------------------------------------------------------*/
 
-using FeatureFunctionsLibraryConfig
+using FeatureFunctionLibraryConfig
   = config_with_options<
       option::Alphabet(decltype("observations"_t)),
       option::Alphabet(decltype("labels"_t)),
       option::FeatureFunctions(decltype("feature_functions"_t))
     >::type;
 
-using FeatureFunctionsLibraryConfigPtr
-  = std::shared_ptr<FeatureFunctionsLibraryConfig>;
+using FeatureFunctionLibraryConfigPtr
+  = std::shared_ptr<FeatureFunctionLibraryConfig>;
 
 /*----------------------------------------------------------------------------*/
 
 namespace option {
 
-using FeatureFunctionsLibrary = FeatureFunctionsLibraryConfigPtr;
+using FeatureFunctionLibrary = FeatureFunctionLibraryConfigPtr;
+using FeatureFunctionLibraries = std::vector<FeatureFunctionLibrary>;
 
 }  // namespace option
 
@@ -308,8 +309,8 @@ using FeatureFunctionsLibrary = FeatureFunctionsLibraryConfigPtr;
 using LCCRFConfig
   = config_with_options<
       option::Alphabet(decltype("labels"_t)),
-      option::FeatureFunctionsLibrary(decltype("feature_functions_library"_t)),
-      option::Probabilities(decltype("feature_parameters"_t))
+      option::Probabilities(decltype("feature_parameters"_t)),
+      option::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
     >::extending<ModelConfig>::type;
 
 using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
@@ -338,7 +339,7 @@ class ConfigVisitor {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
       using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
       this->visitTag(typename Tag::value_type().str(), count);
-      this->visit(const_cast<Value&>(value));
+      this->visitImpl(const_cast<Value&>(value));
       count++;
     });
     this->endVisit();
@@ -349,21 +350,38 @@ class ConfigVisitor {
 
  protected:
   // Purely virtual methods
-  virtual void visit(option::Type &) = 0;
-  virtual void visit(option::Alphabet &) = 0;
-  virtual void visit(option::Probabilities &) = 0;
-  virtual void visit(option::Models &) = 0;
-  virtual void visit(option::Size &) = 0;
+  virtual void visitImpl(option::Type &) = 0;
+  virtual void visitImpl(option::Size &) = 0;
+  virtual void visitImpl(option::Alphabet &) = 0;
+  virtual void visitImpl(option::Probabilities &) = 0;
+  virtual void visitImpl(option::FeatureFunctions &) = 0;
 
-  virtual void visit(option::States &) = 0;
-  virtual void visit(option::FeatureFunctions &) = 0;
-  virtual void visit(config::option::FeatureFunctionsLibrary &) = 0;
+  virtual void visitImpl(option::Models &) = 0;
+  virtual void visitImpl(option::States &) = 0;
+  virtual void visitImpl(option::FeatureFunctionLibraries &) = 0;
 
   virtual void visitTag(const std::string &, unsigned int) = 0;
   virtual void visitPath(const std::string &) = 0;
 
   virtual void startVisit() = 0;
   virtual void endVisit() = 0;
+
+  // Virtual methods
+  virtual void visitImpl(option::Model &visited) {
+    this->visit(visited);
+  }
+
+  virtual void visitImpl(option::State &visited) {
+    this->visit(visited);
+  }
+
+  virtual void visitImpl(option::Duration &visited) {
+    this->visit(visited);
+  }
+
+  virtual void visitImpl(option::FeatureFunctionLibrary &visited) {
+    this->visit(visited);
+  }
 };
 
 }  // namespace config
@@ -700,43 +718,44 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
 
  protected:
   // Overriden functions
-  void visit(config::option::Type &visited) override {
+  void visitImpl(config::option::Type &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Alphabet &visited) override {
+  void visitImpl(config::option::Size &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Probabilities &visited) override {
+  void visitImpl(config::option::Alphabet &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Models &visited) override {
+  void visitImpl(config::option::Probabilities &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Size &visited) override {
+  void visitImpl(config::option::FeatureFunctions &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::States &visited) override {
+  void visitImpl(config::option::Models &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::FeatureFunctions &visited) override {
+  void visitImpl(config::option::States &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::FeatureFunctionsLibrary &) override {
-
+  void visitImpl(config::option::FeatureFunctionLibraries &visited) override {
+    print(visited);
+    separate_if_end_of_section();
   }
 
   void visitTag(const std::string &tag, unsigned int count) override {
@@ -745,7 +764,7 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
     os_ << tag << " = ";
   }
 
-  void visitPath(const std::string &path) override {
+  void visitPath(const std::string &/* path */) override {
   }
 
   void startVisit() override {
@@ -841,6 +860,15 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
     os_ << "}";
   }
 
+  void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
+    os_ << "{ " << "\n";
+    depth_++;
+    config_ptr->accept(PrinterConfigVisitor(os_, depth_));
+    depth_--;
+    indent();
+    os_ << "}";
+  }
+
   void open_iterable() {
     os_ << "[ " << "\n";
     depth_++;
@@ -886,43 +914,44 @@ class ConfigSerializer : public config::ConfigVisitor {
 
  protected:
   // Overriden functions
-  void visit(config::option::Type &visited) override {
+  void visitImpl(config::option::Type &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Alphabet &visited) override {
+  void visitImpl(config::option::Size &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Probabilities &visited) override {
+  void visitImpl(config::option::Alphabet &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Models &visited) override {
+  void visitImpl(config::option::Probabilities &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::Size &visited) override {
+  void visitImpl(config::option::FeatureFunctions &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::States &visited) override {
+  void visitImpl(config::option::Models &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::FeatureFunctions &visited) override {
+  void visitImpl(config::option::States &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visit(config::option::FeatureFunctionsLibrary &) override {
-
+  void visitImpl(config::option::FeatureFunctionLibraries &visited) override {
+    print(visited);
+    separate_if_end_of_section();
   }
 
   void visitTag(const std::string &tag, unsigned int count) override {
@@ -1029,6 +1058,15 @@ class ConfigSerializer : public config::ConfigVisitor {
     os_ << "model(\"" << config_ptr->path() << "\")";
   }
 
+  void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
+    os_ << "{ " << "\n";
+    depth_++;
+    config_ptr->accept(PrinterConfigVisitor(os_, depth_));
+    depth_--;
+    indent();
+    os_ << "}";
+  }
+
   void open_iterable() {
     os_ << "[ " << "\n";
     depth_++;
@@ -1072,49 +1110,59 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
 
  protected:
   // Overriden functions
-  void visit(config::option::Type &visited) override {
+  void visitImpl(config::option::Type &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config::option::Alphabet &visited) override {
+  void visitImpl(config::option::Size &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config::option::Probabilities &visited) override {
+  void visitImpl(config::option::Alphabet &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config::option::Models &visited) override {
+  void visitImpl(config::option::Probabilities &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config::option::Size &visited) override {
+  void visitImpl(config::option::FeatureFunctions &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config::option::States &visited) override {
+  void visitImpl(config::option::Models &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config::option::FeatureFunctions &visited) override {
+  void visitImpl(config::option::States &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visit(config::option::FeatureFunctionsLibrary &) override {
-
+  void visitImpl(config::option::FeatureFunctionLibraries &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitTag(const std::string &tag, unsigned int count) override {
+  void visitTag(const std::string &tag, unsigned int /* count */) override {
     tag_ = tag;
   }
 
-  void visitPath(const std::string &path) override {
+  void visitPath(const std::string &/* path */) override {
   }
 
   void startVisit() override {
   }
 
   void endVisit() override {
+  }
+
+  void visitImpl(config::option::State &/* visited */) override {
+  }
+
+  void visitImpl(config::option::Duration &/* visited */) override {
+  }
+
+  void visitImpl(config::option::FeatureFunctionLibrary &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
   }
 
  private:
@@ -1290,6 +1338,15 @@ class Interpreter {
       std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
       return config::DurationConfigPtr(duration_cfg);
     }), "fixed");
+
+    chai.add(chaiscript::fun([this, root] (const std::string &file) {
+      return
+        this->fillConfig<config::FeatureFunctionLibraryConfig>(root + file);
+    }), "lib");
+
+    chai.add(chaiscript::fun([this, root] (const std::string &,
+                                           config::option::FeatureFunction) {
+    }), "feature");
   }
 
   void registerConstants(chaiscript::ChaiScript &chai,
@@ -1305,22 +1362,29 @@ class Interpreter {
     using chaiscript::fun;
     using chaiscript::Boxed_Value;
 
+    using chaiscript::map_conversion;
+    using chaiscript::vector_conversion;
+    using chaiscript::bootstrap::standard_library::map_type;
+    using chaiscript::bootstrap::standard_library::vector_type;
+
     using Map = std::map<std::string, Boxed_Value>;
-    using Vector = std::vector<Boxed_Value>;
 
     chai.add(chaiscript::type_conversion<int, double>());
 
-    chai.add(fun([this, &chai] (config::option::Alphabet &conv,
-                                const Vector &orig) {
-      for (const auto &bv : orig)
-        conv.emplace_back(chai.boxed_cast<std::string>(bv));
-    }), "=");
+    chai.add(vector_type<config::option::Alphabet>("Alphabet"));
+    chai.add(vector_conversion<config::option::Alphabet>());
+
+    chai.add(map_type<config::option::Probabilities>("Probabilities"));
+    chai.add(map_conversion<config::option::Probabilities>());
 
     chai.add(fun([this, &chai] (config::option::Probabilities &conv,
                                 const Map &orig) {
       for (const auto &pair : orig)
         conv.emplace(pair.first, chai.boxed_cast<double>(pair.second));
     }), "=");
+
+    chai.add(vector_type<config::option::Models>("Models"));
+    chai.add(vector_conversion<config::option::Models>());
 
     chai.add(fun([this, &chai] (config::option::States &conv,
                                 const Map &orig) {
@@ -1338,11 +1402,9 @@ class Interpreter {
       }
     }), "=");
 
-    chai.add(fun([this, &chai] (config::option::Models &conv,
-                                const Vector &orig) {
-      for (const auto &bv : orig)
-        conv.emplace_back(chai.boxed_cast<config::option::Model>(bv));
-    }), "=");
+    chai.add(vector_type<config::option::FeatureFunctionLibraries>(
+             "FeatureFunctionLibraries"));
+    chai.add(vector_conversion<config::option::FeatureFunctionLibraries>());
   }
 
   void registerConcatenations(chaiscript::ChaiScript &chai,
