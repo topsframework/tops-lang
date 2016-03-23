@@ -697,6 +697,18 @@ using is_iterable = decltype(detail::is_iterable_impl<T>(nullptr));
 template <typename T>
 using is_pair = detail::is_pair_impl<T>;
 
+// Path manipulation
+
+std::string extractDir(const std::string &filepath) {
+  auto found = filepath.find_last_of("/\\");
+  return filepath.substr(0, found + 1);
+}
+
+std::string extractBasename(const std::string &filepath) {
+  auto found = filepath.find_last_of("/\\");
+  return filepath.substr(found + 1);
+}
+
 }  // namespace lang
 
 /*
@@ -1285,16 +1297,6 @@ class Interpreter {
     registerConstants(chai, root);
     registerAttributions(chai, root);
     registerConcatenations(chai, root);
-  }
-
-  std::string extractDir(const std::string &filepath) const {
-    auto found = filepath.find_last_of("/\\");
-    return filepath.substr(0, found + 1);
-  }
-
-  std::string extractBasename(const std::string &filepath) const {
-    auto found = filepath.find_last_of("/\\");
-    return filepath.substr(found + 1);
   }
 
   void registerTypes(chaiscript::ChaiScript &chai,
