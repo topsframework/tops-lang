@@ -993,6 +993,7 @@ class ConfigSerializer : public config::ConfigVisitor {
   unsigned int depth_;
 
   std::list<config::ModelConfigPtr> submodels_;
+  std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
 
   // Concrete methods
   void separate_if_end_of_section() {
@@ -1071,12 +1072,8 @@ class ConfigSerializer : public config::ConfigVisitor {
   }
 
   void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
-    os_ << "{ " << "\n";
-    depth_++;
-    config_ptr->accept(PrinterConfigVisitor(os_, depth_));
-    depth_--;
-    indent();
-    os_ << "}";
+    libraries_.push_back(config_ptr);
+    os_ << "lib(\"" << extractBasename(config_ptr->path()) << "\")";
   }
 
   void open_iterable() {
