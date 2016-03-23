@@ -1,0 +1,9 @@
+model_type = "PeriodicIMC"
+
+observations = [ "0", "1" ]
+
+position_specific_distributions = [
+  model("vlmc.chai"),
+  model("vlmc.chai"),
+  model("vlmc.chai")
+]
