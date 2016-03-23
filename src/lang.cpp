@@ -993,6 +993,13 @@ class ConfigSerializer : public config::ConfigVisitor {
     for (auto &submodel : submodels_) {
       submodel->accept(ConfigSerializer(root_dir_));
     }
+    for (auto &library : libraries_) {
+      std::ifstream src(
+        library->path(), std::ios::binary);
+      std::ofstream dst(
+        root_dir_ + extractCorename(library->path()), std::ios::binary);
+      dst << src.rdbuf();
+    }
   }
 
  private:
