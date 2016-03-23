@@ -699,6 +699,16 @@ using is_pair = detail::is_pair_impl<T>;
 
 // Path manipulation
 
+std::string extractRoot(const std::string &filepath) {
+  auto found = filepath.find_first_of("/\\");
+  return filepath.substr(0, found + 1);
+}
+
+std::string extractCorename(const std::string &filepath) {
+  auto found = filepath.find_first_of("/\\");
+  return filepath.substr(found + 1);
+}
+
 std::string extractDir(const std::string &filepath) {
   auto found = filepath.find_last_of("/\\");
   return filepath.substr(0, found + 1);
