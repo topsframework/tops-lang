@@ -829,7 +829,7 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
 
   template<typename Return, typename... Params>
   auto print(const std::function<Return(Params...)> &/* function */) {
-    os_ << "function";
+    os_ << "fun()";
   }
 
   template<typename Pair>
@@ -1039,7 +1039,7 @@ class ConfigSerializer : public config::ConfigVisitor {
 
   template<typename Return, typename... Params>
   auto print(const std::function<Return(Params...)> &/* function */) {
-    os_ << "function";
+    os_ << "fun()";
   }
 
   template<typename Pair>
