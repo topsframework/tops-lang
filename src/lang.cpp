@@ -1067,7 +1067,7 @@ class ConfigSerializer : public config::ConfigVisitor {
 
   void print(config::ModelConfigPtr config_ptr) {
     submodels_.push_back(config_ptr);
-    os_ << "model(\"" << config_ptr->path() << "\")";
+    os_ << "model(\"" << extractBasename(config_ptr->path()) << "\")";
   }
 
   void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
