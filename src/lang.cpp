@@ -1128,6 +1128,10 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
 
   void visitImpl(config::option::FeatureFunctions &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
+    chai_.add(chaiscript::fun([&visited] (
+        const std::string &name, config::option::FeatureFunction fun) {
+      visited.emplace(name, fun);
+    }), "feature");
   }
 
   void visitImpl(config::option::Models &visited) override {
@@ -1350,10 +1354,6 @@ class Interpreter {
       using config::FeatureFunctionLibraryConfig;
       return this->fillConfig<FeatureFunctionLibraryConfig>(root + file);
     }), "lib");
-
-    chai.add(fun([this, root] (const std::string &,
-                               config::option::FeatureFunction) {
-    }), "feature");
   }
 
   void registerConstants(chaiscript::ChaiScript &chai,
