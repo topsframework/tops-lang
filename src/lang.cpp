@@ -1233,7 +1233,10 @@ class Interpreter {
   }
 
   std::string findModelType(const std::string &filepath) {
-    chaiscript::ChaiScript chai;
+    std::vector<std::string> modulepaths;
+    std::vector<std::string> usepaths { extractDir(filepath) };
+
+    chaiscript::ChaiScript chai(modulepaths, usepaths);
     initializeChaiScript(chai, filepath);
 
     auto cfg = std::make_shared<config::ModelConfig>(filepath);
@@ -1255,7 +1258,10 @@ class Interpreter {
 
   template<typename Config>
   std::shared_ptr<Config> fillConfig(const std::string &filepath) {
-    chaiscript::ChaiScript chai;
+    std::vector<std::string> modulepaths;
+    std::vector<std::string> usepaths { extractDir(filepath) };
+
+    chaiscript::ChaiScript chai(modulepaths, usepaths);
     initializeChaiScript(chai, filepath);
 
     auto cfg = std::make_shared<Config>(filepath);
