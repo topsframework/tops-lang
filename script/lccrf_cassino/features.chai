@@ -4,27 +4,8 @@ observations = [ "1", "2", "3", "4", "5", "6" ]
 
 labels = [ "Loaded", "Fair" ]
 
-// Factory for observation feature functions
-def observation(sym) {
-  return fun(x, yp, yc, i) {
-    if (x[i] == symbol(sym)) {
-      return 1;
-    } else {
-      return 0;
-    }
-  };
-}
-
-// Factory for transition feature functions
-def transition(prev_label, curr_label) {
-  return fun(x, yp, yc, i) {
-    if (yp == label(prev_label) && yc == label(curr_label)) {
-      return 1;
-    } else {
-      return 0;
-    }
-  };
-}
+// Feature function prototypes
+use("prototypes.chai")
 
 // Feature functions built from factory
 feature("Fair -> Fair"    , transition("Fair"   , "Fair"  ))
