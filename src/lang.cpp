@@ -1307,7 +1307,7 @@ class Interpreter {
     using chaiscript::fun;
 
     chai.add(chaiscript::fun([this, root] (const std::string &file) {
-      return this->evalModel(root + file).model_config_ptr;
+      return this->makeModelConfig(root + file);
     }), "model");
 
     chai.add(chaiscript::fun([this]() {
@@ -1320,7 +1320,7 @@ class Interpreter {
       auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("model"_t)>(*duration_cfg.get())
-        = this->evalModel(root + file).model_config_ptr;
+        = this->makeModelConfig(root + file);
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
@@ -1330,7 +1330,7 @@ class Interpreter {
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
       std::get<decltype("model"_t)>(*duration_cfg.get())
-        = this->evalModel(root + file).model_config_ptr;
+        = this->makeModelConfig(root + file);
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
