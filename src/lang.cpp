@@ -1306,17 +1306,17 @@ class Interpreter {
                        const std::string &root) {
     using chaiscript::fun;
 
-    chai.add(chaiscript::fun([this, root] (const std::string &file) {
+    chai.add(fun([this, root] (const std::string &file) {
       return this->makeModelConfig(root + file);
     }), "model");
 
-    chai.add(chaiscript::fun([this]() {
+    chai.add(fun([this]() {
       auto duration_cfg = std::make_shared<config::GeometricDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "geometric";
       return config::DurationConfigPtr(duration_cfg);
     }), "geometric");
 
-    chai.add(chaiscript::fun([this, root] (const std::string &file) {
+    chai.add(fun([this, root] (const std::string &file) {
       auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("model"_t)>(*duration_cfg.get())
@@ -1324,8 +1324,7 @@ class Interpreter {
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
-    chai.add(chaiscript::fun([this, root] (const std::string &file,
-                                           unsigned int size) {
+    chai.add(fun([this, root] (const std::string &file, unsigned int size) {
       auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
@@ -1334,20 +1333,20 @@ class Interpreter {
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
-    chai.add(chaiscript::fun([this] (unsigned int size) {
+    chai.add(fun([this] (unsigned int size) {
       auto duration_cfg = std::make_shared<config::SignalDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "fixed";
       std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
       return config::DurationConfigPtr(duration_cfg);
     }), "fixed");
 
-    chai.add(chaiscript::fun([this, root] (const std::string &file) {
-      return
-        this->fillConfig<config::FeatureFunctionLibraryConfig>(root + file);
+    chai.add(fun([this, root] (const std::string &file) {
+      using config::FeatureFunctionLibraryConfig;
+      return this->fillConfig<FeatureFunctionLibraryConfig>(root + file);
     }), "lib");
 
-    chai.add(chaiscript::fun([this, root] (const std::string &,
-                                           config::option::FeatureFunction) {
+    chai.add(fun([this, root] (const std::string &,
+                               config::option::FeatureFunction) {
     }), "feature");
   }
 
