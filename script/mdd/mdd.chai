@@ -1,0 +1,29 @@
+// Donor model
+model_type = "MDD"
+
+observations = [ "A", "C", "G", "T" ]
+
+consensus = [
+  [ "A", "C" ],
+  [ "A"],
+  [ "G" ],
+  [ "G" ],
+  [ "T" ],
+  [ "A", "G" ],
+  [ "A" ],
+  [ "G" ],
+  [ "T" ]
+]
+
+tree =
+  node(3, "all.chai", [
+    node(4, "all.chai", [
+      node(7, "all.chai", [
+        node(2, "g5.chai", [
+          node(1, "g5g-1.chai", [
+            node(8, "g5g-1a-2.chai", [
+              leaf("g5g-1a-2t6.chai"),
+              leaf("g5g-1a-2v6.chai")]),
+            leaf("g5g-1b-2.chai")]),
+          leaf("g5h-1.chai")]),
+        leaf("h5.chai")])])])
