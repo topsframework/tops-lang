@@ -157,6 +157,15 @@ using Size = unsigned int;
 
 /*----------------------------------------------------------------------------*/
 
+using MaxLenghtConfig
+  = config_with_options<
+      option::Size(decltype("size"_t))
+    >::extending<DurationConfig>::type;
+
+using MaxLenghtConfigPtr = std::shared_ptr<MaxLenghtConfig>;
+
+/*----------------------------------------------------------------------------*/
+
 using SignalDurationConfig
   = config_with_options<
       option::Size(decltype("size"_t))
@@ -165,6 +174,7 @@ using SignalDurationConfig
 using SignalDurationConfigPtr = std::shared_ptr<SignalDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
+
 
 namespace option {
 
@@ -293,6 +303,15 @@ using SBSWConfig
     >::extending<ModelConfig>::type;
 
 using SBSWConfigPtr = std::shared_ptr<SBSWConfig>;
+
+/*----------------------------------------------------------------------------*/
+
+using MultipleSequentialModelsConfig
+  = config_with_options<
+      option::States(decltype("models"_t))
+    >::extending<ModelConfig>::type;
+
+using MultipleSequentialModelsConfigPtr = std::shared_ptr<MultipleSequentialModelsConfig>;
 
 /*----------------------------------------------------------------------------*/
 
@@ -1288,6 +1307,8 @@ class Interpreter {
       return fillConfig<config::PeriodicIMCConfig>(filepath);
     } else if (model_type == "SBSW") {
       return fillConfig<config::SBSWConfig>(filepath);
+    } else if (model_type == "MultipleSequentialModels") {
+      return fillConfig<config::MultipleSequentialModelsConfig>(filepath);
     } else if (model_type == "") {
       throw std::logic_error(
         filepath + ": Model type not specified!");
@@ -1405,6 +1426,13 @@ class Interpreter {
       std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
       return config::DurationConfigPtr(duration_cfg);
     }), "fixed");
+
+    chai.add(fun([this] (unsigned int size) {
+      auto duration_cfg = std::make_shared<config::MaxLenghtConfig>();
+      std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "max_lenght";
+      std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
+      return config::DurationConfigPtr(duration_cfg);
+    }), "max_lenght");
 
     chai.add(fun([this, root] (const std::string &file) {
       using config::FeatureFunctionLibraryConfig;
