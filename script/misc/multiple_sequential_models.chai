@@ -1,0 +1,8 @@
+model_type = "MultipleSequentialModels"
+
+observations = [ "1", "2", "3", "4", "5", "6" ]
+
+models = [
+  model("vlmc.chai"): 1.0,
+  model("vlmc.chai"): 2.0
+]

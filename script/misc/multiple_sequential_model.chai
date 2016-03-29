@@ -1,8 +1,0 @@
-model_type = "MultipleSequentialModel"
-
-observations = [ "1", "2", "3", "4", "5", "6" ]
-
-models = [
-  model("fair_dice.chai"): 1.0,
-  model("loaded_dice.chai"): 2.0
-]
