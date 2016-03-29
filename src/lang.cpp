@@ -277,6 +277,27 @@ using GHMMConfigPtr = std::shared_ptr<GHMMConfig>;
 
 namespace option {
 
+using Sequence = std::string;
+
+}  // namespace option
+
+/*----------------------------------------------------------------------------*/
+
+using SBSWConfig
+  = config_with_options<
+      option::Probabilities(decltype("sequences"_t)),
+      option::Probability(decltype("normalizer"_t)),
+      option::Size(decltype("skip_offset"_t)),
+      option::Size(decltype("skip_length"_t)),
+      option::Sequence(decltype("skip_sequence"_t))
+    >::extending<ModelConfig>::type;
+
+using SBSWConfigPtr = std::shared_ptr<SBSWConfig>;
+
+/*----------------------------------------------------------------------------*/
+
+namespace option {
+
 using FeatureFunction = std::function<
   double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)>;
 using FeatureFunctions = std::map<std::string, FeatureFunction>;
@@ -354,7 +375,10 @@ class ConfigVisitor {
   virtual void visitImpl(option::Size &) = 0;
   virtual void visitImpl(option::Alphabet &) = 0;
   virtual void visitImpl(option::Probabilities &) = 0;
+  virtual void visitImpl(option::Probability &) = 0;
   virtual void visitImpl(option::FeatureFunctions &) = 0;
+
+
 
   virtual void visitImpl(option::Models &) = 0;
   virtual void visitImpl(option::States &) = 0;
@@ -760,6 +784,11 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
+  void visitImpl(config::option::Probability &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
   void visitImpl(config::option::FeatureFunctions &visited) override {
     print(visited);
     separate_if_end_of_section();
@@ -952,6 +981,11 @@ class ConfigSerializer : public config::ConfigVisitor {
   }
 
   void visitImpl(config::option::Probabilities &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitImpl(config::option::Probability &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -1152,6 +1186,10 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
+  void visitImpl(config::option::Probability &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
   void visitImpl(config::option::FeatureFunctions &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
     chai_.add(chaiscript::fun([&visited] (
@@ -1248,6 +1286,8 @@ class Interpreter {
       return fillConfig<config::IMCConfig>(filepath);
     } else if (model_type == "PeriodicIMC") {
       return fillConfig<config::PeriodicIMCConfig>(filepath);
+    } else if (model_type == "SBSW") {
+      return fillConfig<config::SBSWConfig>(filepath);
     } else if (model_type == "") {
       throw std::logic_error(
         filepath + ": Model type not specified!");
