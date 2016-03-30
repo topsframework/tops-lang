@@ -285,6 +285,18 @@ using GHMMConfigPtr = std::shared_ptr<GHMMConfig>;
 
 /*----------------------------------------------------------------------------*/
 
+using HMMConfig
+  = config_with_options<
+      option::Probabilities(decltype("initial_probabilities"_t)),
+      option::Probabilities(decltype("transition_probabilities"_t)),
+      option::Probabilities(decltype("emission_probabilities"_t)),
+      option::Alphabet(decltype("labels"_t))
+    >::extending<ModelConfig>::type;
+
+using HMMConfigPtr = std::shared_ptr<HMMConfig>;
+
+/*----------------------------------------------------------------------------*/
+
 namespace option {
 
 using Sequence = std::string;
@@ -1295,6 +1307,8 @@ class Interpreter {
 
     if (model_type == "GHMM") {
       return fillConfig<config::GHMMConfig>(filepath);
+    } else if (model_type == "HMM") {
+      return fillConfig<config::HMMConfig>(filepath);
     } else if (model_type == "LCCRF") {
       return fillConfig<config::LCCRFConfig>(filepath);
     } else if (model_type == "IID") {
