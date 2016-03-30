@@ -4,15 +4,15 @@ model_type = "MDD"
 observations = [ "A", "C", "G", "T" ]
 
 consensus = [
-  [ "A", "C" ],
-  [ "A"],
-  [ "G" ],
-  [ "G" ],
-  [ "T" ],
-  [ "A", "G" ],
-  [ "A" ],
-  [ "G" ],
-  [ "T" ]
+  "A" | "C",
+  "A",
+  "G",
+  "G",
+  "T",
+  "A" | "G",
+  "A",
+  "G",
+  "T"
 ]
 
 tree =
