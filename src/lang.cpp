@@ -1194,10 +1194,10 @@ class ModelConfigSerializer : public config::ConfigVisitor {
 
 namespace lang {
 
-class RegisterConfigVisitor : public config::ConfigVisitor {
+class ModelConfigRegister : public config::ConfigVisitor {
  public:
   // Constructors
-  explicit RegisterConfigVisitor(chaiscript::ChaiScript &chai)
+  explicit ModelConfigRegister(chaiscript::ChaiScript &chai)
       : chai_(chai) {
   }
 
@@ -1347,7 +1347,7 @@ class Interpreter {
     initializeChaiScript(chai, filepath);
 
     auto cfg = std::make_shared<config::ModelConfig>(filepath);
-    cfg->accept(RegisterConfigVisitor(chai));
+    cfg->accept(ModelConfigRegister(chai));
 
     try { chai.eval_file(filepath); }
     catch (const std::exception &e) {
@@ -1372,7 +1372,7 @@ class Interpreter {
     initializeChaiScript(chai, filepath);
 
     auto cfg = std::make_shared<Config>(filepath);
-    cfg->accept(RegisterConfigVisitor(chai));
+    cfg->accept(ModelConfigRegister(chai));
 
     chai.eval_file(filepath);
 
