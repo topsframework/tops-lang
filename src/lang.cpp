@@ -786,10 +786,10 @@ std::string extractBasename(const std::string &filepath) {
 
 namespace lang {
 
-class PrinterConfigVisitor : public config::ConfigVisitor {
+class ModelConfigPrinter : public config::ConfigVisitor {
  public:
   // Constructors
-  explicit PrinterConfigVisitor(std::ostream &os, unsigned int depth = 0)
+  explicit ModelConfigPrinter(std::ostream &os, unsigned int depth = 0)
       : os_(os), depth_(depth), initial_depth_(depth) {
   }
 
@@ -936,7 +936,7 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
   void print(config::ModelConfigPtr config_ptr) {
     os_ << "{ " << "\n";
     depth_++;
-    config_ptr->accept(PrinterConfigVisitor(os_, depth_));
+    config_ptr->accept(ModelConfigPrinter(os_, depth_));
     depth_--;
     indent();
     os_ << "}";
@@ -945,7 +945,7 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
   void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
     os_ << "{ " << "\n";
     depth_++;
-    config_ptr->accept(PrinterConfigVisitor(os_, depth_));
+    config_ptr->accept(ModelConfigPrinter(os_, depth_));
     depth_--;
     indent();
     os_ << "}";
@@ -972,7 +972,7 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
 template<typename... Ts>
 std::ostream &operator<<(std::ostream &os,
                          const config::BasicConfig<Ts...> &config) {
-  auto visitor = std::make_shared<lang::PrinterConfigVisitor>(os);
+  auto visitor = std::make_shared<lang::ModelConfigPrinter>(os);
   config.accept(*std::static_pointer_cast<config::ConfigVisitor>(visitor));
   return os;
 }
