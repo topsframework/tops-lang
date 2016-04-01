@@ -987,10 +987,10 @@ std::ostream &operator<<(std::ostream &os,
 
 namespace lang {
 
-class ConfigSerializer : public config::ConfigVisitor {
+class ModelConfigSerializer : public config::ConfigVisitor {
  public:
   // Constructors
-  explicit ConfigSerializer(const std::string &root_dir)
+  explicit ModelConfigSerializer(const std::string &root_dir)
       : root_dir_(root_dir), os_(), depth_(0) {
   }
 
@@ -1058,7 +1058,7 @@ class ConfigSerializer : public config::ConfigVisitor {
 
   void endVisit() override {
     for (auto &submodel : submodels_) {
-      submodel->accept(ConfigSerializer(root_dir_));
+      submodel->accept(ModelConfigSerializer(root_dir_));
     }
     for (auto &library : libraries_) {
       std::ifstream src(
@@ -1577,7 +1577,7 @@ int main(int argc, char **argv) {
   switch (argc) {
     case 2: /* fall through */
     case 3: std::cout << *env.model_config_ptr; break;
-    case 4: env.model_config_ptr->accept(lang::ConfigSerializer(argv[3]));
+    case 4: env.model_config_ptr->accept(lang::ModelConfigSerializer(argv[3]));
             break;
   }
 
