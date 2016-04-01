@@ -381,7 +381,7 @@ using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
 
 namespace config {
 
-class ConfigVisitor {
+class ModelConfigVisitor {
  public:
   // Concrete methods
   template<typename Base, typename... Options>
@@ -400,7 +400,7 @@ class ConfigVisitor {
   }
 
   // Virtual destructor
-  virtual ~ConfigVisitor() = default;
+  virtual ~ModelConfigVisitor() = default;
 
  protected:
   // Purely virtual methods
@@ -462,8 +462,8 @@ class BasicConfigInterface
   }
 
   // Purely virtual methods
-  virtual void accept(ConfigVisitor &/* visitor */) const = 0;
-  virtual void accept(ConfigVisitor &&/* visitor */) const = 0;
+  virtual void accept(ModelConfigVisitor &/* visitor */) const = 0;
+  virtual void accept(ModelConfigVisitor &&/* visitor */) const = 0;
 
   // Concrete methods
   virtual std::string path() {
@@ -525,13 +525,13 @@ class BasicConfig : public Base {
   }
 
   // Overriden methods
-  void accept(ConfigVisitor &visitor) const override {
+  void accept(ModelConfigVisitor &visitor) const override {
     auto ptr = std::static_pointer_cast<Self>(
       const_cast<Self*>(this)->shared_from_this());
     visitor.visit(ptr);
   }
 
-  void accept(ConfigVisitor &&visitor) const override {
+  void accept(ModelConfigVisitor &&visitor) const override {
     auto ptr = std::static_pointer_cast<Self>(
       const_cast<Self*>(this)->shared_from_this());
     visitor.visit(ptr);
@@ -786,7 +786,7 @@ std::string extractBasename(const std::string &filepath) {
 
 namespace lang {
 
-class ModelConfigPrinter : public config::ConfigVisitor {
+class ModelConfigPrinter : public config::ModelConfigVisitor {
  public:
   // Constructors
   explicit ModelConfigPrinter(std::ostream &os, unsigned int depth = 0)
@@ -973,7 +973,7 @@ template<typename... Ts>
 std::ostream &operator<<(std::ostream &os,
                          const config::BasicConfig<Ts...> &config) {
   auto visitor = std::make_shared<lang::ModelConfigPrinter>(os);
-  config.accept(*std::static_pointer_cast<config::ConfigVisitor>(visitor));
+  config.accept(*std::static_pointer_cast<config::ModelConfigVisitor>(visitor));
   return os;
 }
 
@@ -987,7 +987,7 @@ std::ostream &operator<<(std::ostream &os,
 
 namespace lang {
 
-class ModelConfigSerializer : public config::ConfigVisitor {
+class ModelConfigSerializer : public config::ModelConfigVisitor {
  public:
   // Constructors
   explicit ModelConfigSerializer(const std::string &root_dir)
@@ -1194,7 +1194,7 @@ class ModelConfigSerializer : public config::ConfigVisitor {
 
 namespace lang {
 
-class ModelConfigRegister : public config::ConfigVisitor {
+class ModelConfigRegister : public config::ModelConfigVisitor {
  public:
   // Constructors
   explicit ModelConfigRegister(chaiscript::ChaiScript &chai)
