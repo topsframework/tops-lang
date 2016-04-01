@@ -323,7 +323,8 @@ using MultipleSequentialModelsConfig
       option::States(decltype("models"_t))
     >::extending<ModelConfig>::type;
 
-using MultipleSequentialModelsConfigPtr = std::shared_ptr<MultipleSequentialModelsConfig>;
+using MultipleSequentialModelsConfigPtr
+  = std::shared_ptr<MultipleSequentialModelsConfig>;
 
 /*----------------------------------------------------------------------------*/
 
