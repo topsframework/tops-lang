@@ -406,11 +406,9 @@ class ConfigVisitor {
   virtual void visitImpl(option::Type &) = 0;
   virtual void visitImpl(option::Size &) = 0;
   virtual void visitImpl(option::Alphabet &) = 0;
-  virtual void visitImpl(option::Probabilities &) = 0;
   virtual void visitImpl(option::Probability &) = 0;
+  virtual void visitImpl(option::Probabilities &) = 0;
   virtual void visitImpl(option::FeatureFunctions &) = 0;
-
-
 
   virtual void visitImpl(option::Models &) = 0;
   virtual void visitImpl(option::States &) = 0;
@@ -811,12 +809,12 @@ class PrinterConfigVisitor : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Probabilities &visited) override {
+  void visitImpl(config::option::Probability &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Probability &visited) override {
+  void visitImpl(config::option::Probabilities &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -1012,12 +1010,12 @@ class ConfigSerializer : public config::ConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Probabilities &visited) override {
+  void visitImpl(config::option::Probability &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Probability &visited) override {
+  void visitImpl(config::option::Probabilities &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -1214,11 +1212,11 @@ class RegisterConfigVisitor : public config::ConfigVisitor {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::Probabilities &visited) override {
+  void visitImpl(config::option::Probability &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::Probability &visited) override {
+  void visitImpl(config::option::Probabilities &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
