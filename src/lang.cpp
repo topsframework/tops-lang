@@ -37,6 +37,7 @@
 
 // Internal headers
 #include "ParameterPack.hpp"
+#include "filesystem/Filesystem.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
@@ -1047,7 +1048,9 @@ class ConfigSerializer : public config::ConfigVisitor {
   }
 
   void visitPath(const std::string &path) override {
-    os_ = std::ofstream(root_dir_ + extractCorename(path));
+    auto new_path = root_dir_ + extractCorename(path);
+    filesystem::create_directories(extractDir(new_path));
+    os_ = std::ofstream(new_path);
   }
 
   void startVisit() override {
