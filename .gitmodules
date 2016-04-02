@@ -9,3 +9,7 @@
 	path = external/named_types
 	url = https://github.com/duckie/named_types.git
 	ignore = dirty
+[submodule "external/cppformat"]
+	path = external/cppformat
+	url = https://github.com/cppformat/cppformat.git
+	ignore = dirty
