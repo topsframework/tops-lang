@@ -1356,11 +1356,13 @@ class Interpreter {
   }
 
   std::string findModelType(const std::string &filepath) {
+    auto root = extractDir(filepath);
+
     std::vector<std::string> modulepaths;
-    std::vector<std::string> usepaths { extractDir(filepath) };
+    std::vector<std::string> usepaths { root };
 
     chaiscript::ChaiScript chai(modulepaths, usepaths);
-    initializeChaiScript(chai, filepath);
+    chai.add(makeInterpreterLibrary(root));
 
     auto cfg = std::make_shared<config::ModelConfig>(filepath);
     cfg->accept(ModelConfigRegister(chai));
@@ -1381,11 +1383,13 @@ class Interpreter {
 
   template<typename Config>
   std::shared_ptr<Config> fillConfig(const std::string &filepath) {
+    auto root = extractDir(filepath);
+
     std::vector<std::string> modulepaths;
-    std::vector<std::string> usepaths { extractDir(filepath) };
+    std::vector<std::string> usepaths { root };
 
     chaiscript::ChaiScript chai(modulepaths, usepaths);
-    initializeChaiScript(chai, filepath);
+    chai.add(makeInterpreterLibrary(root));
 
     auto cfg = std::make_shared<Config>(filepath);
     cfg->accept(ModelConfigRegister(chai));
@@ -1393,12 +1397,6 @@ class Interpreter {
     chai.eval_file(filepath);
 
     return cfg;
-  }
-
-  void initializeChaiScript(chaiscript::ChaiScript &chai,
-                            const std::string &filepath) {
-    auto root = extractDir(filepath);
-    chai.add(makeInterpreterLibrary(root));
   }
 
   chaiscript::ModulePtr makeInterpreterLibrary(const std::string &root) {
