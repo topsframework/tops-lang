@@ -3,7 +3,7 @@ model_type = "VLMC"
 observations = [ "A", "C", "G", "T" ]
 
 context_probabilities = [
-  "A" | "" : 0,
+  "A" | "" : 0.0,
   "C" | "" : 0.181818,
   "G" | "" : 0.636364,
   "T" | "" : 0.181818
