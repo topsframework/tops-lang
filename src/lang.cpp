@@ -1285,7 +1285,23 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 namespace lang {
 
 #define REGISTER_TYPE(type) \
-  chai.add(chaiscript::user_type<config::option::type>(), #type)
+  module->add(chaiscript::user_type<config::option::type>(), #type)
+
+#define REGISTER_VECTOR(type) \
+  do { \
+    using chaiscript::vector_conversion; \
+    using chaiscript::bootstrap::standard_library::vector_type; \
+    module->add(vector_type<config::option::type>(#type)); \
+    module->add(vector_conversion<config::option::type>()); \
+  } while (false)
+
+#define REGISTER_MAP(type) \
+  do { \
+    using chaiscript::map_conversion; \
+    using chaiscript::bootstrap::standard_library::map_type; \
+    module->add(map_type<config::option::type>(#type)); \
+    module->add(map_conversion<config::option::type>()); \
+  } while (false)
 
 class Interpreter {
  public:
@@ -1382,15 +1398,18 @@ class Interpreter {
   void initializeChaiScript(chaiscript::ChaiScript &chai,
                             const std::string &filepath) {
     auto root = extractDir(filepath);
+    auto module = std::make_shared<chaiscript::Module>();
 
-    registerTypes(chai, root);
-    registerHelpers(chai, root);
-    registerConstants(chai, root);
-    registerAttributions(chai, root);
-    registerConcatenations(chai, root);
+    registerTypes(module, root);
+    registerHelpers(module, root);
+    registerConstants(module, root);
+    registerAttributions(module, root);
+    registerConcatenations(module, root);
+
+    chai.add(module);
   }
 
-  void registerTypes(chaiscript::ChaiScript &chai,
+  void registerTypes(chaiscript::ModulePtr &module,
                      const std::string &/* root */) {
     REGISTER_TYPE(Type);
     REGISTER_TYPE(Alphabet);
@@ -1403,23 +1422,30 @@ class Interpreter {
     REGISTER_TYPE(States);
     REGISTER_TYPE(FeatureFunctions);
     REGISTER_TYPE(FeatureFunctionLibraries);
+
+    REGISTER_VECTOR(Alphabet);
+    REGISTER_VECTOR(Models);
+    REGISTER_VECTOR(FeatureFunctionLibraries);
+
+    REGISTER_MAP(Probabilities);
+    REGISTER_MAP(States);
   }
 
-  void registerHelpers(chaiscript::ChaiScript &chai,
+  void registerHelpers(chaiscript::ModulePtr &module,
                        const std::string &root) {
     using chaiscript::fun;
 
-    chai.add(fun([this, root] (const std::string &file) {
+    module->add(fun([this, root] (const std::string &file) {
       return this->makeModelConfig(root + file);
     }), "model");
 
-    chai.add(fun([this]() {
+    module->add(fun([this]() {
       auto duration_cfg = std::make_shared<config::GeometricDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "geometric";
       return config::DurationConfigPtr(duration_cfg);
     }), "geometric");
 
-    chai.add(fun([this, root] (const std::string &file) {
+    module->add(fun([this, root] (const std::string &file) {
       auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("model"_t)>(*duration_cfg.get())
@@ -1427,7 +1453,7 @@ class Interpreter {
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
-    chai.add(fun([this, root] (const std::string &file, unsigned int size) {
+    module->add(fun([this, root] (const std::string &file, unsigned int size) {
       auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "explicit";
       std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
@@ -1436,93 +1462,67 @@ class Interpreter {
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
-    chai.add(fun([this] (unsigned int size) {
+    module->add(fun([this] (unsigned int size) {
       auto duration_cfg = std::make_shared<config::SignalDurationConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "fixed";
       std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
       return config::DurationConfigPtr(duration_cfg);
     }), "fixed");
 
-    chai.add(fun([this] (unsigned int size) {
+    module->add(fun([this] (unsigned int size) {
       auto duration_cfg = std::make_shared<config::MaxLenghtConfig>();
       std::get<decltype("duration_type"_t)>(*duration_cfg.get()) = "max_lenght";
       std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
       return config::DurationConfigPtr(duration_cfg);
     }), "max_lenght");
 
-    chai.add(fun([this, root] (const std::string &file) {
+    module->add(fun([this, root] (const std::string &file) {
       using config::FeatureFunctionLibraryConfig;
       return this->fillConfig<FeatureFunctionLibraryConfig>(root + file);
     }), "lib");
   }
 
-  void registerConstants(chaiscript::ChaiScript &chai,
+  void registerConstants(chaiscript::ModulePtr &module,
                          const std::string &/* root */) {
-    using chaiscript::var;
+    using chaiscript::const_var;
 
-    chai.add(chaiscript::var(std::string("duration")), "duration");
-    chai.add(chaiscript::var(std::string("emission")), "emission");
+    module->add_global_const(const_var(std::string("emission")), "emission");
+    module->add_global_const(const_var(std::string("duration")), "duration");
   }
 
-  void registerAttributions(chaiscript::ChaiScript &chai,
+  void registerAttributions(chaiscript::ModulePtr &module,
                             const std::string &/* root */) {
     using chaiscript::fun;
+    using chaiscript::boxed_cast;
+
     using chaiscript::Boxed_Value;
-
-    using chaiscript::map_conversion;
-    using chaiscript::vector_conversion;
-    using chaiscript::bootstrap::standard_library::map_type;
-    using chaiscript::bootstrap::standard_library::vector_type;
-
     using Map = std::map<std::string, Boxed_Value>;
 
-    chai.add(chaiscript::type_conversion<int, double>());
-
-    chai.add(vector_type<config::option::Alphabet>("Alphabet"));
-    chai.add(vector_conversion<config::option::Alphabet>());
-
-    chai.add(map_type<config::option::Probabilities>("Probabilities"));
-    chai.add(map_conversion<config::option::Probabilities>());
-
-    chai.add(fun([this, &chai] (config::option::Probabilities &conv,
-                                const Map &orig) {
-      for (const auto &pair : orig)
-        conv.emplace(pair.first, chai.boxed_cast<double>(pair.second));
-    }), "=");
-
-    chai.add(vector_type<config::option::Models>("Models"));
-    chai.add(vector_conversion<config::option::Models>());
-
-    chai.add(fun([this, &chai] (config::option::States &conv,
-                                const Map &orig) {
+    module->add(fun([] (config::option::States &conv, const Map &orig) {
       for (auto &pair : orig) {
         auto inner_orig
-          = chai.boxed_cast<std::map<std::string, Boxed_Value> &>(pair.second);
+          = boxed_cast<std::map<std::string, Boxed_Value> &>(pair.second);
 
         conv[pair.first] = std::make_shared<config::StateConfig>();
 
         std::get<decltype("duration"_t)>(*conv[pair.first])
-          = chai.boxed_cast<config::DurationConfigPtr>(inner_orig["duration"]);
+          = boxed_cast<config::DurationConfigPtr>(inner_orig["duration"]);
 
         std::get<decltype("emission"_t)>(*conv[pair.first])
-          = chai.boxed_cast<config::ModelConfigPtr>(inner_orig["emission"]);
+          = boxed_cast<config::ModelConfigPtr>(inner_orig["emission"]);
       }
     }), "=");
-
-    chai.add(vector_type<config::option::FeatureFunctionLibraries>(
-             "FeatureFunctionLibraries"));
-    chai.add(vector_conversion<config::option::FeatureFunctionLibraries>());
   }
 
-  void registerConcatenations(chaiscript::ChaiScript &chai,
+  void registerConcatenations(chaiscript::ModulePtr &module,
                               const std::string &/* root */) {
     using chaiscript::fun;
 
-    chai.add(fun([] (const std::string &lhs, const std::string &rhs) {
+    module->add(fun([] (const std::string &lhs, const std::string &rhs) {
       return lhs + " | " + rhs;
     }), "|");
 
-    chai.add(fun([] (const std::string &lhs, const std::string &rhs) {
+    module->add(fun([] (const std::string &lhs, const std::string &rhs) {
       return rhs + " | " + lhs;
     }), "->");
   }
