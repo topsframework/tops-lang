@@ -26,11 +26,13 @@
 #include <vector>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
 #include <utility>
 #include <iostream>
 #include <iterator>
 #include <typeinfo>
 #include <algorithm>
+#include <exception>
 #include <stdexcept>
 #include <functional>
 #include <type_traits>
