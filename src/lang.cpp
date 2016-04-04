@@ -1398,15 +1398,23 @@ class Interpreter {
   void initializeChaiScript(chaiscript::ChaiScript &chai,
                             const std::string &filepath) {
     auto root = extractDir(filepath);
-    auto module = std::make_shared<chaiscript::Module>();
+    chai.add(makeInterpreterLibrary(root));
+  }
 
-    registerTypes(module, root);
-    registerHelpers(module, root);
-    registerConstants(module, root);
-    registerAttributions(module, root);
-    registerConcatenations(module, root);
+  chaiscript::ModulePtr makeInterpreterLibrary(const std::string &root) {
+    static auto interpreter_library = std::make_shared<chaiscript::Module>();
+    static bool initialized = false;
 
-    chai.add(module);
+    if (!initialized) {
+      registerTypes(interpreter_library, root);
+      registerHelpers(interpreter_library, root);
+      registerConstants(interpreter_library, root);
+      registerAttributions(interpreter_library, root);
+      registerConcatenations(interpreter_library, root);
+      initialized = true;
+    }
+
+    return interpreter_library;
   }
 
   void registerTypes(chaiscript::ModulePtr &module,
