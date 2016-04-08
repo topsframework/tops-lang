@@ -1,0 +1,7 @@
+training_algorithm = [ "VLMC": "Context" ]
+
+alphabet = [ "A", "C", "G", "T" ]
+
+training_set = "dataset/cds.fasta"
+
+delta = 1.23

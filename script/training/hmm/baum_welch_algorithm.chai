@@ -1,0 +1,9 @@
+training_algorithm = [ "HMM": "BaumWelch" ]
+
+training_set = "dataset/cds.fasta"
+
+initial_model = model("hmm.chai")
+
+maxiterations = 100
+
+diff_threshold = 1.23

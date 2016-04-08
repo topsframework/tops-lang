@@ -1,0 +1,5 @@
+training_algorithm = [ "IID": "ML" ]
+
+alphabet = [ "A", "C", "G", "T" ]
+
+training_set = "dataset/cds.fasta"

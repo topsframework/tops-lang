@@ -1,0 +1,11 @@
+training_algorithm = [ "IID": "Stanke" ]
+
+training_set = "dataset/cds.fasta"
+
+weights = "dataset/cds.weights"
+
+max_length = 123
+
+m = 123
+
+slope = 1.23

@@ -1,0 +1,13 @@
+training_algorithm = [ "VLMC": "FixedLength" ]
+
+alphabet = [ "A", "C", "G", "T" ]
+
+training_set = "dataset/cds.fasta"
+
+weights = "dataset/cds.weights"
+
+order = 3
+
+pseudo_counts = 1.23
+
+initial_model = model("vlmc.chai")

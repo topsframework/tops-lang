@@ -1,0 +1,7 @@
+training_algorithm = [ "IID": "Burge" ]
+
+training_set = "dataset/cds.fasta"
+
+c = 12.3
+
+max_length = 123

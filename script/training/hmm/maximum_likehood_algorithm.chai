@@ -1,0 +1,9 @@
+training_algorithm = [ "HMM": "ML" ]
+
+observations = [ "1", "2", "3", "4", "5", "6" ]
+
+labels = [ "Fair", "Loaded" ]
+
+training_set = "dataset/cds.fasta"
+
+pseudocont = 1.23

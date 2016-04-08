@@ -1,0 +1,18 @@
+training_algorithm = [ "MDD": "Standard" ]
+
+alphabet = [ "A", "C", "G", "T" ]
+
+training_set = "dataset/cds.fasta"
+
+consensus_sequence = [
+  "A" | "C",
+  "C",
+  "G" | "A",
+  "T",
+  "T",
+  "A"
+]
+
+consensus_model = model("consensus_model.chai")
+
+minimum_subset = 42
