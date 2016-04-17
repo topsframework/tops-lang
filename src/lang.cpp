@@ -406,10 +406,17 @@ class ModelConfigVisitor {
 
  protected:
   // Purely virtual methods
+  virtual void startVisit() = 0;
+  virtual void endVisit() = 0;
+
   virtual void visitOption(option::Model &) = 0;
   virtual void visitOption(option::State &) = 0;
   virtual void visitOption(option::Duration &) = 0;
   virtual void visitOption(option::FeatureFunctionLibrary &) = 0;
+
+  virtual void visitOption(option::Models &) = 0;
+  virtual void visitOption(option::States &) = 0;
+  virtual void visitOption(option::FeatureFunctionLibraries &) = 0;
 
   virtual void visitOption(option::Type &) = 0;
   virtual void visitOption(option::Size &) = 0;
@@ -418,15 +425,8 @@ class ModelConfigVisitor {
   virtual void visitOption(option::Probabilities &) = 0;
   virtual void visitOption(option::FeatureFunctions &) = 0;
 
-  virtual void visitOption(option::Models &) = 0;
-  virtual void visitOption(option::States &) = 0;
-  virtual void visitOption(option::FeatureFunctionLibraries &) = 0;
-
   virtual void visitTag(const std::string &, unsigned int) = 0;
   virtual void visitPath(const std::string &) = 0;
-
-  virtual void startVisit() = 0;
-  virtual void endVisit() = 0;
 };
 
 }  // namespace config
@@ -785,6 +785,12 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
+  void startVisit() override {
+  }
+
+  void endVisit() override {
+  }
+
   void visitOption(config::option::Model &visited) override {
     print(visited);
     separate_if_end_of_section();
@@ -801,6 +807,21 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
   }
 
   void visitOption(config::option::FeatureFunctionLibrary &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::Models &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::States &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -835,21 +856,6 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visitOption(config::option::Models &visited) override {
-    print(visited);
-    separate_if_end_of_section();
-  }
-
-  void visitOption(config::option::States &visited) override {
-    print(visited);
-    separate_if_end_of_section();
-  }
-
-  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
-    print(visited);
-    separate_if_end_of_section();
-  }
-
   void visitTag(const std::string &tag, unsigned int count) override {
     if (count > 0) os_ << "\n";
     indent();
@@ -857,12 +863,6 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
   }
 
   void visitPath(const std::string &/* path */) override {
-  }
-
-  void startVisit() override {
-  }
-
-  void endVisit() override {
   }
 
  private:
@@ -1006,6 +1006,22 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
+  void startVisit() override {
+  }
+
+  void endVisit() override {
+    for (auto &submodel : submodels_) {
+      submodel->accept(ModelConfigSerializer(root_dir_));
+    }
+    for (auto &library : libraries_) {
+      std::ifstream src(
+        library->path(), std::ios::binary);
+      std::ofstream dst(
+        root_dir_ + extractCorename(library->path()), std::ios::binary);
+      dst << src.rdbuf();
+    }
+  }
+
   void visitOption(config::option::Model &visited) override {
     print(visited);
     separate_if_end_of_section();
@@ -1022,6 +1038,21 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void visitOption(config::option::FeatureFunctionLibrary &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::Models &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::States &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -1056,21 +1087,6 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visitOption(config::option::Models &visited) override {
-    print(visited);
-    separate_if_end_of_section();
-  }
-
-  void visitOption(config::option::States &visited) override {
-    print(visited);
-    separate_if_end_of_section();
-  }
-
-  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
-    print(visited);
-    separate_if_end_of_section();
-  }
-
   void visitTag(const std::string &tag, unsigned int count) override {
     if (count > 0) os_ << "\n";
     indent();
@@ -1081,22 +1097,6 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     auto new_path = root_dir_ + extractCorename(path);
     filesystem::create_directories(extractDir(new_path));
     os_ = std::ofstream(new_path);
-  }
-
-  void startVisit() override {
-  }
-
-  void endVisit() override {
-    for (auto &submodel : submodels_) {
-      submodel->accept(ModelConfigSerializer(root_dir_));
-    }
-    for (auto &library : libraries_) {
-      std::ifstream src(
-        library->path(), std::ios::binary);
-      std::ofstream dst(
-        root_dir_ + extractCorename(library->path()), std::ios::binary);
-      dst << src.rdbuf();
-    }
   }
 
  private:
@@ -1227,6 +1227,12 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
+  void startVisit() override {
+  }
+
+  void endVisit() override {
+  }
+
   void visitOption(config::option::Model &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
@@ -1240,6 +1246,18 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
   }
 
   void visitOption(config::option::FeatureFunctionLibrary &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visitOption(config::option::Models &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visitOption(config::option::States &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
@@ -1271,29 +1289,11 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
     }), "feature");
   }
 
-  void visitOption(config::option::Models &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::States &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
   void visitTag(const std::string &tag, unsigned int /* count */) override {
     tag_ = tag;
   }
 
   void visitPath(const std::string &/* path */) override {
-  }
-
-  void startVisit() override {
-  }
-
-  void endVisit() override {
   }
 
  private:
