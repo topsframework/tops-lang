@@ -395,7 +395,7 @@ class ModelConfigVisitor {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
       using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
       this->visitTag(typename Tag::value_type().str(), count);
-      this->visitImpl(const_cast<Value&>(value));
+      this->visitOption(const_cast<Value&>(value));
       count++;
     });
     this->endVisit();
@@ -406,16 +406,16 @@ class ModelConfigVisitor {
 
  protected:
   // Purely virtual methods
-  virtual void visitImpl(option::Type &) = 0;
-  virtual void visitImpl(option::Size &) = 0;
-  virtual void visitImpl(option::Alphabet &) = 0;
-  virtual void visitImpl(option::Probability &) = 0;
-  virtual void visitImpl(option::Probabilities &) = 0;
-  virtual void visitImpl(option::FeatureFunctions &) = 0;
+  virtual void visitOption(option::Type &) = 0;
+  virtual void visitOption(option::Size &) = 0;
+  virtual void visitOption(option::Alphabet &) = 0;
+  virtual void visitOption(option::Probability &) = 0;
+  virtual void visitOption(option::Probabilities &) = 0;
+  virtual void visitOption(option::FeatureFunctions &) = 0;
 
-  virtual void visitImpl(option::Models &) = 0;
-  virtual void visitImpl(option::States &) = 0;
-  virtual void visitImpl(option::FeatureFunctionLibraries &) = 0;
+  virtual void visitOption(option::Models &) = 0;
+  virtual void visitOption(option::States &) = 0;
+  virtual void visitOption(option::FeatureFunctionLibraries &) = 0;
 
   virtual void visitTag(const std::string &, unsigned int) = 0;
   virtual void visitPath(const std::string &) = 0;
@@ -424,19 +424,19 @@ class ModelConfigVisitor {
   virtual void endVisit() = 0;
 
   // Virtual methods
-  virtual void visitImpl(option::Model &visited) {
+  virtual void visitOption(option::Model &visited) {
     this->visit(visited);
   }
 
-  virtual void visitImpl(option::State &visited) {
+  virtual void visitOption(option::State &visited) {
     this->visit(visited);
   }
 
-  virtual void visitImpl(option::Duration &visited) {
+  virtual void visitOption(option::Duration &visited) {
     this->visit(visited);
   }
 
-  virtual void visitImpl(option::FeatureFunctionLibrary &visited) {
+  virtual void visitOption(option::FeatureFunctionLibrary &visited) {
     this->visit(visited);
   }
 };
@@ -797,47 +797,47 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
-  void visitImpl(config::option::Type &visited) override {
+  void visitOption(config::option::Type &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Size &visited) override {
+  void visitOption(config::option::Size &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Alphabet &visited) override {
+  void visitOption(config::option::Alphabet &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Probability &visited) override {
+  void visitOption(config::option::Probability &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Probabilities &visited) override {
+  void visitOption(config::option::Probabilities &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::FeatureFunctions &visited) override {
+  void visitOption(config::option::FeatureFunctions &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Models &visited) override {
+  void visitOption(config::option::Models &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::States &visited) override {
+  void visitOption(config::option::States &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::FeatureFunctionLibraries &visited) override {
+  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -998,47 +998,47 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
-  void visitImpl(config::option::Type &visited) override {
+  void visitOption(config::option::Type &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Size &visited) override {
+  void visitOption(config::option::Size &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Alphabet &visited) override {
+  void visitOption(config::option::Alphabet &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Probability &visited) override {
+  void visitOption(config::option::Probability &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Probabilities &visited) override {
+  void visitOption(config::option::Probabilities &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::FeatureFunctions &visited) override {
+  void visitOption(config::option::FeatureFunctions &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::Models &visited) override {
+  void visitOption(config::option::Models &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::States &visited) override {
+  void visitOption(config::option::States &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
 
-  void visitImpl(config::option::FeatureFunctionLibraries &visited) override {
+  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     print(visited);
     separate_if_end_of_section();
   }
@@ -1205,27 +1205,27 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
-  void visitImpl(config::option::Type &visited) override {
+  void visitOption(config::option::Type &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::Size &visited) override {
+  void visitOption(config::option::Size &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::Alphabet &visited) override {
+  void visitOption(config::option::Alphabet &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::Probability &visited) override {
+  void visitOption(config::option::Probability &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::Probabilities &visited) override {
+  void visitOption(config::option::Probabilities &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::FeatureFunctions &visited) override {
+  void visitOption(config::option::FeatureFunctions &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
     chai_.add(chaiscript::fun([&visited] (
         const std::string &name, config::option::FeatureFunction fun) {
@@ -1233,15 +1233,15 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
     }), "feature");
   }
 
-  void visitImpl(config::option::Models &visited) override {
+  void visitOption(config::option::Models &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::States &visited) override {
+  void visitOption(config::option::States &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
-  void visitImpl(config::option::FeatureFunctionLibraries &visited) override {
+  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
@@ -1258,13 +1258,13 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
   void endVisit() override {
   }
 
-  void visitImpl(config::option::State &/* visited */) override {
+  void visitOption(config::option::State &/* visited */) override {
   }
 
-  void visitImpl(config::option::Duration &/* visited */) override {
+  void visitOption(config::option::Duration &/* visited */) override {
   }
 
-  void visitImpl(config::option::FeatureFunctionLibrary &visited) override {
+  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
