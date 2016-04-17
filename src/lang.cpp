@@ -1176,12 +1176,6 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   void indent() {
     std::fill_n(std::ostreambuf_iterator<char>(os_), 2*depth_, ' ');
   }
-
-  std::string remove_trailing_bar(std::string str) {
-    while (str.size() > 1 && str.find_last_of("/\\") == str.size()-1)
-      str.erase(str.size()-1);
-    return str;
-  }
 };
 
 }  // namespace lang
