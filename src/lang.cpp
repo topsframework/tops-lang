@@ -406,6 +406,11 @@ class ModelConfigVisitor {
 
  protected:
   // Purely virtual methods
+  virtual void visitOption(option::Model &) = 0;
+  virtual void visitOption(option::State &) = 0;
+  virtual void visitOption(option::Duration &) = 0;
+  virtual void visitOption(option::FeatureFunctionLibrary &) = 0;
+
   virtual void visitOption(option::Type &) = 0;
   virtual void visitOption(option::Size &) = 0;
   virtual void visitOption(option::Alphabet &) = 0;
@@ -422,23 +427,6 @@ class ModelConfigVisitor {
 
   virtual void startVisit() = 0;
   virtual void endVisit() = 0;
-
-  // Virtual methods
-  virtual void visitOption(option::Model &visited) {
-    this->visit(visited);
-  }
-
-  virtual void visitOption(option::State &visited) {
-    this->visit(visited);
-  }
-
-  virtual void visitOption(option::Duration &visited) {
-    this->visit(visited);
-  }
-
-  virtual void visitOption(option::FeatureFunctionLibrary &visited) {
-    this->visit(visited);
-  }
 };
 
 }  // namespace config
@@ -797,6 +785,26 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
+  void visitOption(config::option::Model &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::State &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::Duration &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
   void visitOption(config::option::Type &visited) override {
     print(visited);
     separate_if_end_of_section();
@@ -998,6 +1006,26 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
+  void visitOption(config::option::Model &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::State &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::Duration &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
+  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
+    print(visited);
+    separate_if_end_of_section();
+  }
+
   void visitOption(config::option::Type &visited) override {
     print(visited);
     separate_if_end_of_section();
@@ -1199,6 +1227,22 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
+  void visitOption(config::option::Model &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visitOption(config::option::State &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visitOption(config::option::Duration &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
+  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
   void visitOption(config::option::Type &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
@@ -1250,16 +1294,6 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
   }
 
   void endVisit() override {
-  }
-
-  void visitOption(config::option::State &/* visited */) override {
-  }
-
-  void visitOption(config::option::Duration &/* visited */) override {
-  }
-
-  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
   }
 
  private:
