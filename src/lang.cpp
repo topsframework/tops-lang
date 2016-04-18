@@ -1498,19 +1498,22 @@ class Interpreter {
     }), "model");
 
     module->add(fun([this]() {
-      auto duration_cfg = std::make_shared<config::GeometricDurationConfig>();
+      auto duration_cfg
+        = std::make_shared<config::GeometricDurationConfig>("", "geometric");
       return config::DurationConfigPtr(duration_cfg);
     }), "geometric");
 
     module->add(fun([this, root] (const std::string &file) {
-      auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
+      auto duration_cfg
+        = std::make_shared<config::ExplicitDurationConfig>("", "explicit");
       std::get<decltype("model"_t)>(*duration_cfg.get())
         = this->makeModelConfig(root + file);
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
     module->add(fun([this, root] (const std::string &file, unsigned int size) {
-      auto duration_cfg = std::make_shared<config::ExplicitDurationConfig>();
+      auto duration_cfg
+        = std::make_shared<config::ExplicitDurationConfig>("", "explicit");
       std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
       std::get<decltype("model"_t)>(*duration_cfg.get())
         = this->makeModelConfig(root + file);
@@ -1518,13 +1521,15 @@ class Interpreter {
     }), "explicit");
 
     module->add(fun([this] (unsigned int size) {
-      auto duration_cfg = std::make_shared<config::SignalDurationConfig>();
+      auto duration_cfg
+        = std::make_shared<config::SignalDurationConfig>("", "fixed");
       std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
       return config::DurationConfigPtr(duration_cfg);
     }), "fixed");
 
     module->add(fun([this] (unsigned int size) {
-      auto duration_cfg = std::make_shared<config::MaxLenghtConfig>();
+      auto duration_cfg
+        = std::make_shared<config::MaxLenghtConfig>("", "max_length");
       std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
       return config::DurationConfigPtr(duration_cfg);
     }), "max_lenght");
