@@ -388,6 +388,7 @@ class ModelConfigVisitor {
     std::size_t count = 0;
     std::size_t max = config_ptr->number_of_options();
     this->startVisit();
+    this->visitLabel(config_ptr->label());
     this->visitPath(config_ptr->path());
     config_ptr->for_each([this, &count, &max](const auto &tag, auto &value) {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
@@ -424,6 +425,7 @@ class ModelConfigVisitor {
   virtual void visitOption(option::FeatureFunctions &) = 0;
 
   virtual void visitTag(const std::string &, std::size_t, std::size_t) = 0;
+  virtual void visitLabel(const std::string &) = 0;
   virtual void visitPath(const std::string &) = 0;
 };
 
@@ -883,6 +885,9 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
     }
   }
 
+  void visitLabel(const std::string &/* label */) override {
+  }
+
   void visitPath(const std::string &/* path */) override {
   }
 
@@ -1109,6 +1114,9 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     }
   }
 
+  void visitLabel(const std::string &/* label */) override {
+  }
+
   void visitPath(const std::string &path) override {
     auto new_path = root_dir_ + extractCorename(path);
     filesystem::create_directories(extractDir(new_path));
@@ -1302,6 +1310,9 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
   void visitTag(const std::string &tag, std::size_t /* count */,
                                         std::size_t /* max */) override {
     tag_ = tag;
+  }
+
+  void visitLabel(const std::string &/* label */) override {
   }
 
   void visitPath(const std::string &/* path */) override {
