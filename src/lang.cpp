@@ -983,7 +983,7 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
   }
 
   void print(config::DurationConfigPtr duration_ptr) {
-    os_ << "(";
+    os_ << duration_ptr->label() << "(";
     duration_ptr->accept(ModelConfigPrinter(os_, depth_, "", ", ", ""));
     os_ << ")";
   }
@@ -1213,7 +1213,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void print(config::DurationConfigPtr duration_ptr) {
-    os_ << "(";
+    os_ << duration_ptr->label() << "(";
     duration_ptr->accept(ModelConfigPrinter(os_, depth_, "", ", ", ""));
     os_ << ")";
   }
