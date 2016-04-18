@@ -387,7 +387,7 @@ class ModelConfigVisitor {
   // Concrete methods
   template<typename Base, typename... Options>
   void visit(std::shared_ptr<BasicConfig<Base, Options...>> config_ptr) {
-    unsigned int count = 0;
+    std::size_t count = 0;
     this->startVisit();
     this->visitPath(config_ptr->path());
     config_ptr->for_each([this, &count](const auto &tag, auto &value) {
@@ -424,7 +424,7 @@ class ModelConfigVisitor {
   virtual void visitOption(option::Probabilities &) = 0;
   virtual void visitOption(option::FeatureFunctions &) = 0;
 
-  virtual void visitTag(const std::string &, unsigned int) = 0;
+  virtual void visitTag(const std::string &, std::size_t) = 0;
   virtual void visitPath(const std::string &) = 0;
 };
 
@@ -866,7 +866,7 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visitTag(const std::string &tag, unsigned int count) override {
+  void visitTag(const std::string &tag, std::size_t count) override {
     if (count > 0) os_ << "\n";
     indent();
     os_ << tag << " = ";
@@ -1097,7 +1097,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     separate_if_end_of_section();
   }
 
-  void visitTag(const std::string &tag, unsigned int count) override {
+  void visitTag(const std::string &tag, std::size_t count) override {
     if (count > 0) os_ << "\n";
     indent();
     os_ << tag << " = ";
@@ -1299,7 +1299,7 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
     }), "feature");
   }
 
-  void visitTag(const std::string &tag, unsigned int /* count */) override {
+  void visitTag(const std::string &tag, std::size_t /* count */) override {
     tag_ = tag;
   }
 
