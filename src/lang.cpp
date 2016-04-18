@@ -388,12 +388,13 @@ class ModelConfigVisitor {
   template<typename Base, typename... Options>
   void visit(std::shared_ptr<BasicConfig<Base, Options...>> config_ptr) {
     std::size_t count = 0;
+    std::size_t max = config_ptr->number_of_options();
     this->startVisit();
     this->visitPath(config_ptr->path());
-    config_ptr->for_each([this, &count](const auto &tag, auto &value) {
+    config_ptr->for_each([this, &count, &max](const auto &tag, auto &value) {
       using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
       using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
-      this->visitTag(typename Tag::value_type().str(), count);
+      this->visitTag(typename Tag::value_type().str(), count, max);
       this->visitOption(const_cast<Value&>(value));
       count++;
     });
@@ -424,7 +425,7 @@ class ModelConfigVisitor {
   virtual void visitOption(option::Probabilities &) = 0;
   virtual void visitOption(option::FeatureFunctions &) = 0;
 
-  virtual void visitTag(const std::string &, std::size_t) = 0;
+  virtual void visitTag(const std::string &, std::size_t, std::size_t) = 0;
   virtual void visitPath(const std::string &) = 0;
 };
 
@@ -799,75 +800,64 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
   }
 
   void endVisit() override {
+    os_ << "\n";
   }
 
   void visitOption(config::option::Model &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::State &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Duration &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::FeatureFunctionLibrary &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Models &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::States &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Type &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Size &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Alphabet &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Probability &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Probabilities &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::FeatureFunctions &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
-  void visitTag(const std::string &tag, std::size_t count) override {
-    if (count > 0) os_ << "\n";
+  void visitTag(const std::string &tag, std::size_t count,
+                                        std::size_t max) override {
+    if (count > 0 && count < max) os_ << "\n\n";
     indent();
     os_ << tag << " = ";
   }
@@ -883,10 +873,6 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
   const unsigned int initial_depth_;
 
   // Concrete methods
-  void separate_if_end_of_section() {
-    if (depth_ == initial_depth_) os_ << "\n";
-  }
-
   void print(const std::string &string) {
     os_ << '"' << string << '"';
   }
@@ -1020,6 +1006,8 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void endVisit() override {
+    os_ << "\n";
+
     for (auto &submodel : submodels_) {
       submodel->accept(ModelConfigSerializer(root_dir_));
     }
@@ -1034,71 +1022,59 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
   void visitOption(config::option::Model &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::State &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Duration &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::FeatureFunctionLibrary &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Models &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::States &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Type &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Size &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Alphabet &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Probability &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::Probabilities &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
   void visitOption(config::option::FeatureFunctions &visited) override {
     print(visited);
-    separate_if_end_of_section();
   }
 
-  void visitTag(const std::string &tag, std::size_t count) override {
-    if (count > 0) os_ << "\n";
+  void visitTag(const std::string &tag, std::size_t count,
+                                        std::size_t max) override {
+    if (count > 0 && count < max) os_ << "\n\n";
     indent();
     os_ << tag << " = ";
   }
@@ -1120,10 +1096,6 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
 
   // Concrete methods
-  void separate_if_end_of_section() {
-    os_ << "\n";
-  }
-
   void print(const std::string &string) {
     os_ << '"' << string << '"';
   }
@@ -1299,7 +1271,8 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
     }), "feature");
   }
 
-  void visitTag(const std::string &tag, std::size_t /* count */) override {
+  void visitTag(const std::string &tag, std::size_t /* count */,
+                                        std::size_t /* max */) override {
     tag_ = tag;
   }
 
