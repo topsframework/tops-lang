@@ -46,8 +46,7 @@
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 
 #include "named_types/named_tuple.hpp"
-#include "named_types/rt_named_tag.hpp"
-#include "named_types/literals/integral_string_literal.hpp"
+#include "named_types/extensions/type_traits.hpp"
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -455,7 +454,7 @@ class BasicConfigInterface
   virtual void accept(ModelConfigVisitor &/* visitor */) const = 0;
   virtual void accept(ModelConfigVisitor &&/* visitor */) const = 0;
 
-  // Concrete methods
+  // Virtual methods
   virtual std::string path() {
     return path_;
   }
@@ -464,6 +463,11 @@ class BasicConfigInterface
     return path_;
   }
 
+  virtual std::size_t number_of_options() const {
+    return 0;
+  }
+
+  // Concrete methods
   template<typename Func>
   constexpr void for_each(Func&& /* func */) const {}
 
@@ -525,6 +529,12 @@ class BasicConfig : public Base {
     auto ptr = std::static_pointer_cast<Self>(
       const_cast<Self*>(this)->shared_from_this());
     visitor.visit(ptr);
+  }
+
+  std::size_t number_of_options() const override {
+    return this->Base::number_of_options()
+      + std::tuple_size<decltype(
+          named_types::forward_as_concatenated_tuple(attrs_))>::value;
   }
 
   // Concrete methods
