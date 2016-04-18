@@ -446,7 +446,9 @@ class BasicConfigInterface
   using Self = BasicConfigInterface;
 
   // Constructors
-  explicit BasicConfigInterface(const std::string &path) : path_(path) {
+  explicit BasicConfigInterface(const std::string &path,
+                                const std::string &label)
+    : path_(path), label_(label) {
   }
 
   // Purely virtual methods
@@ -460,6 +462,14 @@ class BasicConfigInterface
 
   virtual const std::string path() const {
     return path_;
+  }
+
+  virtual std::string label() {
+    return label_;
+  }
+
+  virtual const std::string label() const {
+    return label_;
   }
 
   virtual std::size_t number_of_options() const {
@@ -481,6 +491,7 @@ class BasicConfigInterface
 
  private:
   std::string path_;
+  std::string label_;
 };
 
 }  // namespace config
@@ -514,7 +525,9 @@ class BasicConfig : public Base {
   using Tuple = named_types::named_tuple<Options...>;
 
   // Constructors
-  explicit BasicConfig(const std::string &path = {}) : Base(path) {
+  explicit BasicConfig(const std::string &path = {},
+                       const std::string &label = {})
+      : Base(path, label) {
   }
 
   // Overriden methods
