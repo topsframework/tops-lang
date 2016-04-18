@@ -790,8 +790,14 @@ namespace lang {
 class ModelConfigPrinter : public config::ModelConfigVisitor {
  public:
   // Constructors
-  explicit ModelConfigPrinter(std::ostream &os, unsigned int depth = 0)
-      : os_(os), depth_(depth), initial_depth_(depth) {
+  explicit ModelConfigPrinter(std::ostream &os, unsigned int depth = 0,
+                              std::string option_attribution = " = ",
+                              std::string option_middle = "\n\n",
+                              std::string option_end = "\n")
+      : os_(os), depth_(depth), initial_depth_(depth),
+        option_attribution_(option_attribution),
+        option_middle_(option_middle),
+        option_end_(option_end) {
   }
 
  protected:
@@ -800,7 +806,7 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
   }
 
   void endVisit() override {
-    os_ << "\n";
+    os_ << option_end_;
   }
 
   void visitOption(config::option::Model &visited) override {
@@ -857,9 +863,13 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
 
   void visitTag(const std::string &tag, std::size_t count,
                                         std::size_t max) override {
-    if (count > 0 && count < max) os_ << "\n\n";
-    indent();
-    os_ << tag << " = ";
+    if (count > 0 && count < max) {
+      os_ << option_middle_;
+    }
+    if (!option_attribution_.empty()) {
+      indent();
+      os_ << tag << option_attribution_;
+    }
   }
 
   void visitPath(const std::string &/* path */) override {
@@ -872,6 +882,10 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
 
   const unsigned int initial_depth_;
 
+  const std::string option_attribution_;
+  const std::string option_middle_;
+  const std::string option_end_;
+
   // Concrete methods
   void print(const std::string &string) {
     os_ << '"' << string << '"';
@@ -882,6 +896,7 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
   }
 
   void print(double num) {
+
     os_ << num;
   }
 
@@ -918,45 +933,6 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
     close_iterable();
   }
 
-  void print(config::StateConfigPtr state_ptr) {
-    os_ << "[ " << "\n";
-    depth_++;
-    indent();
-    os_ << "duration : ";
-    print(std::get<decltype("duration"_t)>(*state_ptr));
-    os_ << "," << std::endl;
-    indent();
-    os_ << "emission : ";
-    print(std::get<decltype("emission"_t)>(*state_ptr));
-    depth_--;
-    indent();
-    os_ << "\n";
-    indent();
-    os_ << "]";
-  }
-
-  void print(config::DurationConfigPtr duration_ptr) {
-    print(std::get<decltype("duration_type"_t)>(*duration_ptr));
-  }
-
-  void print(config::ModelConfigPtr config_ptr) {
-    os_ << "{ " << "\n";
-    depth_++;
-    config_ptr->accept(ModelConfigPrinter(os_, depth_));
-    depth_--;
-    indent();
-    os_ << "}";
-  }
-
-  void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
-    os_ << "{ " << "\n";
-    depth_++;
-    config_ptr->accept(ModelConfigPrinter(os_, depth_));
-    depth_--;
-    indent();
-    os_ << "}";
-  }
-
   void open_iterable() {
     os_ << "[ " << "\n";
     depth_++;
@@ -970,6 +946,40 @@ class ModelConfigPrinter : public config::ModelConfigVisitor {
 
   void indent() {
     std::fill_n(std::ostreambuf_iterator<char>(os_), 2*depth_, ' ');
+  }
+
+  void print(config::ModelConfigPtr config_ptr) {
+    os_ << "{ " << "\n";
+    depth_++;
+    config_ptr->accept(ModelConfigPrinter(os_, depth_));
+    depth_--;
+    indent();
+    os_ << "}";
+  }
+
+  void print(config::StateConfigPtr state_ptr) {
+    os_ << "[ " << "\n";
+    depth_++;
+    state_ptr->accept(ModelConfigPrinter(os_, depth_, ": ", ",\n\n"));
+    depth_--;
+    indent();
+    os_ << "]";
+  }
+
+  void print(config::DurationConfigPtr duration_ptr) {
+    print(std::get<decltype("duration_type"_t)>(*duration_ptr));
+    os_ << "(";
+    duration_ptr->accept(ModelConfigPrinter(os_, depth_, "", ", ", ""));
+    os_ << ")";
+  }
+
+  void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
+    os_ << "{ " << "\n";
+    depth_++;
+    config_ptr->accept(ModelConfigPrinter(os_, depth_));
+    depth_--;
+    indent();
+    os_ << "}";
   }
 };
 
@@ -996,8 +1006,14 @@ namespace lang {
 class ModelConfigSerializer : public config::ModelConfigVisitor {
  public:
   // Constructors
-  explicit ModelConfigSerializer(const std::string &root_dir)
-      : root_dir_(root_dir), os_(), depth_(0) {
+  explicit ModelConfigSerializer(const std::string &root_dir,
+                                 std::string option_attribution = " = ",
+                                 std::string option_middle = "\n\n",
+                                 std::string option_end = "\n")
+      : root_dir_(root_dir), os_(), depth_(0),
+        option_attribution_(option_attribution),
+        option_middle_(option_middle),
+        option_end_(option_end) {
   }
 
  protected:
@@ -1006,7 +1022,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void endVisit() override {
-    os_ << "\n";
+    os_ << option_end_;
 
     for (auto &submodel : submodels_) {
       submodel->accept(ModelConfigSerializer(root_dir_));
@@ -1074,9 +1090,13 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
   void visitTag(const std::string &tag, std::size_t count,
                                         std::size_t max) override {
-    if (count > 0 && count < max) os_ << "\n\n";
-    indent();
-    os_ << tag << " = ";
+    if (count > 0 && count < max) {
+      os_ << option_middle_;
+    }
+    if (!option_attribution_.empty()) {
+      indent();
+      os_ << tag << option_attribution_;
+    }
   }
 
   void visitPath(const std::string &path) override {
@@ -1091,6 +1111,10 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
   std::ofstream os_;
   unsigned int depth_;
+
+  const std::string option_attribution_;
+  const std::string option_middle_;
+  const std::string option_end_;
 
   std::list<config::ModelConfigPtr> submodels_;
   std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
@@ -1141,37 +1165,6 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     close_iterable();
   }
 
-  void print(config::StateConfigPtr state_ptr) {
-    os_ << "[ " << "\n";
-    depth_++;
-    indent();
-    os_ << "duration : ";
-    print(std::get<decltype("duration"_t)>(*state_ptr));
-    os_ << "," << std::endl;
-    indent();
-    os_ << "emission : ";
-    print(std::get<decltype("emission"_t)>(*state_ptr));
-    depth_--;
-    indent();
-    os_ << "\n";
-    indent();
-    os_ << "]";
-  }
-
-  void print(config::DurationConfigPtr duration_ptr) {
-    print(std::get<decltype("duration_type"_t)>(*duration_ptr));
-  }
-
-  void print(config::ModelConfigPtr config_ptr) {
-    submodels_.push_back(config_ptr);
-    os_ << "model(\"" << extractBasename(config_ptr->path()) << "\")";
-  }
-
-  void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
-    libraries_.push_back(config_ptr);
-    os_ << "lib(\"" << extractBasename(config_ptr->path()) << "\")";
-  }
-
   void open_iterable() {
     os_ << "[ " << "\n";
     depth_++;
@@ -1185,6 +1178,32 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
   void indent() {
     std::fill_n(std::ostreambuf_iterator<char>(os_), 2*depth_, ' ');
+  }
+
+  void print(config::ModelConfigPtr config_ptr) {
+    submodels_.push_back(config_ptr);
+    os_ << "model(\"" << extractBasename(config_ptr->path()) << "\")";
+  }
+
+  void print(config::StateConfigPtr state_ptr) {
+    os_ << "[ " << "\n";
+    depth_++;
+    state_ptr->accept(ModelConfigPrinter(os_, depth_, ": ", ",\n\n"));
+    depth_--;
+    indent();
+    os_ << "]";
+  }
+
+  void print(config::DurationConfigPtr duration_ptr) {
+    print(std::get<decltype("duration_type"_t)>(*duration_ptr));
+    os_ << "(";
+    duration_ptr->accept(ModelConfigPrinter(os_, depth_, "", ", ", ""));
+    os_ << ")";
+  }
+
+  void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
+    libraries_.push_back(config_ptr);
+    os_ << "lib(\"" << extractBasename(config_ptr->path()) << "\")";
   }
 };
 
