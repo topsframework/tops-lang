@@ -791,224 +791,6 @@ std::string extractBasename(const std::string &filepath) {
 }  // namespace lang
 
 /*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                 PRINTER VISITOR
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace lang {
-
-class ModelConfigPrinter : public config::ModelConfigVisitor {
- public:
-  // Constructors
-  explicit ModelConfigPrinter(std::ostream &os, unsigned int depth = 0,
-                              std::string option_attribution = " = ",
-                              std::string option_middle = "\n\n",
-                              std::string option_end = "\n")
-      : os_(os), depth_(depth), initial_depth_(depth),
-        option_attribution_(option_attribution),
-        option_middle_(option_middle),
-        option_end_(option_end) {
-  }
-
- protected:
-  // Overriden functions
-  void startVisit() override {
-  }
-
-  void endVisit() override {
-    os_ << option_end_;
-  }
-
-  void visitOption(config::option::Model &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::State &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Duration &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Models &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::States &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Type &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Size &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Alphabet &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Probability &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Probabilities &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctions &visited) override {
-    print(visited);
-  }
-
-  void visitTag(const std::string &tag, std::size_t count,
-                                        std::size_t max) override {
-    if (count > 0 && count < max) {
-      os_ << option_middle_;
-    }
-    if (!option_attribution_.empty()) {
-      indent();
-      os_ << tag << option_attribution_;
-    }
-  }
-
-  void visitLabel(const std::string &/* label */) override {
-  }
-
-  void visitPath(const std::string &/* path */) override {
-  }
-
- private:
-  // Instance variables
-  std::ostream &os_;
-  unsigned int depth_;
-
-  const unsigned int initial_depth_;
-
-  const std::string option_attribution_;
-  const std::string option_middle_;
-  const std::string option_end_;
-
-  // Concrete methods
-  void print(const std::string &string) {
-    os_ << '"' << string << '"';
-  }
-
-  void print(float num) {
-    os_ << num;
-  }
-
-  void print(double num) {
-
-    os_ << num;
-  }
-
-  void print(unsigned int num) {
-    os_ << num;
-  }
-
-  void print(bool boolean) {
-    os_ << std::boolalpha << boolean;
-  }
-
-  template<typename Return, typename... Params>
-  auto print(const std::function<Return(Params...)> &/* function */) {
-    os_ << "fun()";
-  }
-
-  template<typename Pair>
-  auto print(const Pair &pair)
-      -> std::enable_if_t<is_pair<Pair>::value> {
-    print(pair.first);
-    os_ << ": ";
-    print(pair.second);
-  }
-
-  template<typename Iterable>
-  auto print(const Iterable &iterable)
-      -> std::enable_if_t<is_iterable<Iterable>::value> {
-    open_iterable();
-    for (auto it = std::begin(iterable); it != std::end(iterable); ++it) {
-      indent();
-      print(*it);
-      os_ << (it == std::prev(std::end(iterable)) ? "" : ",") << "\n";
-    }
-    close_iterable();
-  }
-
-  void open_iterable() {
-    os_ << "[ " << "\n";
-    depth_++;
-  }
-
-  void close_iterable() {
-    depth_--;
-    indent();
-    os_ << "]";
-  }
-
-  void indent() {
-    std::fill_n(std::ostreambuf_iterator<char>(os_), 2*depth_, ' ');
-  }
-
-  void print(config::ModelConfigPtr config_ptr) {
-    os_ << "{ " << "\n";
-    depth_++;
-    config_ptr->accept(ModelConfigPrinter(os_, depth_));
-    depth_--;
-    indent();
-    os_ << "}";
-  }
-
-  void print(config::StateConfigPtr state_ptr) {
-    os_ << "[ " << "\n";
-    depth_++;
-    state_ptr->accept(ModelConfigPrinter(os_, depth_, ": ", ",\n\n"));
-    depth_--;
-    indent();
-    os_ << "]";
-  }
-
-  void print(config::DurationConfigPtr duration_ptr) {
-    os_ << duration_ptr->label() << "(";
-    duration_ptr->accept(ModelConfigPrinter(os_, depth_, "", ", ", ""));
-    os_ << ")";
-  }
-
-  void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
-    os_ << "{ " << "\n";
-    depth_++;
-    config_ptr->accept(ModelConfigPrinter(os_, depth_));
-    depth_--;
-    indent();
-    os_ << "}";
-  }
-};
-
-}  // namespace lang
-
-template<typename... Ts>
-std::ostream &operator<<(std::ostream &os,
-                         const config::BasicConfig<Ts...> &config) {
-  auto visitor = std::make_shared<lang::ModelConfigPrinter>(os);
-  config.accept(*std::static_pointer_cast<config::ModelConfigVisitor>(visitor));
-  return os;
-}
-
-/*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  ------------------------------------------------------------------------------
                                SERIALIZER VISITOR
@@ -1021,14 +803,12 @@ namespace lang {
 class ModelConfigSerializer : public config::ModelConfigVisitor {
  public:
   // Constructors
-  explicit ModelConfigSerializer(const std::string &root_dir,
-                                 std::string option_attribution = " = ",
-                                 std::string option_middle = "\n\n",
-                                 std::string option_end = "\n")
-      : root_dir_(root_dir), os_(), depth_(0),
-        option_attribution_(option_attribution),
-        option_middle_(option_middle),
-        option_end_(option_end) {
+  explicit ModelConfigSerializer(std::ostream &os = std::cout)
+      : ModelConfigSerializer(std::shared_ptr<std::ostream>(&os, [](void*){})) {
+  }
+
+  explicit ModelConfigSerializer(const std::string &root_dir)
+      : ModelConfigSerializer(nullptr, root_dir) {
   }
 
  protected:
@@ -1037,17 +817,14 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void endVisit() override {
-    os_ << option_end_;
+    *os_ << option_end_;
 
     for (auto &submodel : submodels_) {
       submodel->accept(ModelConfigSerializer(root_dir_));
     }
     for (auto &library : libraries_) {
-      std::ifstream src(
-        library->path(), std::ios::binary);
-      std::ofstream dst(
-        root_dir_ + extractCorename(library->path()), std::ios::binary);
-      dst << src.rdbuf();
+      std::ofstream new_file(root_dir_ + extractCorename(library->path()));
+      copy(library, new_file);
     }
   }
 
@@ -1106,11 +883,11 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   void visitTag(const std::string &tag, std::size_t count,
                                         std::size_t max) override {
     if (count > 0 && count < max) {
-      os_ << option_middle_;
+      *os_ << option_middle_;
     }
     if (!option_attribution_.empty()) {
       indent();
-      os_ << tag << option_attribution_;
+      *os_ << tag << option_attribution_;
     }
   }
 
@@ -1118,16 +895,19 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void visitPath(const std::string &path) override {
-    auto new_path = root_dir_ + extractCorename(path);
-    filesystem::create_directories(extractDir(new_path));
-    os_ = std::ofstream(new_path);
+    if (single_file_serialization_) {
+      auto new_path = root_dir_ + extractCorename(path);
+      filesystem::create_directories(extractDir(new_path));
+      os_ = std::make_shared<std::ofstream>(new_path);
+    }
   }
 
  private:
   // Instance variables
+  bool single_file_serialization_;
   std::string root_dir_;
 
-  std::ofstream os_;
+  std::shared_ptr<std::ostream> os_;
   unsigned int depth_;
 
   const std::string option_attribution_;
@@ -1137,94 +917,150 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   std::list<config::ModelConfigPtr> submodels_;
   std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
 
+  // Constructors
+  ModelConfigSerializer(std::shared_ptr<std::ostream> os,
+                        const std::string &root_dir = "",
+                        unsigned int initial_depth = 0,
+                        std::string option_attribution = " = ",
+                        std::string option_middle = "\n\n",
+                        std::string option_end = "\n")
+      : single_file_serialization_(os.get() == nullptr),
+        os_(os), root_dir_(root_dir), depth_(initial_depth),
+        option_attribution_(option_attribution),
+        option_middle_(option_middle),
+        option_end_(option_end) {
+  }
+
   // Concrete methods
   void print(const std::string &string) {
-    os_ << '"' << string << '"';
+    *os_ << '"' << string << '"';
   }
 
   void print(float num) {
-    os_ << num;
+    *os_ << num;
   }
 
   void print(double num) {
-    os_ << num;
+    *os_ << num;
   }
 
   void print(unsigned int num) {
-    os_ << num;
+    *os_ << num;
   }
 
   void print(bool boolean) {
-    os_ << std::boolalpha << boolean;
+    *os_ << std::boolalpha << boolean;
   }
 
   template<typename Return, typename... Params>
   auto print(const std::function<Return(Params...)> &/* function */) {
-    os_ << "fun()";
+    *os_ << "fun()";
   }
 
   template<typename Pair>
   auto print(const Pair &pair)
       -> std::enable_if_t<is_pair<Pair>::value> {
     print(pair.first);
-    os_ << ": ";
+    *os_ << ": ";
     print(pair.second);
   }
 
   template<typename Iterable>
   auto print(const Iterable &iterable)
       -> std::enable_if_t<is_iterable<Iterable>::value> {
-    open_iterable();
+    openSection('[');
     for (auto it = std::begin(iterable); it != std::end(iterable); ++it) {
       indent();
       print(*it);
-      os_ << (it == std::prev(std::end(iterable)) ? "" : ",") << "\n";
+      *os_ << (it == std::prev(std::end(iterable)) ? "" : ",") << "\n";
     }
-    close_iterable();
-  }
-
-  void open_iterable() {
-    os_ << "[ " << "\n";
-    depth_++;
-  }
-
-  void close_iterable() {
-    depth_--;
-    indent();
-    os_ << "]";
-  }
-
-  void indent() {
-    std::fill_n(std::ostreambuf_iterator<char>(os_), 2*depth_, ' ');
+    closeSection(']');
   }
 
   void print(config::ModelConfigPtr config_ptr) {
-    submodels_.push_back(config_ptr);
-    os_ << "model(\"" << extractBasename(config_ptr->path()) << "\")";
+    if (single_file_serialization_) {
+      callFunction("model", extractBasename(config_ptr->path()));
+      submodels_.push_back(config_ptr);
+    } else {
+      openSection('{');
+      config_ptr->accept(ModelConfigSerializer(os_, root_dir_, depth_));
+      closeSection('}');
+    }
   }
 
   void print(config::StateConfigPtr state_ptr) {
-    os_ << "[ " << "\n";
-    depth_++;
-    state_ptr->accept(ModelConfigPrinter(os_, depth_, ": ", ",\n\n"));
-    depth_--;
-    indent();
-    os_ << "]";
+    openSection('[');
+    state_ptr->accept(
+      ModelConfigSerializer(os_, root_dir_, depth_, ": ", ",\n"));
+    closeSection(']');
   }
 
   void print(config::DurationConfigPtr duration_ptr) {
-    os_ << duration_ptr->label() << "(";
-    duration_ptr->accept(ModelConfigPrinter(os_, depth_, "", ", ", ""));
-    os_ << ")";
+    openFunction(duration_ptr->label());
+    duration_ptr->accept(
+      ModelConfigSerializer(os_, root_dir_, depth_+1, "", ", ", ""));
+    closeFunction();
   }
 
-  void print(config::FeatureFunctionLibraryConfigPtr config_ptr) {
-    libraries_.push_back(config_ptr);
-    os_ << "lib(\"" << extractBasename(config_ptr->path()) << "\")";
+  void print(config::FeatureFunctionLibraryConfigPtr library_ptr) {
+    if (single_file_serialization_) {
+      callFunction("lib", extractBasename(library_ptr->path()));
+      libraries_.push_back(library_ptr);
+    } else {
+      openSection('{');
+      copy(library_ptr, *os_);
+      closeSection('}');
+    }
+  }
+
+  void copy(config::FeatureFunctionLibraryConfigPtr library_ptr,
+            std::ostream &os) {
+    std::ifstream src(library_ptr->path());
+    std::string line;
+    while (std::getline(src, line)) {
+      indent();
+      os << line << std::endl;
+    }
+  }
+
+  void callFunction(const std::string &name, const std::string &content) {
+    openFunction(name);
+    *os_ << content;
+    closeFunction();
+  }
+
+  void openFunction(const std::string name) {
+    *os_ << name << "(";
+  }
+
+  void closeFunction() {
+    *os_ << ")";
+  }
+
+  void openSection(char separator) {
+    *os_ << separator << "\n";
+    depth_++;
+  }
+
+  void closeSection(char separator) {
+    depth_--;
+    indent();
+    *os_ << separator;
+  }
+
+  void indent() {
+    std::fill_n(std::ostreambuf_iterator<char>(*os_), 2*depth_, ' ');
   }
 };
 
 }  // namespace lang
+
+template<typename... Ts>
+std::ostream &operator<<(std::ostream &os,
+                         const config::BasicConfig<Ts...> &config) {
+  config.accept(lang::ModelConfigSerializer{});
+  return os;
+}
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
