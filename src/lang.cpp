@@ -819,14 +819,11 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   void endVisit() override {
     *os_ << option_end_;
 
-    for (auto &submodel : submodels_) {
+    for (auto &submodel : submodels_)
       submodel->accept(ModelConfigSerializer(root_));
-    }
-    for (auto &library : libraries_) {
-      auto new_file = std::make_shared<std::ofstream>(
-          root_ + extractCorename(library->path()));
-      copy(library, new_file);
-    }
+    for (auto &library : libraries_)
+      copy(library, std::make_shared<std::ofstream>(
+            root_ + extractCorename(library->path())));
   }
 
   void visitOption(config::option::Model &visited) override {
