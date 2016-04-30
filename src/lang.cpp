@@ -807,8 +807,8 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
       : ModelConfigSerializer(std::shared_ptr<std::ostream>(&os, [](void*){})) {
   }
 
-  explicit ModelConfigSerializer(const std::string &root_dir)
-      : ModelConfigSerializer(nullptr, root_dir) {
+  explicit ModelConfigSerializer(const std::string &root)
+      : ModelConfigSerializer(nullptr, root) {
   }
 
  protected:
@@ -820,10 +820,10 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     *os_ << option_end_;
 
     for (auto &submodel : submodels_) {
-      submodel->accept(ModelConfigSerializer(root_dir_));
+      submodel->accept(ModelConfigSerializer(root_));
     }
     for (auto &library : libraries_) {
-      std::ofstream new_file(root_dir_ + extractCorename(library->path()));
+      std::ofstream new_file(root_ + extractCorename(library->path()));
       copy(library, new_file);
     }
   }
@@ -896,7 +896,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
   void visitPath(const std::string &path) override {
     if (single_file_serialization_) {
-      auto new_path = root_dir_ + extractCorename(path);
+      auto new_path = root_ + extractCorename(path);
       filesystem::create_directories(extractDir(new_path));
       os_ = std::make_shared<std::ofstream>(new_path);
     }
@@ -905,7 +905,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
  private:
   // Instance variables
   bool single_file_serialization_;
-  std::string root_dir_;
+  std::string root_;
 
   std::shared_ptr<std::ostream> os_;
   unsigned int depth_;
@@ -925,7 +925,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
                         std::string option_middle = "\n\n",
                         std::string option_end = "\n")
       : single_file_serialization_(os.get() == nullptr),
-        os_(os), root_dir_(root_dir), depth_(initial_depth),
+        os_(os), root_(root_dir), depth_(initial_depth),
         option_attribution_(option_attribution),
         option_middle_(option_middle),
         option_end_(option_end) {
@@ -983,7 +983,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
       submodels_.push_back(config_ptr);
     } else {
       openSection('{');
-      config_ptr->accept(ModelConfigSerializer(os_, root_dir_, depth_));
+      config_ptr->accept(ModelConfigSerializer(os_, root_, depth_));
       closeSection('}');
     }
   }
@@ -991,14 +991,14 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   void print(config::StateConfigPtr state_ptr) {
     openSection('[');
     state_ptr->accept(
-      ModelConfigSerializer(os_, root_dir_, depth_, ": ", ",\n"));
+      ModelConfigSerializer(os_, root_, depth_, ": ", ",\n"));
     closeSection(']');
   }
 
   void print(config::DurationConfigPtr duration_ptr) {
     openFunction(duration_ptr->label());
     duration_ptr->accept(
-      ModelConfigSerializer(os_, root_dir_, depth_+1, "", ", ", ""));
+      ModelConfigSerializer(os_, root_, depth_+1, "", ", ", ""));
     closeFunction();
   }
 
