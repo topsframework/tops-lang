@@ -823,7 +823,8 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
       submodel->accept(ModelConfigSerializer(root_));
     }
     for (auto &library : libraries_) {
-      std::ofstream new_file(root_ + extractCorename(library->path()));
+      auto new_file = std::make_shared<std::ofstream>(
+          root_ + extractCorename(library->path()));
       copy(library, new_file);
     }
   }
@@ -1008,18 +1009,18 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
       libraries_.push_back(library_ptr);
     } else {
       openSection('{');
-      copy(library_ptr, *os_);
+      copy(library_ptr, os_);
       closeSection('}');
     }
   }
 
   void copy(config::FeatureFunctionLibraryConfigPtr library_ptr,
-            std::ostream &os) {
+            std::shared_ptr<std::ostream> os) {
     std::ifstream src(library_ptr->path());
     std::string line;
     while (std::getline(src, line)) {
       indent();
-      os << line << std::endl;
+      *os << line << std::endl;
     }
   }
 
