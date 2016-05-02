@@ -893,7 +893,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void visitPath(const std::string &path) override {
-    if (single_file_serialization_) {
+    if (multiple_file_serialization_) {
       auto new_path = root_ + extractCorename(path);
       filesystem::create_directories(extractDir(new_path));
       os_ = std::make_shared<std::ofstream>(new_path);
@@ -902,7 +902,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
 
  private:
   // Instance variables
-  bool single_file_serialization_;
+  bool multiple_file_serialization_;
   std::string root_;
 
   std::shared_ptr<std::ostream> os_;
@@ -922,7 +922,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
                         std::string option_attribution = " = ",
                         std::string option_middle = "\n\n",
                         std::string option_end = "\n")
-      : single_file_serialization_(os.get() == nullptr),
+      : multiple_file_serialization_(os.get() == nullptr),
         os_(os), root_(root_dir), depth_(initial_depth),
         option_attribution_(option_attribution),
         option_middle_(option_middle),
@@ -976,7 +976,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void print(config::ModelConfigPtr config_ptr) {
-    if (single_file_serialization_) {
+    if (multiple_file_serialization_) {
       callFunction("model", extractBasename(config_ptr->path()));
       submodels_.push_back(config_ptr);
     } else {
@@ -996,12 +996,12 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   void print(config::DurationConfigPtr duration_ptr) {
     openFunction(duration_ptr->label());
     duration_ptr->accept(
-      ModelConfigSerializer(os_, root_, depth_+1, "", ", ", ""));
+      ModelConfigSerializer(os_, root_, depth_, "", ", ", ""));
     closeFunction();
   }
 
   void print(config::FeatureFunctionLibraryConfigPtr library_ptr) {
-    if (single_file_serialization_) {
+    if (multiple_file_serialization_) {
       callFunction("lib", extractBasename(library_ptr->path()));
       libraries_.push_back(library_ptr);
     } else {
