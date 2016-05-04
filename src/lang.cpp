@@ -1491,6 +1491,15 @@ class Interpreter {
       return config::DurationConfigPtr(duration_cfg);
     }), "explicit");
 
+    module->add(fun([this, root] (config::ModelConfigPtr model_cfg,
+                                  unsigned int size) {
+      auto duration_cfg
+        = std::make_shared<config::ExplicitDurationConfig>("", "explicit");
+      std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
+      std::get<decltype("model"_t)>(*duration_cfg.get()) = model_cfg;
+      return config::DurationConfigPtr(duration_cfg);
+    }), "explicit");
+
     module->add(fun([this] (unsigned int size) {
       auto duration_cfg
         = std::make_shared<config::SignalDurationConfig>("", "fixed");
