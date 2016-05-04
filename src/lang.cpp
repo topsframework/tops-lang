@@ -1391,7 +1391,7 @@ class Interpreter {
     std::vector<std::string> usepaths { root };
 
     chaiscript::ChaiScript chai(modulepaths, usepaths);
-    chai.add(makeInterpreterLibrary(root));
+    chai.add(makeInterpreterLibrary(filepath));
 
     auto cfg = std::make_shared<config::ModelConfig>(filepath);
     cfg->accept(ModelConfigRegister(chai));
@@ -1418,7 +1418,7 @@ class Interpreter {
     std::vector<std::string> usepaths { root };
 
     chaiscript::ChaiScript chai(modulepaths, usepaths);
-    chai.add(makeInterpreterLibrary(root));
+    chai.add(makeInterpreterLibrary(filepath));
 
     auto cfg = std::make_shared<Config>(filepath);
     cfg->accept(ModelConfigRegister(chai));
@@ -1428,16 +1428,16 @@ class Interpreter {
     return cfg;
   }
 
-  chaiscript::ModulePtr makeInterpreterLibrary(const std::string &root) {
+  chaiscript::ModulePtr makeInterpreterLibrary(const std::string &filepath) {
     static auto interpreter_library = std::make_shared<chaiscript::Module>();
     static bool initialized = false;
 
     if (!initialized) {
-      registerTypes(interpreter_library, root);
-      registerHelpers(interpreter_library, root);
-      registerConstants(interpreter_library, root);
-      registerAttributions(interpreter_library, root);
-      registerConcatenations(interpreter_library, root);
+      registerTypes(interpreter_library, filepath);
+      registerHelpers(interpreter_library, filepath);
+      registerConstants(interpreter_library, filepath);
+      registerAttributions(interpreter_library, filepath);
+      registerConcatenations(interpreter_library, filepath);
       initialized = true;
     }
 
@@ -1445,7 +1445,7 @@ class Interpreter {
   }
 
   void registerTypes(chaiscript::ModulePtr &module,
-                     const std::string &/* root */) {
+                     const std::string &/* filepath */) {
     REGISTER_TYPE(Type);
     REGISTER_TYPE(Alphabet);
     REGISTER_TYPE(Size);
@@ -1467,67 +1467,69 @@ class Interpreter {
   }
 
   void registerHelpers(chaiscript::ModulePtr &module,
-                       const std::string &root) {
+                       const std::string &filepath) {
     using chaiscript::fun;
 
-    module->add(fun([this, root] (const std::string &file) {
+    using config::MaxLenghtConfig;
+    using config::SignalDurationConfig;
+    using config::ExplicitDurationConfig;
+    using config::GeometricDurationConfig;
+    using config::FeatureFunctionLibraryConfig;
+
+    module->add(fun([this, filepath] (const std::string &file) {
+      auto root = extractDir(filepath);
       return this->makeModelConfig(root + file);
     }), "model");
 
-    module->add(fun([this]() {
-      auto duration_cfg
-        = std::make_shared<config::GeometricDurationConfig>("", "geometric");
-      return config::DurationConfigPtr(duration_cfg);
+    module->add(fun([this, filepath]() {
+      auto duration_ptr = GeometricDurationConfig::make(filepath, "geometric");
+      return config::DurationConfigPtr(duration_ptr);
     }), "geometric");
 
-    module->add(fun([this, root] (const std::string &file) {
-      auto duration_cfg
-        = std::make_shared<config::ExplicitDurationConfig>("", "explicit");
-      std::get<decltype("model"_t)>(*duration_cfg.get())
-        = this->makeModelConfig(root + file);
-      return config::DurationConfigPtr(duration_cfg);
+    module->add(fun([this, filepath] (const std::string &file) {
+      auto duration_ptr = ExplicitDurationConfig::make(filepath, "explicit");
+      std::get<decltype("model"_t)>(*duration_ptr.get())
+        = this->makeModelConfig(extractDir(filepath) + file);
+      return config::DurationConfigPtr(duration_ptr);
     }), "explicit");
 
-    module->add(fun([this, root] (const std::string &file, unsigned int size) {
-      auto duration_cfg
-        = std::make_shared<config::ExplicitDurationConfig>("", "explicit");
-      std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
-      std::get<decltype("model"_t)>(*duration_cfg.get())
-        = this->makeModelConfig(root + file);
-      return config::DurationConfigPtr(duration_cfg);
+    module->add(fun([this, filepath] (const std::string &file,
+                                      unsigned int size) {
+      auto duration_ptr = ExplicitDurationConfig::make(filepath, "explicit");
+      std::get<decltype("max_size"_t)>(*duration_ptr.get()) = size;
+      std::get<decltype("model"_t)>(*duration_ptr.get())
+        = this->makeModelConfig(extractDir(filepath) + file);
+      return config::DurationConfigPtr(duration_ptr);
     }), "explicit");
 
-    module->add(fun([this, root] (config::ModelConfigPtr model_cfg,
-                                  unsigned int size) {
-      auto duration_cfg
-        = std::make_shared<config::ExplicitDurationConfig>("", "explicit");
-      std::get<decltype("max_size"_t)>(*duration_cfg.get()) = size;
-      std::get<decltype("model"_t)>(*duration_cfg.get()) = model_cfg;
-      return config::DurationConfigPtr(duration_cfg);
+    module->add(fun([this, filepath] (config::ModelConfigPtr model_ptr,
+                                      unsigned int size) {
+      auto duration_ptr = ExplicitDurationConfig::make(filepath, "explicit");
+      std::get<decltype("max_size"_t)>(*duration_ptr.get()) = size;
+      std::get<decltype("model"_t)>(*duration_ptr.get()) = model_ptr;
+      return config::DurationConfigPtr(duration_ptr);
     }), "explicit");
 
-    module->add(fun([this] (unsigned int size) {
-      auto duration_cfg
-        = std::make_shared<config::SignalDurationConfig>("", "fixed");
-      std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
-      return config::DurationConfigPtr(duration_cfg);
+    module->add(fun([this, filepath] (unsigned int size) {
+      auto duration_ptr = SignalDurationConfig::make(filepath, "fixed");
+      std::get<decltype("size"_t)>(*duration_ptr.get()) = size;
+      return config::DurationConfigPtr(duration_ptr);
     }), "fixed");
 
-    module->add(fun([this] (unsigned int size) {
-      auto duration_cfg
-        = std::make_shared<config::MaxLenghtConfig>("", "max_length");
-      std::get<decltype("size"_t)>(*duration_cfg.get()) = size;
-      return config::DurationConfigPtr(duration_cfg);
+    module->add(fun([this, filepath] (unsigned int size) {
+      auto duration_ptr = MaxLenghtConfig::make(filepath, "max_length");
+      std::get<decltype("size"_t)>(*duration_ptr.get()) = size;
+      return config::DurationConfigPtr(duration_ptr);
     }), "max_lenght");
 
-    module->add(fun([this, root] (const std::string &file) {
-      using config::FeatureFunctionLibraryConfig;
+    module->add(fun([this, filepath] (const std::string &file) {
+      auto root = extractDir(filepath);
       return this->fillConfig<FeatureFunctionLibraryConfig>(root + file);
     }), "lib");
   }
 
   void registerConstants(chaiscript::ModulePtr &module,
-                         const std::string &/* root */) {
+                         const std::string &/* filepath */) {
     using chaiscript::const_var;
 
     module->add_global_const(const_var(std::string("emission")), "emission");
@@ -1535,19 +1537,19 @@ class Interpreter {
   }
 
   void registerAttributions(chaiscript::ModulePtr &module,
-                            const std::string &/* root */) {
+                            const std::string &filepath) {
     using chaiscript::fun;
     using chaiscript::boxed_cast;
 
     using chaiscript::Boxed_Value;
     using Map = std::map<std::string, Boxed_Value>;
 
-    module->add(fun([] (config::option::States &conv, const Map &orig) {
+    module->add(fun([filepath] (config::option::States &conv, const Map &orig) {
       for (auto &pair : orig) {
         auto inner_orig
           = boxed_cast<std::map<std::string, Boxed_Value> &>(pair.second);
 
-        conv[pair.first] = std::make_shared<config::StateConfig>();
+        conv[pair.first] = std::make_shared<config::StateConfig>(filepath);
 
         std::get<decltype("duration"_t)>(*conv[pair.first])
           = boxed_cast<config::DurationConfigPtr>(inner_orig["duration"]);
@@ -1559,7 +1561,7 @@ class Interpreter {
   }
 
   void registerConcatenations(chaiscript::ModulePtr &module,
-                              const std::string &/* root */) {
+                              const std::string &/* filepath */) {
     using chaiscript::fun;
 
     module->add(fun([] (const std::string &lhs, const std::string &rhs) {
