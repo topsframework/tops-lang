@@ -819,14 +819,15 @@ namespace lang {
 class FilePrinter {
  public:
   // Purely virtual methods
-  virtual void changeOstream(const std::string &path) = 0;
-
   virtual void print(config::ModelConfigPtr config_ptr) = 0;
   virtual void print(config::StateConfigPtr state_ptr) = 0;
   virtual void print(config::DurationConfigPtr duration_ptr) = 0;
   virtual void print(config::FeatureFunctionLibraryConfigPtr library_ptr) = 0;
 
   // Virtual methods
+  virtual void changeOstream(const std::string &path) {
+  }
+
   virtual void startPrinting() {
   }
 
@@ -1066,9 +1067,6 @@ class SingleFilePrinter : public FilePrinter {
   }
 
   // Overriden methods
-  void changeOstream(const std::string &path) override {
-  }
-
   void print(config::ModelConfigPtr config_ptr) override {
     openSection('{');
     config_ptr->accept(ModelConfigSerializer(
