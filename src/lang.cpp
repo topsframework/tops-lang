@@ -1126,6 +1126,7 @@ class MultipleFilePrinter : public FilePrinter {
 
   // Overriden methods
   void changeOstream(const std::string &path) override {
+    current_ = extractDir(extractCorename(path));
     if (change_ostream_) {
       auto new_path = root_ + extractCorename(path);
       filesystem::create_directories(extractDir(new_path));
@@ -1145,7 +1146,7 @@ class MultipleFilePrinter : public FilePrinter {
   }
 
   void print(config::ModelConfigPtr config_ptr) override {
-    callFunction("model", '"' + extractBasename(config_ptr->path()) + '"');
+    callFunction("model", pathForHelperCall(config_ptr->path()));
     submodels_.push_back(config_ptr);
   }
 
@@ -1164,13 +1165,14 @@ class MultipleFilePrinter : public FilePrinter {
   }
 
   void print(config::FeatureFunctionLibraryConfigPtr library_ptr) override {
-    callFunction("lib", '"' + extractBasename(library_ptr->path()) + '"');
+    callFunction("lib", pathForHelperCall(library_ptr->path()));
     libraries_.push_back(library_ptr);
   }
 
  protected:
   // Instance variables
   std::string root_;
+  std::string current_;
   bool change_ostream_;
 
   std::list<config::ModelConfigPtr> submodels_;
@@ -1182,6 +1184,12 @@ class MultipleFilePrinter : public FilePrinter {
       const std::string &root, bool change_ostream, Args&&... args)
       : Base(std::forward<Args>(args)...),
         root_(root), change_ostream_(change_ostream) {
+  }
+
+ private:
+  // Concrete methods
+  std::string pathForHelperCall(const std::string &path) {
+    return '"' + removeSubstring(current_, extractCorename(path)) + '"';
   }
 };
 
