@@ -800,133 +800,22 @@ std::string extractBasename(const std::string &filepath) {
 
 namespace lang {
 
-class ModelConfigSerializer : public config::ModelConfigVisitor {
+class FilePrinter {
  public:
-  // Constructors
-  explicit ModelConfigSerializer(std::ostream &os = std::cout)
-      : ModelConfigSerializer(std::shared_ptr<std::ostream>(&os, [](void*){})) {
+  // Purely virtual methods
+  virtual void changeOstream(const std::string &path) = 0;
+
+  virtual void print(config::ModelConfigPtr config_ptr) = 0;
+  virtual void print(config::StateConfigPtr state_ptr) = 0;
+  virtual void print(config::DurationConfigPtr duration_ptr) = 0;
+  virtual void print(config::FeatureFunctionLibraryConfigPtr library_ptr) = 0;
+
+  // Virtual methods
+  virtual void startPrinting() {
   }
 
-  explicit ModelConfigSerializer(const std::string &root)
-      : ModelConfigSerializer(nullptr, root) {
-  }
-
- protected:
-  // Overriden functions
-  void startVisit() override {
-  }
-
-  void endVisit() override {
+  virtual void endPrinting() {
     *os_ << option_end_;
-
-    for (auto &submodel : submodels_)
-      submodel->accept(ModelConfigSerializer(root_));
-    for (auto &library : libraries_)
-      copy(library, std::make_shared<std::ofstream>(
-            root_ + extractCorename(library->path())));
-  }
-
-  void visitOption(config::option::Model &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::State &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Duration &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Models &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::States &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Type &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Size &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Alphabet &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Probability &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::Probabilities &visited) override {
-    print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctions &visited) override {
-    print(visited);
-  }
-
-  void visitTag(const std::string &tag, std::size_t count,
-                                        std::size_t max) override {
-    if (count > 0 && count < max) {
-      *os_ << option_middle_;
-    }
-    if (!option_attribution_.empty()) {
-      indent();
-      *os_ << tag << option_attribution_;
-    }
-  }
-
-  void visitLabel(const std::string &/* label */) override {
-  }
-
-  void visitPath(const std::string &path) override {
-    if (multiple_file_serialization_) {
-      auto new_path = root_ + extractCorename(path);
-      filesystem::create_directories(extractDir(new_path));
-      os_ = std::make_shared<std::ofstream>(new_path);
-    }
-  }
-
- private:
-  // Instance variables
-  bool multiple_file_serialization_;
-  std::string root_;
-
-  std::shared_ptr<std::ostream> os_;
-  unsigned int depth_;
-
-  const std::string option_attribution_;
-  const std::string option_middle_;
-  const std::string option_end_;
-
-  std::list<config::ModelConfigPtr> submodels_;
-  std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
-
-  // Constructors
-  ModelConfigSerializer(std::shared_ptr<std::ostream> os,
-                        const std::string &root_dir = "",
-                        unsigned int initial_depth = 0,
-                        std::string option_attribution = " = ",
-                        std::string option_middle = "\n\n",
-                        std::string option_end = "\n")
-      : multiple_file_serialization_(os.get() == nullptr),
-        os_(os), root_(root_dir), depth_(initial_depth),
-        option_attribution_(option_attribution),
-        option_middle_(option_middle),
-        option_end_(option_end) {
   }
 
   // Concrete methods
@@ -935,11 +824,11 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void print(float num) {
-    *os_ << num;
+    *os_ << std::fixed << num;
   }
 
   void print(double num) {
-    *os_ << num;
+    *os_ << std::fixed << num;
   }
 
   void print(unsigned int num) {
@@ -975,52 +864,38 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     closeSection(']');
   }
 
-  void print(config::ModelConfigPtr config_ptr) {
-    if (multiple_file_serialization_) {
-      callFunction("model", extractBasename(config_ptr->path()));
-      submodels_.push_back(config_ptr);
-    } else {
-      openSection('{');
-      config_ptr->accept(ModelConfigSerializer(os_, root_, depth_));
-      closeSection('}');
+  void printTag(const std::string &tag, std::size_t count,
+                                        std::size_t max) {
+    if (count > 0 && count < max) {
+      *os_ << option_middle_;
     }
-  }
-
-  void print(config::StateConfigPtr state_ptr) {
-    openSection('[');
-    state_ptr->accept(
-      ModelConfigSerializer(os_, root_, depth_, ": ", ",\n"));
-    closeSection(']');
-  }
-
-  void print(config::DurationConfigPtr duration_ptr) {
-    openFunction(duration_ptr->label());
-    duration_ptr->accept(
-      ModelConfigSerializer(os_, root_, depth_, "", ", ", ""));
-    closeFunction();
-  }
-
-  void print(config::FeatureFunctionLibraryConfigPtr library_ptr) {
-    if (multiple_file_serialization_) {
-      callFunction("lib", extractBasename(library_ptr->path()));
-      libraries_.push_back(library_ptr);
-    } else {
-      openSection('{');
-      copy(library_ptr, os_);
-      closeSection('}');
-    }
-  }
-
-  void copy(config::FeatureFunctionLibraryConfigPtr library_ptr,
-            std::shared_ptr<std::ostream> os) {
-    std::ifstream src(library_ptr->path());
-    std::string line;
-    while (std::getline(src, line)) {
+    if (!option_attribution_.empty()) {
       indent();
-      *os << line << std::endl;
+      *os_ << tag << option_attribution_;
     }
   }
 
+  // Destructor
+  virtual ~FilePrinter() = default;
+
+ protected:
+  // Instance variables
+  std::shared_ptr<std::ostream> os_;
+  unsigned int depth_;
+
+  // Constructors
+  FilePrinter(std::shared_ptr<std::ostream> os,
+                        unsigned int initial_depth = 0,
+                        std::string option_attribution = " = ",
+                        std::string option_middle = "\n\n",
+                        std::string option_end = "\n")
+      : os_(os), depth_(initial_depth),
+        option_attribution_(option_attribution),
+        option_middle_(option_middle),
+        option_end_(option_end) {
+  }
+
+  // Concrete methods
   void callFunction(const std::string &name, const std::string &content) {
     openFunction(name);
     *os_ << content;
@@ -1049,7 +924,253 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   void indent() {
     std::fill_n(std::ostreambuf_iterator<char>(*os_), 2*depth_, ' ');
   }
+
+  template<typename Base, typename... Options>
+  void copy(std::shared_ptr<config::BasicConfig<Base, Options...>> config_ptr,
+            std::shared_ptr<std::ostream> os) {
+    std::ifstream src(config_ptr->path());
+    std::string line;
+    while (std::getline(src, line)) {
+      indent();
+      *os << line << std::endl;
+    }
+  }
+
+ private:
+  // Instance variables
+  const std::string option_attribution_;
+  const std::string option_middle_;
+  const std::string option_end_;
 };
+
+class ModelConfigSerializer : public config::ModelConfigVisitor {
+ public:
+  // Constructors
+  explicit ModelConfigSerializer(std::ostream &os = std::cout);
+  explicit ModelConfigSerializer(const std::string &root);
+
+  explicit ModelConfigSerializer(std::shared_ptr<FilePrinter> printer)
+      : printer_(printer) {
+  }
+
+ protected:
+  // Overriden functions
+  void startVisit() override {
+    printer_->startPrinting();
+  }
+
+  void endVisit() override {
+    printer_->endPrinting();
+  }
+
+  void visitOption(config::option::Model &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::State &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::Duration &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::Models &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::States &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::Type &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::Size &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::Alphabet &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::Probability &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::Probabilities &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::FeatureFunctions &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitTag(const std::string &tag, std::size_t count,
+                                        std::size_t max) override {
+    printer_->printTag(tag, count, max);
+  }
+
+  void visitLabel(const std::string &/* label */) override {
+  }
+
+  void visitPath(const std::string &path) override {
+    printer_->changeOstream(path);
+  }
+
+ private:
+  // Instance variables
+  std::shared_ptr<FilePrinter> printer_;
+};
+
+class SingleFilePrinter : public FilePrinter {
+ public:
+  // Alias
+  using Base = FilePrinter;
+  using Self = SingleFilePrinter;
+
+  // Constructors
+  SingleFilePrinter(std::shared_ptr<std::ostream> os)
+    : Base(os) {
+  }
+
+  // Static methods
+  template<typename... Args>
+  static std::shared_ptr<Self> make(Args&&... args) {
+    return std::shared_ptr<Self>(new Self(std::forward<Args>(args)...));
+  }
+
+  // Overriden methods
+  void changeOstream(const std::string &path) override {
+  }
+
+  void print(config::ModelConfigPtr config_ptr) override {
+    openSection('{');
+    config_ptr->accept(ModelConfigSerializer(
+          Self::make(os_, depth_)));
+    closeSection('}');
+  }
+
+  void print(config::StateConfigPtr state_ptr) override {
+    openSection('[');
+    state_ptr->accept(ModelConfigSerializer(
+          Self::make(os_, depth_, ": ", ",\n")));
+    closeSection(']');
+  }
+
+  void print(config::DurationConfigPtr duration_ptr) override {
+    openFunction(duration_ptr->label());
+    duration_ptr->accept(ModelConfigSerializer(
+          Self::make(os_, depth_, "", ", ", "")));
+    closeFunction();
+  }
+
+  void print(config::FeatureFunctionLibraryConfigPtr library_ptr) override {
+    openSection('{');
+    copy(library_ptr, os_);
+    closeSection('}');
+  }
+
+ protected:
+  // Hidden constructor inheritance
+  using Base::Base;
+};
+
+class MultipleFilePrinter : public FilePrinter {
+ public:
+  // Alias
+  using Base = FilePrinter;
+  using Self = MultipleFilePrinter;
+
+  // Constructors
+  MultipleFilePrinter(const std::string &root)
+    : Base(nullptr), root_(root), change_ostream_(true) {
+  }
+
+  // Static methods
+  template<typename... Args>
+  static std::shared_ptr<Self> make(Args&&... args) {
+    return std::shared_ptr<Self>(new Self(std::forward<Args>(args)...));
+  }
+
+  // Overriden methods
+  void changeOstream(const std::string &path) override {
+    if (change_ostream_) {
+      auto new_path = root_ + extractCorename(path);
+      filesystem::create_directories(extractDir(new_path));
+      os_ = std::make_shared<std::ofstream>(new_path);
+    }
+  }
+
+  void endPrinting() override {
+    Base::endPrinting();
+
+    for (auto &submodel : submodels_)
+      submodel->accept(ModelConfigSerializer(
+            Self::make(root_, true, os_)));
+    for (auto &library : libraries_)
+      copy(library, std::make_shared<std::ofstream>(
+            root_ + extractCorename(library->path())));
+  }
+
+  void print(config::ModelConfigPtr config_ptr) override {
+    callFunction("model", '"' + extractBasename(config_ptr->path()) + '"');
+    submodels_.push_back(config_ptr);
+  }
+
+  void print(config::StateConfigPtr state_ptr) override {
+    openSection('[');
+    state_ptr->accept(ModelConfigSerializer(
+          Self::make(root_, false, os_, depth_, ": ", ",\n")));
+    closeSection(']');
+  }
+
+  void print(config::DurationConfigPtr duration_ptr) override {
+    openFunction(duration_ptr->label());
+    duration_ptr->accept(ModelConfigSerializer(
+          Self::make(root_, false, os_, depth_, "", ", ", "")));
+    closeFunction();
+  }
+
+  void print(config::FeatureFunctionLibraryConfigPtr library_ptr) override {
+    callFunction("lib", '"' + extractBasename(library_ptr->path()) + '"');
+    libraries_.push_back(library_ptr);
+  }
+
+ protected:
+  // Instance variables
+  std::string root_;
+  bool change_ostream_;
+
+  std::list<config::ModelConfigPtr> submodels_;
+  std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
+
+  // Constructors
+  template<typename... Args>
+  MultipleFilePrinter(
+      const std::string &root, bool change_ostream, Args&&... args)
+      : Base(std::forward<Args>(args)...),
+        root_(root), change_ostream_(change_ostream) {
+  }
+};
+
+ModelConfigSerializer::ModelConfigSerializer(std::ostream &os)
+    : printer_(std::make_shared<SingleFilePrinter>(
+          std::shared_ptr<std::ostream>(&os, [](void*){}))) {
+}
+
+ModelConfigSerializer::ModelConfigSerializer(const std::string &root)
+    : printer_(std::make_shared<MultipleFilePrinter>(root)) {
+}
 
 }  // namespace lang
 
