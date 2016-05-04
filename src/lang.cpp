@@ -1115,7 +1115,7 @@ class MultipleFilePrinter : public FilePrinter {
 
   // Constructors
   MultipleFilePrinter(const std::string &root)
-    : Base(nullptr), root_(root), change_ostream_(true) {
+    : Base(nullptr), change_ostream_(true), root_(root) {
   }
 
   // Static methods
@@ -1139,7 +1139,7 @@ class MultipleFilePrinter : public FilePrinter {
 
     for (auto &submodel : submodels_)
       submodel->accept(ModelConfigSerializer(
-            Self::make(root_, true, os_)));
+            Self::make(true, root_, os_)));
     for (auto &library : libraries_)
       copy(library, std::make_shared<std::ofstream>(
             root_ + extractCorename(library->path())));
@@ -1153,14 +1153,14 @@ class MultipleFilePrinter : public FilePrinter {
   void print(config::StateConfigPtr state_ptr) override {
     openSection('[');
     state_ptr->accept(ModelConfigSerializer(
-          Self::make(root_, false, os_, depth_, ": ", ",\n")));
+          Self::make(false, root_, os_, depth_, ": ", ",\n")));
     closeSection(']');
   }
 
   void print(config::DurationConfigPtr duration_ptr) override {
     openFunction(duration_ptr->label());
     duration_ptr->accept(ModelConfigSerializer(
-          Self::make(root_, false, os_, depth_, "", ", ", "")));
+          Self::make(false, root_, os_, depth_, "", ", ", "")));
     closeFunction();
   }
 
@@ -1171,19 +1171,20 @@ class MultipleFilePrinter : public FilePrinter {
 
  protected:
   // Instance variables
+  bool change_ostream_;
+
   std::string root_;
   std::string current_;
-  bool change_ostream_;
 
   std::list<config::ModelConfigPtr> submodels_;
   std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
 
   // Constructors
   template<typename... Args>
-  MultipleFilePrinter(
-      const std::string &root, bool change_ostream, Args&&... args)
+  MultipleFilePrinter(bool change_ostream, const std::string &root,
+                      Args&&... args)
       : Base(std::forward<Args>(args)...),
-        root_(root), change_ostream_(change_ostream) {
+        change_ostream_(change_ostream), root_(root) {
   }
 
  private:
