@@ -1126,7 +1126,7 @@ class MultipleFilePrinter : public FilePrinter {
 
   // Overriden methods
   void changeOstream(const std::string &path) override {
-    current_ = extractDir(extractCorename(path));
+    working_dir_ = extractDir(extractCorename(path));
     if (change_ostream_) {
       auto new_path = root_dir_ + extractCorename(path);
       filesystem::create_directories(extractDir(new_path));
@@ -1174,7 +1174,7 @@ class MultipleFilePrinter : public FilePrinter {
   bool change_ostream_;
 
   std::string root_dir_;
-  std::string current_;
+  std::string working_dir_;
 
   std::list<config::ModelConfigPtr> submodels_;
   std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
@@ -1190,7 +1190,7 @@ class MultipleFilePrinter : public FilePrinter {
  private:
   // Concrete methods
   std::string pathForHelperCall(const std::string &path) {
-    return '"' + removeSubstring(current_, extractCorename(path)) + '"';
+    return '"' + removeSubstring(working_dir_, extractCorename(path)) + '"';
   }
 };
 
