@@ -527,10 +527,18 @@ class BasicConfig : public Base {
   using Self = BasicConfig<Base, Options...>;
   using Tuple = named_types::named_tuple<Options...>;
 
+  using SelfPtr = std::shared_ptr<BasicConfig<Base, Options...>>;
+
   // Constructors
   explicit BasicConfig(const std::string &path = {},
                        const std::string &label = {})
       : Base(path, label) {
+  }
+
+  // Static methods
+  template<typename... Params>
+  static SelfPtr make(Params&&... params) {
+    return std::make_shared<Self>(std::forward<Params>(params)...);
   }
 
   // Overriden methods
