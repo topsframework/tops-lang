@@ -972,7 +972,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
  public:
   // Constructors
   explicit ModelConfigSerializer(std::ostream &os = std::cout);
-  explicit ModelConfigSerializer(const std::string &root);
+  explicit ModelConfigSerializer(const std::string &root_dir);
 
   explicit ModelConfigSerializer(std::shared_ptr<FilePrinter> printer)
       : printer_(printer) {
@@ -1114,8 +1114,8 @@ class MultipleFilePrinter : public FilePrinter {
   using Self = MultipleFilePrinter;
 
   // Constructors
-  MultipleFilePrinter(const std::string &root)
-    : Base(nullptr), change_ostream_(true), root_(root) {
+  MultipleFilePrinter(const std::string &root_dir)
+    : Base(nullptr), change_ostream_(true), root_dir_(root_dir) {
   }
 
   // Static methods
@@ -1128,7 +1128,7 @@ class MultipleFilePrinter : public FilePrinter {
   void changeOstream(const std::string &path) override {
     current_ = extractDir(extractCorename(path));
     if (change_ostream_) {
-      auto new_path = root_ + extractCorename(path);
+      auto new_path = root_dir_ + extractCorename(path);
       filesystem::create_directories(extractDir(new_path));
       os_ = std::make_shared<std::ofstream>(new_path);
     }
@@ -1139,10 +1139,10 @@ class MultipleFilePrinter : public FilePrinter {
 
     for (auto &submodel : submodels_)
       submodel->accept(ModelConfigSerializer(
-            Self::make(true, root_, os_)));
+            Self::make(true, root_dir_, os_)));
     for (auto &library : libraries_)
       copy(library, std::make_shared<std::ofstream>(
-            root_ + extractCorename(library->path())));
+            root_dir_ + extractCorename(library->path())));
   }
 
   void print(config::ModelConfigPtr config_ptr) override {
@@ -1153,14 +1153,14 @@ class MultipleFilePrinter : public FilePrinter {
   void print(config::StateConfigPtr state_ptr) override {
     openSection('[');
     state_ptr->accept(ModelConfigSerializer(
-          Self::make(false, root_, os_, depth_, ": ", ",\n")));
+          Self::make(false, root_dir_, os_, depth_, ": ", ",\n")));
     closeSection(']');
   }
 
   void print(config::DurationConfigPtr duration_ptr) override {
     openFunction(duration_ptr->label());
     duration_ptr->accept(ModelConfigSerializer(
-          Self::make(false, root_, os_, depth_, "", ", ", "")));
+          Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
     closeFunction();
   }
 
@@ -1173,7 +1173,7 @@ class MultipleFilePrinter : public FilePrinter {
   // Instance variables
   bool change_ostream_;
 
-  std::string root_;
+  std::string root_dir_;
   std::string current_;
 
   std::list<config::ModelConfigPtr> submodels_;
@@ -1181,10 +1181,10 @@ class MultipleFilePrinter : public FilePrinter {
 
   // Constructors
   template<typename... Args>
-  MultipleFilePrinter(bool change_ostream, const std::string &root,
+  MultipleFilePrinter(bool change_ostream, const std::string &root_dir,
                       Args&&... args)
       : Base(std::forward<Args>(args)...),
-        change_ostream_(change_ostream), root_(root) {
+        change_ostream_(change_ostream), root_dir_(root_dir) {
   }
 
  private:
@@ -1199,8 +1199,8 @@ ModelConfigSerializer::ModelConfigSerializer(std::ostream &os)
           std::shared_ptr<std::ostream>(&os, [](void*){}))) {
 }
 
-ModelConfigSerializer::ModelConfigSerializer(const std::string &root)
-    : printer_(std::make_shared<MultipleFilePrinter>(root)) {
+ModelConfigSerializer::ModelConfigSerializer(const std::string &root_dir)
+    : printer_(std::make_shared<MultipleFilePrinter>(root_dir)) {
 }
 
 }  // namespace lang
@@ -1394,10 +1394,10 @@ class Interpreter {
   }
 
   std::string findModelType(const std::string &filepath) {
-    auto root = extractDir(filepath);
+    auto root_dir = extractDir(filepath);
 
     std::vector<std::string> modulepaths;
-    std::vector<std::string> usepaths { root };
+    std::vector<std::string> usepaths { root_dir };
 
     chaiscript::ChaiScript chai(modulepaths, usepaths);
     chai.add(makeInterpreterLibrary(filepath));
@@ -1421,10 +1421,10 @@ class Interpreter {
 
   template<typename Config>
   std::shared_ptr<Config> fillConfig(const std::string &filepath) {
-    auto root = extractDir(filepath);
+    auto root_dir = extractDir(filepath);
 
     std::vector<std::string> modulepaths;
-    std::vector<std::string> usepaths { root };
+    std::vector<std::string> usepaths { root_dir };
 
     chaiscript::ChaiScript chai(modulepaths, usepaths);
     chai.add(makeInterpreterLibrary(filepath));
@@ -1486,8 +1486,8 @@ class Interpreter {
     using config::FeatureFunctionLibraryConfig;
 
     module->add(fun([this, filepath] (const std::string &file) {
-      auto root = extractDir(filepath);
-      return this->makeModelConfig(root + file);
+      auto root_dir = extractDir(filepath);
+      return this->makeModelConfig(root_dir + file);
     }), "model");
 
     module->add(fun([this, filepath]() {
@@ -1532,8 +1532,8 @@ class Interpreter {
     }), "max_lenght");
 
     module->add(fun([this, filepath] (const std::string &file) {
-      auto root = extractDir(filepath);
-      return this->fillConfig<FeatureFunctionLibraryConfig>(root + file);
+      auto root_dir = extractDir(filepath);
+      return this->fillConfig<FeatureFunctionLibraryConfig>(root_dir + file);
     }), "lib");
   }
 
