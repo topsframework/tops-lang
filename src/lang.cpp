@@ -1115,7 +1115,8 @@ class MultipleFilePrinter : public FilePrinter {
 
   // Constructors
   MultipleFilePrinter(const std::string &root_dir)
-    : Base(nullptr), change_ostream_(true), root_dir_(root_dir) {
+    : Base(nullptr), change_ostream_(true),
+      root_dir_(cleanPath(root_dir + "/")) {
   }
 
   // Static methods
