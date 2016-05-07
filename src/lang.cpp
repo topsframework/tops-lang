@@ -820,6 +820,11 @@ std::string extractBasename(const std::string &filepath) {
   return filepath.substr(found + 1);
 }
 
+std::string extractSuffix(const std::string &filepath) {
+  auto found = cleanPath(filepath).find_last_of(".");
+  return filepath.substr(found + 1);
+}
+
 }  // namespace lang
 
 /*
@@ -1360,6 +1365,8 @@ class Interpreter {
 
   // Concrete methods
   Environment evalModel(const std::string &filepath) {
+    checkExtension(filepath);
+
     auto model_cfg = makeModelConfig(filepath);
     auto converter = makeConverver(model_cfg);
     return { model_cfg, converter };
@@ -1367,6 +1374,16 @@ class Interpreter {
 
  private:
   // Concrete methods
+  void checkExtension(const std::string &filepath) {
+    auto suffix = extractSuffix(filepath);
+
+    if (suffix != "tops") {
+      std::ostringstream error_message;
+      error_message << "Unknown extension ." << suffix;
+      throw std::invalid_argument(error_message.str());
+    }
+  }
+
   config::ModelConfigPtr makeModelConfig(const std::string &filepath) {
     auto model_type = findModelType(filepath);
 
