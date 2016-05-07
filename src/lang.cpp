@@ -1077,7 +1077,7 @@ class SingleFilePrinter : public FilePrinter {
   using Self = SingleFilePrinter;
 
   // Constructors
-  SingleFilePrinter(std::shared_ptr<std::ostream> os)
+  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os)
     : Base(os) {
   }
 
@@ -1127,7 +1127,7 @@ class MultipleFilePrinter : public FilePrinter {
   using Self = MultipleFilePrinter;
 
   // Constructors
-  MultipleFilePrinter(const std::string &root_dir)
+  explicit MultipleFilePrinter(const std::string &root_dir)
     : Base(nullptr), change_ostream_(true),
       root_dir_(cleanPath(root_dir + "/")) {
   }
@@ -1210,7 +1210,7 @@ class MultipleFilePrinter : public FilePrinter {
 
 ModelConfigSerializer::ModelConfigSerializer(std::ostream &os)
     : printer_(std::make_shared<SingleFilePrinter>(
-          std::shared_ptr<std::ostream>(&os, [](void*){}))) {
+          std::shared_ptr<std::ostream>(&os, [] (void *memory) {}))) {
 }
 
 ModelConfigSerializer::ModelConfigSerializer(const std::string &root_dir)
