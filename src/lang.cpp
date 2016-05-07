@@ -846,7 +846,7 @@ class FilePrinter {
   virtual void print(config::FeatureFunctionLibraryConfigPtr library_ptr) = 0;
 
   // Virtual methods
-  virtual void changeOstream(const std::string &path) {
+  virtual void changeOstream(const std::string &/* path */) {
   }
 
   virtual void startPrinting() {
