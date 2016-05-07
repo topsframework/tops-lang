@@ -2,7 +2,7 @@ training_algorithm = [ "HMM": "BaumWelch" ]
 
 training_set = "dataset/cds.fasta"
 
-initial_model = model("hmm.chai")
+initial_model = model("hmm.tops")
 
 maxiterations = 100
 

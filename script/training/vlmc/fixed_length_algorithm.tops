@@ -10,4 +10,4 @@ order = 3
 
 pseudo_counts = 1.23
 
-initial_model = model("vlmc.chai")
+initial_model = model("vlmc.tops")

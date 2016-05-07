@@ -3,8 +3,8 @@ model_type = "MultipleSequentialModels"
 observations = [ "0", "1" ]
 
 models = [
-  "first"  : [ emission: model("vlmc.chai"),
+  "first"  : [ emission: model("vlmc.tops"),
                duration: max_lenght(22) ],
-  "second" : [ emission: model("vlmc.chai"),
+  "second" : [ emission: model("vlmc.tops"),
                duration: max_lenght(11) ]
 ]

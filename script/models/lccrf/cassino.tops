@@ -7,7 +7,7 @@ observations = [ "1", "2", "3", "4", "5", "6" ]
 labels = [ "Fair", "Loaded" ]
 
 feature_function_libraries = [
-  lib("features.chai")
+  lib("features.tops")
 ]
 
 feature_parameters = [

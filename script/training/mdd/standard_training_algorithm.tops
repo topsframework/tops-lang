@@ -13,6 +13,6 @@ consensus_sequence = [
   "A"
 ]
 
-consensus_model = model("consensus_model.chai")
+consensus_model = model("consensus_model.tops")
 
 minimum_subset = 42

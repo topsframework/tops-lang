@@ -1,0 +1,16 @@
+model_type = "GHMM"
+
+training_algorithm = "MaximumLikehood"
+
+training_set = dataset("datasets/cds.fa", "datasets/cds.gtf")
+
+observations = [ "1", "2", "3", "4", "5", "6" ]
+
+states = [
+  "Fair"   : [ duration: geometric(),
+               emission: training("fair_dice.tops") ],
+  "Loaded" : [ duration: geometric(),
+               emission: training("loaded_dice.tops") ]
+]
+
+pseudo_counter = 1.23

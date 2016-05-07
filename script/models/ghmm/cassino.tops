@@ -6,9 +6,9 @@ observations = [ "1", "2", "3", "4", "5", "6" ]
 
 states = [
   "Fair"   : [ duration: geometric(),
-               emission: model("fair_dice.chai") ],
+               emission: model("fair_dice.tops") ],
   "Loaded" : [ duration: geometric(),
-               emission: model("loaded_dice.chai") ]
+               emission: model("loaded_dice.tops") ]
 ]
 
 initial_probabilities = [

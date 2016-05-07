@@ -1,4 +1,4 @@
-training_algorithm = [ "VLMC": "Interpolation" ]
+training_algorithm = [ "PeriodicIMC": "Interpolation" ]
 
 alphabet = [ "A", "C", "G", "T" ]
 
@@ -8,6 +8,8 @@ weights = "dataset/cds.weights"
 
 order = 3
 
+nphases = 3
+
 pseudo_counts = 1.23
 
-initial_model = model("vlmc.chai")
+initial_model = model("pimc.tops")

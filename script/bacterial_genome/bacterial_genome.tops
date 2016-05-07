@@ -16,14 +16,14 @@ transition_probabilities = [
 
 states = [
   "NonCoding" : [ duration : geometric(),
-                  emission : model("NonCodingEmission.chai") ],
+                  emission : model("NonCodingEmission.tops") ],
 
-  "Coding"    : [ duration : explicit("CodingDuration.chai"),
-                  emission : model("CodingEmission.chai") ],
+  "Coding"    : [ duration : explicit("CodingDuration.tops"),
+                  emission : model("CodingEmission.tops") ],
 
   "Start"     : [ duration : fixed(27),
-                  emission : model("StartEmission.chai") ],
+                  emission : model("StartEmission.tops") ],
 
   "Stop"      : [ duration : fixed(27),
-                  emission : model("StopEmission.chai") ]
+                  emission : model("StopEmission.tops") ]
 ]
