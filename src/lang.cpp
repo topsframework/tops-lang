@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <stack>
 #include <cstdlib>
 #include <iomanip>
 #include <fstream>
@@ -271,6 +272,24 @@ using PeriodicIMCConfig
     >::extending<ModelConfig>::type;
 
 using PeriodicIMCConfigPtr = std::shared_ptr<PeriodicIMCConfig>;
+
+/*----------------------------------------------------------------------------*/
+
+struct DependencyNode;
+using DependencyNodePtr = std::shared_ptr<DependencyNode>;
+
+using DependencyTree
+  = config_with_options<
+      std::string(decltype("position"_t)),
+      std::string(decltype("configuration"_t)),
+      std::vector<DependencyNodePtr>(decltype("children"_t))
+    >::type;
+
+using DependencyTreePtr = std::shared_ptr<DependencyTree>;
+
+struct DependencyNode {
+  DependencyTreePtr tree;
+};
 
 /*----------------------------------------------------------------------------*/
 
@@ -1610,6 +1629,250 @@ class Interpreter {
 };
 
 }  // namespace lang
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
+                                     TreeParser
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+*/
+
+class Node;
+using NodePtr = std::shared_ptr<Node>;
+
+class Node {
+ public:
+  Node(std::string id, std::string config): _id(id), _config(config) {}
+
+  void addChild(NodePtr node) {
+    _children.push_back(node);
+  }
+
+  std::string toString() {
+    return toString(0, false, "");
+  }
+
+  std::string toString(int level, bool last, std::string prefix) {
+    std::string str;
+    std::string new_prefix = "    ";
+    if (level > 0) {
+      if (level == 1) {
+        prefix = " ";
+      }
+      if (last) {
+        str += prefix + "|- ";
+        new_prefix = "|   ";
+      }
+      else {
+        str += prefix + "`- ";
+      }
+    }
+    str += "(" + _id + "): " + _config + "\n";
+    unsigned int i;
+    for (i = 0; i < _children.size(); i++) {
+      str += _children[i]->toString(
+        level + 1, i != (_children.size() - 1), prefix + new_prefix);
+    }
+    return str;
+  }
+
+ private:
+  std::string _id;
+  std::string _config;
+  std::vector<NodePtr> _children;
+};
+
+class TreeParser {
+ public:
+  TreeParser(std::vector<std::string> content):_content(content),
+                                         _line(0),
+                                         _column(1) {}
+
+  void parse() {
+    for (auto line : _content) {
+      _line++;
+      _column = 1;
+      parseNode(line);
+    }
+
+    _edges.insert(_edges.begin(), 0);
+
+    std::stack<int> stack_edges;
+    std::stack<NodePtr> stack_nodes;
+    for (unsigned int i = 0; i < _edges.size(); i++) {
+      std::cout << i << std::endl;
+      if (stack_edges.empty()) {
+        stack_edges.push(_edges[i]);
+        stack_nodes.push(_nodes[i]);
+      } else if (stack_edges.top() < _edges[i]) {
+        stack_edges.push(_edges[i]);
+        stack_nodes.push(_nodes[i]);
+      } else if (stack_edges.top() == _edges[i]) {
+        auto node1 = stack_nodes.top();
+        auto node2 = _nodes[i];
+        stack_edges.pop();
+        stack_nodes.pop();
+        stack_nodes.top()->addChild(node1);
+        stack_nodes.top()->addChild(node2);
+      } else {
+        auto node = stack_nodes.top();
+        stack_nodes.pop();
+        stack_edges.pop();
+        stack_nodes.top()->addChild(node);
+        i--;
+      }
+    }
+
+    while (stack_nodes.size() > 1) {
+      auto node = stack_nodes.top();
+      stack_nodes.pop();
+      stack_nodes.top()->addChild(node);
+    }
+  }
+
+ private:
+  void parseNode(std::string line) {
+    _it = line.begin();
+    parseSpaces();
+    if (next() != '(') {
+      parseLevel();
+    }
+    consume('(');
+    auto id = parseId();
+    consume(')');
+    consume(' ');
+    consume('"');
+    auto config = parseString();
+    _nodes.push_back(NodePtr::make_shared(id, config));
+    consume('"');
+  }
+
+  void resetEdgeIndex() {
+    _edge_index = -1;
+  }
+
+  int nextEdgeIndex() {
+    _edge_index++;
+    for (; _edge_index < _leaves.size(); _edge_index++) {
+      if (!_leaves[_edge_index])
+        return _edge_index;
+    }
+    return _edge_index;
+  }
+
+  void parseLevel() {
+    parseSpaces();
+    resetEdgeIndex();
+    while (next() == '|' && next(2) == ' ') {
+      if (_edges[nextEdgeIndex()] != _column) {
+        std::cerr << "Parser error at (" << _line << ", " << _column
+                  << "): Wrong edge position" << std::endl;
+        exit(0);
+      }
+      consume('|');
+      parseSpaces();
+    }
+    _edges.push_back(_column);
+    if (next() == '|')
+      parseChild();
+    else if (next() == '`')
+      parseLastChild();
+  }
+
+  void parseChild() {
+    _leaves.push_back(false);
+    consume('|');
+    consume('-');
+    parseSpaces();
+  }
+
+  void parseLastChild() {
+    _leaves.push_back(true);
+    consume('`');
+    consume('-');
+    parseSpaces();
+  }
+
+  int parseSpaces() {
+    int s = 0;
+    while (next() == ' ') {
+      s++;
+      consume();
+    }
+    return s;
+  }
+
+  std::string parseId() {
+    if (next() == '*') {
+      consume();
+      return "*";
+    }
+    else if (isDigit(next()))
+      return parseNumber();
+    std::cerr << "Parse error at (" << _line << ", " << _column
+              << "): Node ID should be a number or '*'" << std::endl;
+    exit(0);
+  }
+
+  std::string parseNumber() {
+    std::string num = "";
+    while (isDigit(next())) {
+      num += std::string(1, next());
+      consume();
+    }
+    return num;
+  }
+
+  std::string parseString() {
+    std::string str = "";
+    while (next() != '"' && next() != '\n') {
+      str += std::string(1, next());
+      consume();
+    }
+    return str;
+  }
+
+  void consume() {
+    _column++;
+    _it++;
+  }
+
+  void consume(char c) {
+    if (c == next()) {
+      _column++;
+      _it++;
+    }
+    else {
+      std::cerr << "Parse error at (" << _line << ", "
+                << _column << ") :" << std::endl;
+      std::cerr << "  Expecting: " << c << std::endl;
+      std::cerr << "  Got: " << next() <<std::endl;
+      exit(0);
+    }
+  }
+
+  char next() {
+    return *_it;
+  }
+
+  char next(int n) {
+    return *(_it + n - 1);
+  }
+
+  bool isDigit(char i) {
+    return i == '0' || i == '1' || i == '2' || i == '3' || i == '4' ||
+           i == '5' || i == '6' || i == '7' || i == '8' || i == '9';
+  }
+  std::vector<std::string> _content;
+  std::string::iterator _it;
+  std::vector<int> _edges;
+  std::vector<bool> _leaves;
+  std::vector<NodePtr> _nodes;
+  int _line;
+  int _column;
+  int _edge_index;
+};
 
 
 /*
