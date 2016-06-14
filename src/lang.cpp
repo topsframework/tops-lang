@@ -303,6 +303,16 @@ struct DependencyNode {
 
 /*----------------------------------------------------------------------------*/
 
+using MDDConfig
+  = config_with_options<
+      std::string(decltype("consensus"_t)),
+      DependencyTreePtr(decltype("dependencies"_t))
+    >::extending<ModelConfig>::type;
+
+using MDDConfigPtr = std::shared_ptr<MDDConfig>;
+
+/*----------------------------------------------------------------------------*/
+
 namespace option {
 
 using State = StateConfigPtr;
@@ -462,6 +472,7 @@ class ModelConfigVisitor {
   virtual void visitOption(option::Probabilities &) = 0;
   virtual void visitOption(option::FeatureFunctions &) = 0;
 
+  virtual void visitOption(DependencyTreePtr &) = 0;
   virtual void visitOption(option::DependencyChildren &) = 0;
 
   virtual void visitTag(const std::string &, std::size_t, std::size_t) = 0;
@@ -1084,6 +1095,10 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     printer_->print(visited);
   }
 
+  void visitOption(config::DependencyTreePtr &visited) override {
+    // TODO
+  }
+
   void visitOption(config::option::DependencyChildren &visited) override {
     // TODO
   }
@@ -1342,6 +1357,10 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
     }), "feature");
   }
 
+  void visitOption(config::DependencyTreePtr &visited) override {
+    // TODO
+  }
+
   void visitOption(config::option::DependencyChildren &visited) override {
     // TODO
   }
@@ -1444,6 +1463,8 @@ class Interpreter {
       return fillConfig<config::SBSWConfig>(filepath);
     } else if (model_type == "MultipleSequentialModels") {
       return fillConfig<config::MultipleSequentialModelsConfig>(filepath);
+    } else if (model_type == "MDD") {
+      return fillConfig<config::MDDConfig>(filepath);
     } else if (model_type == "") {
       throw std::logic_error(
         filepath + ": Model type not specified!");
