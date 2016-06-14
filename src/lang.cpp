@@ -278,11 +278,21 @@ using PeriodicIMCConfigPtr = std::shared_ptr<PeriodicIMCConfig>;
 struct DependencyNode;
 using DependencyNodePtr = std::shared_ptr<DependencyNode>;
 
+/*----------------------------------------------------------------------------*/
+
+namespace option {
+
+using DependencyChildren = std::vector<DependencyNodePtr>;
+
+}  // namespace option
+
+/*----------------------------------------------------------------------------*/
+
 using DependencyTree
   = config_with_options<
       std::string(decltype("position"_t)),
       std::string(decltype("configuration"_t)),
-      std::vector<DependencyNodePtr>(decltype("children"_t))
+      option::DependencyChildren(decltype("children"_t))
     >::type;
 
 using DependencyTreePtr = std::shared_ptr<DependencyTree>;
@@ -451,6 +461,8 @@ class ModelConfigVisitor {
   virtual void visitOption(option::Probability &) = 0;
   virtual void visitOption(option::Probabilities &) = 0;
   virtual void visitOption(option::FeatureFunctions &) = 0;
+
+  virtual void visitOption(option::DependencyChildren &) = 0;
 
   virtual void visitTag(const std::string &, std::size_t, std::size_t) = 0;
   virtual void visitLabel(const std::string &) = 0;
@@ -1072,6 +1084,10 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     printer_->print(visited);
   }
 
+  void visitOption(config::option::DependencyChildren &visited) override {
+    // TODO
+  }
+
   void visitTag(const std::string &tag, std::size_t count,
                                         std::size_t max) override {
     printer_->printTag(tag, count, max);
@@ -1324,6 +1340,10 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
         const std::string &name, config::option::FeatureFunction fun) {
       visited.emplace(name, fun);
     }), "feature");
+  }
+
+  void visitOption(config::option::DependencyChildren &visited) override {
+    // TODO
   }
 
   void visitTag(const std::string &tag, std::size_t /* count */,
@@ -1699,7 +1719,7 @@ class TreeParser {
     _edges.insert(_edges.begin(), 0);
 
     std::stack<int> stack_edges;
-    std::stack<NodePtr> stack_nodes;
+    std::stack<config::DependencyTreePtr> stack_nodes;
     for (unsigned int i = 0; i < _edges.size(); i++) {
       std::cout << i << std::endl;
       if (stack_edges.empty()) {
@@ -1713,13 +1733,21 @@ class TreeParser {
         auto node2 = _nodes[i];
         stack_edges.pop();
         stack_nodes.pop();
-        stack_nodes.top()->addChild(node1);
-        stack_nodes.top()->addChild(node2);
+        auto n = std::get<decltype("children"_t)>(*stack_nodes.top());
+        auto c1 = std::make_shared<config::DependencyNode>();
+        c1->tree = node1;
+        n.push_back(c1);
+        auto c2 = std::make_shared<config::DependencyNode>();
+        c2->tree = node2;
+        n.push_back(c2);
       } else {
         auto node = stack_nodes.top();
         stack_nodes.pop();
         stack_edges.pop();
-        stack_nodes.top()->addChild(node);
+        auto n = std::get<decltype("children"_t)>(*stack_nodes.top());
+        auto c1 = std::make_shared<config::DependencyNode>();
+        c1->tree = node;
+        n.push_back(c1);
         i--;
       }
     }
@@ -1727,7 +1755,10 @@ class TreeParser {
     while (stack_nodes.size() > 1) {
       auto node = stack_nodes.top();
       stack_nodes.pop();
-      stack_nodes.top()->addChild(node);
+      auto n = std::get<decltype("children"_t)>(*stack_nodes.top());
+      auto c1 = std::make_shared<config::DependencyNode>();
+      c1->tree = node;
+      n.push_back(c1);
     }
   }
 
@@ -1744,7 +1775,10 @@ class TreeParser {
     consume(' ');
     consume('"');
     auto config = parseString();
-    _nodes.push_back(NodePtr::make_shared(id, config));
+    auto tree = std::make_shared<config::DependencyTree>();
+    std::get<decltype("position"_t)>(*tree) = id;
+    std::get<decltype("configuration"_t)>(*tree) = config;
+    _nodes.push_back(tree);
     consume('"');
   }
 
@@ -1868,7 +1902,7 @@ class TreeParser {
   std::string::iterator _it;
   std::vector<int> _edges;
   std::vector<bool> _leaves;
-  std::vector<NodePtr> _nodes;
+  std::vector<config::DependencyTreePtr> _nodes;
   int _line;
   int _column;
   int _edge_index;
