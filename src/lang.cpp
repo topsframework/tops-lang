@@ -926,6 +926,10 @@ class FilePrinter {
     *os_ << std::boolalpha << boolean;
   }
 
+  void print(config::option::DependencyTrees &visited) {
+    *os_ << "[ " << "tree(\"" << visited[0]->path() << "\") ]";
+  }
+
   template<typename Return, typename... Params>
   auto print(const std::function<Return(Params...)> &/* function */) {
     *os_ << "fun()";
@@ -1074,10 +1078,6 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     printer_->print(visited);
   }
 
-  void visitOption(config::option::DependencyTrees &visited) override {
-    // TODO
-  }
-
   void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     printer_->print(visited);
   }
@@ -1099,6 +1099,10 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void visitOption(config::option::Probabilities &visited) override {
+    printer_->print(visited);
+  }
+
+  void visitOption(config::option::DependencyTrees &visited) override {
     printer_->print(visited);
   }
 
@@ -1450,8 +1454,8 @@ class Node {
 class DependencyTreeParser {
  public:
   // Constructors
-  DependencyTreeParser(std::vector<std::string> content)
-      : _content(content), _line(0), _column(1) {
+  DependencyTreeParser(std::vector<std::string> content, std::string filename)
+      : _content(content), _line(0), _column(1), _filename(filename) {
   }
 
   // Concrete methods
@@ -1467,7 +1471,6 @@ class DependencyTreeParser {
     std::stack<int> stack_edges;
     std::stack<config::DependencyTreeConfigPtr> stack_nodes;
     for (unsigned int i = 0; i < _edges.size(); i++) {
-      std::cout << i << std::endl;
       if (stack_edges.empty()) {
         stack_edges.push(_edges[i]);
         stack_nodes.push(_nodes[i]);
@@ -1512,7 +1515,7 @@ class DependencyTreeParser {
     consume(' ');
     consume('"');
     auto config = parseString();
-    auto tree = std::make_shared<config::DependencyTreeConfig>();
+    auto tree = config::DependencyTreeConfig::make(_filename);
     std::get<decltype("position"_t)>(*tree) = id;
     std::get<decltype("configuration"_t)>(*tree) = config;
     _nodes.push_back(tree);
@@ -1639,6 +1642,7 @@ class DependencyTreeParser {
   int _line;
   int _column;
   int _edge_index;
+  std::string _filename;
 };
 
 /*
@@ -1891,7 +1895,7 @@ class Interpreter {
       while (std::getline(src, line)) {
         content.push_back(line);
       }
-      DependencyTreeParser parser(content);
+      DependencyTreeParser parser(content, file);
       return parser.parse();
     }), "tree");
   }
