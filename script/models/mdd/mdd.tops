@@ -5,4 +5,4 @@ observations = [ "A", "C", "G", "T" ]
 
 consensus = "[AC]AGGT[AG]AGT"
 
-dependencies = tree("dependency.tree")
+dependencies = [ tree("dependency.tree") ]
