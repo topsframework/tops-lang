@@ -275,38 +275,37 @@ using PeriodicIMCConfigPtr = std::shared_ptr<PeriodicIMCConfig>;
 
 /*----------------------------------------------------------------------------*/
 
-struct DependencyNode;
-using DependencyNodePtr = std::shared_ptr<DependencyNode>;
-
-/*----------------------------------------------------------------------------*/
-
 namespace option {
 
-using DependencyChildren = std::vector<DependencyNodePtr>;
+using Pattern = std::string;
 
 }  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
-using DependencyTree
+using DependencyTreeConfig
   = config_with_options<
-      std::string(decltype("position"_t)),
-      std::string(decltype("configuration"_t)),
-      option::DependencyChildren(decltype("children"_t))
+      option::Pattern(decltype("position"_t)),
+      option::Pattern(decltype("configuration"_t))
     >::type;
 
-using DependencyTreePtr = std::shared_ptr<DependencyTree>;
+using DependencyTreeConfigPtr = std::shared_ptr<DependencyTreeConfig>;
 
-struct DependencyNode {
-  DependencyTreePtr tree;
-};
+/*----------------------------------------------------------------------------*/
+
+namespace option {
+
+using DependencyTree = DependencyTreeConfigPtr;
+using DependencyTrees = std::vector<DependencyTreeConfigPtr>;
+
+}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
 using MDDConfig
   = config_with_options<
-      std::string(decltype("consensus"_t)),
-      DependencyTreePtr(decltype("dependencies"_t))
+      option::Pattern(decltype("consensus"_t)),
+      option::DependencyTrees(decltype("dependencies"_t))
     >::extending<ModelConfig>::type;
 
 using MDDConfigPtr = std::shared_ptr<MDDConfig>;
@@ -463,6 +462,7 @@ class ModelConfigVisitor {
 
   virtual void visitOption(option::Models &) = 0;
   virtual void visitOption(option::States &) = 0;
+  virtual void visitOption(option::DependencyTrees &) = 0;
   virtual void visitOption(option::FeatureFunctionLibraries &) = 0;
 
   virtual void visitOption(option::Type &) = 0;
@@ -470,10 +470,8 @@ class ModelConfigVisitor {
   virtual void visitOption(option::Alphabet &) = 0;
   virtual void visitOption(option::Probability &) = 0;
   virtual void visitOption(option::Probabilities &) = 0;
+  virtual void visitOption(option::DependencyTree &) = 0;
   virtual void visitOption(option::FeatureFunctions &) = 0;
-
-  virtual void visitOption(DependencyTreePtr &) = 0;
-  virtual void visitOption(option::DependencyChildren &) = 0;
 
   virtual void visitTag(const std::string &, std::size_t, std::size_t) = 0;
   virtual void visitLabel(const std::string &) = 0;
@@ -656,9 +654,18 @@ class BasicConfig : public Base {
     return std::get<Tag>(std::move(attrs_));
   };
 
+  std::vector<SelfPtr> &children() {
+    return children_;
+  }
+
+  const std::vector<SelfPtr> &children() const {
+    return children_;
+  }
+
  private:
   // Instance variables
   Tuple attrs_;
+  std::vector<SelfPtr> children_;
 
   // Concrete methods
   template<typename... Args>
@@ -1067,6 +1074,10 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     printer_->print(visited);
   }
 
+  void visitOption(config::option::DependencyTrees &visited) override {
+    // TODO
+  }
+
   void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     printer_->print(visited);
   }
@@ -1091,16 +1102,12 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
     printer_->print(visited);
   }
 
+  void visitOption(config::option::DependencyTree &visited) override {
+    // TODO
+  }
+
   void visitOption(config::option::FeatureFunctions &visited) override {
     printer_->print(visited);
-  }
-
-  void visitOption(config::DependencyTreePtr &visited) override {
-    // TODO
-  }
-
-  void visitOption(config::option::DependencyChildren &visited) override {
-    // TODO
   }
 
   void visitTag(const std::string &tag, std::size_t count,
@@ -1325,6 +1332,10 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
+  void visitOption(config::option::DependencyTrees &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
   void visitOption(config::option::FeatureFunctionLibraries &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
   }
@@ -1349,20 +1360,16 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
     chai_.add(chaiscript::var(&visited), tag_);
   }
 
+  void visitOption(config::option::DependencyTree &visited) override {
+    chai_.add(chaiscript::var(&visited), tag_);
+  }
+
   void visitOption(config::option::FeatureFunctions &visited) override {
     chai_.add(chaiscript::var(&visited), tag_);
     chai_.add(chaiscript::fun([&visited] (
         const std::string &name, config::option::FeatureFunction fun) {
       visited.emplace(name, fun);
     }), "feature");
-  }
-
-  void visitOption(config::DependencyTreePtr &visited) override {
-    // TODO
-  }
-
-  void visitOption(config::option::DependencyChildren &visited) override {
-    // TODO
   }
 
   void visitTag(const std::string &tag, std::size_t /* count */,
@@ -1383,6 +1390,256 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 };
 
 }  // namespace lang
+
+/*
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ -------------------------------------------------------------------------------
+                            DEPENDENCY TREE PARSER
+ -------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+*/
+
+class Node;
+using NodePtr = std::shared_ptr<Node>;
+
+class Node {
+ public:
+  // Constructors
+  Node(std::string id, std::string config) : _id(id), _config(config) {
+  }
+
+  // Concrete methods
+  void addChild(NodePtr node) {
+    _children.push_back(node);
+  }
+
+  std::string toString() {
+    return toString(0, false, "");
+  }
+
+  std::string toString(int level, bool last, std::string prefix) {
+    std::string str;
+    std::string new_prefix = "    ";
+    if (level > 0) {
+      if (level == 1) {
+        prefix = " ";
+      }
+      if (last) {
+        str += prefix + "|- ";
+        new_prefix = "|   ";
+      }
+      else {
+        str += prefix + "`- ";
+      }
+    }
+    str += "(" + _id + "): " + _config + "\n";
+    for (unsigned int i = 0; i < _children.size(); i++) {
+      str += _children[i]->toString(
+        level + 1, i != (_children.size() - 1), prefix + new_prefix);
+    }
+    return str;
+  }
+
+ private:
+  // Instance variables
+  std::string _id;
+  std::string _config;
+  std::vector<NodePtr> _children;
+};
+
+class DependencyTreeParser {
+ public:
+  // Constructors
+  DependencyTreeParser(std::vector<std::string> content)
+      : _content(content), _line(0), _column(1) {
+  }
+
+  // Concrete methods
+  config::DependencyTreeConfigPtr parse() {
+    for (auto line : _content) {
+      _line++;
+      _column = 1;
+      parseNode(line);
+    }
+
+    _edges.insert(_edges.begin(), 0);
+
+    std::stack<int> stack_edges;
+    std::stack<config::DependencyTreeConfigPtr> stack_nodes;
+    for (unsigned int i = 0; i < _edges.size(); i++) {
+      std::cout << i << std::endl;
+      if (stack_edges.empty()) {
+        stack_edges.push(_edges[i]);
+        stack_nodes.push(_nodes[i]);
+      } else if (stack_edges.top() < _edges[i]) {
+        stack_edges.push(_edges[i]);
+        stack_nodes.push(_nodes[i]);
+      } else if (stack_edges.top() == _edges[i]) {
+        auto node1 = stack_nodes.top();
+        auto node2 = _nodes[i];
+        stack_edges.pop();
+        stack_nodes.pop();
+        stack_nodes.top()->children().push_back(node1);
+        stack_nodes.top()->children().push_back(node2);
+      } else {
+        auto node = stack_nodes.top();
+        stack_nodes.pop();
+        stack_edges.pop();
+        stack_nodes.top()->children().push_back(node);
+        i--;
+      }
+    }
+
+    while (stack_nodes.size() > 1) {
+      auto node = stack_nodes.top();
+      stack_nodes.pop();
+      stack_nodes.top()->children().push_back(node);
+    }
+    return stack_nodes.top();
+  }
+
+ private:
+  // Concrete methods
+  void parseNode(std::string line) {
+    _it = line.begin();
+    parseSpaces();
+    if (next() != '(') {
+      parseLevel();
+    }
+    consume('(');
+    auto id = parseId();
+    consume(')');
+    consume(' ');
+    consume('"');
+    auto config = parseString();
+    auto tree = std::make_shared<config::DependencyTreeConfig>();
+    std::get<decltype("position"_t)>(*tree) = id;
+    std::get<decltype("configuration"_t)>(*tree) = config;
+    _nodes.push_back(tree);
+    consume('"');
+  }
+
+  void resetEdgeIndex() {
+    _edge_index = -1;
+  }
+
+  int nextEdgeIndex() {
+    _edge_index++;
+    for (; _edge_index < _leaves.size(); _edge_index++) {
+      if (!_leaves[_edge_index])
+        return _edge_index;
+    }
+    return _edge_index;
+  }
+
+  void parseLevel() {
+    parseSpaces();
+    resetEdgeIndex();
+    while (next() == '|' && next(2) == ' ') {
+      if (_edges[nextEdgeIndex()] != _column) {
+        std::cerr << "Parser error at (" << _line << ", " << _column
+                  << "): Wrong edge position" << std::endl;
+        exit(0);
+      }
+      consume('|');
+      parseSpaces();
+    }
+    _edges.push_back(_column);
+    if (next() == '|')
+      parseChild();
+    else if (next() == '`')
+      parseLastChild();
+  }
+
+  void parseChild() {
+    _leaves.push_back(false);
+    consume('|');
+    consume('-');
+    parseSpaces();
+  }
+
+  void parseLastChild() {
+    _leaves.push_back(true);
+    consume('`');
+    consume('-');
+    parseSpaces();
+  }
+
+  int parseSpaces() {
+    int s = 0;
+    while (next() == ' ') {
+      s++;
+      consume();
+    }
+    return s;
+  }
+
+  std::string parseId() {
+    if (next() == '*') {
+      consume();
+      return "*";
+    }
+    else if (std::isdigit(next()))
+      return parseNumber();
+    std::cerr << "Parse error at (" << _line << ", " << _column
+              << "): Node ID should be a number or '*'" << std::endl;
+    exit(0);
+  }
+
+  std::string parseNumber() {
+    std::string num = "";
+    while (std::isdigit(next())) {
+      num += std::string(1, next());
+      consume();
+    }
+    return num;
+  }
+
+  std::string parseString() {
+    std::string str = "";
+    while (next() != '"' && next() != '\n') {
+      str += std::string(1, next());
+      consume();
+    }
+    return str;
+  }
+
+  void consume() {
+    _column++;
+    _it++;
+  }
+
+  void consume(char c) {
+    if (c == next()) {
+      _column++;
+      _it++;
+    }
+    else {
+      std::cerr << "Parse error at (" << _line << ", "
+                << _column << ") :" << std::endl;
+      std::cerr << "  Expecting: " << c << std::endl;
+      std::cerr << "  Got: " << next() <<std::endl;
+      exit(0);
+    }
+  }
+
+  char next() {
+    return *_it;
+  }
+
+  char next(int n) {
+    return *(_it + n - 1);
+  }
+
+  std::vector<std::string> _content;
+  std::string::iterator _it;
+  std::vector<int> _edges;
+  std::vector<bool> _leaves;
+  std::vector<config::DependencyTreeConfigPtr> _nodes;
+  int _line;
+  int _column;
+  int _edge_index;
+};
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -1550,11 +1807,14 @@ class Interpreter {
     REGISTER_TYPE(Models);
     REGISTER_TYPE(State);
     REGISTER_TYPE(States);
+    REGISTER_TYPE(DependencyTree);
+    REGISTER_TYPE(DependencyTrees);
     REGISTER_TYPE(FeatureFunctions);
     REGISTER_TYPE(FeatureFunctionLibraries);
 
     REGISTER_VECTOR(Alphabet);
     REGISTER_VECTOR(Models);
+    REGISTER_VECTOR(DependencyTrees);
     REGISTER_VECTOR(FeatureFunctionLibraries);
 
     REGISTER_MAP(Probabilities);
@@ -1570,6 +1830,7 @@ class Interpreter {
     using config::ExplicitDurationConfig;
     using config::GeometricDurationConfig;
     using config::FeatureFunctionLibraryConfig;
+    using config::DependencyTreeConfig;
 
     module->add(fun([this, filepath] (const std::string &file) {
       auto root_dir = extractDir(filepath);
@@ -1621,6 +1882,18 @@ class Interpreter {
       auto root_dir = extractDir(filepath);
       return this->fillConfig<FeatureFunctionLibraryConfig>(root_dir + file);
     }), "lib");
+
+    module->add(fun([this, filepath] (const std::string &file) {
+      auto root_dir = extractDir(filepath);
+      std::ifstream src(root_dir + file);
+      std::string line;
+      std::vector<std::string> content;
+      while (std::getline(src, line)) {
+        content.push_back(line);
+      }
+      DependencyTreeParser parser(content);
+      return parser.parse();
+    }), "tree");
   }
 
   void registerConstants(chaiscript::ModulePtr &module,
@@ -1674,271 +1947,12 @@ class Interpreter {
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  -------------------------------------------------------------------------------
-                                     TreeParser
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-class Node;
-using NodePtr = std::shared_ptr<Node>;
-
-class Node {
- public:
-  Node(std::string id, std::string config): _id(id), _config(config) {}
-
-  void addChild(NodePtr node) {
-    _children.push_back(node);
-  }
-
-  std::string toString() {
-    return toString(0, false, "");
-  }
-
-  std::string toString(int level, bool last, std::string prefix) {
-    std::string str;
-    std::string new_prefix = "    ";
-    if (level > 0) {
-      if (level == 1) {
-        prefix = " ";
-      }
-      if (last) {
-        str += prefix + "|- ";
-        new_prefix = "|   ";
-      }
-      else {
-        str += prefix + "`- ";
-      }
-    }
-    str += "(" + _id + "): " + _config + "\n";
-    unsigned int i;
-    for (i = 0; i < _children.size(); i++) {
-      str += _children[i]->toString(
-        level + 1, i != (_children.size() - 1), prefix + new_prefix);
-    }
-    return str;
-  }
-
- private:
-  std::string _id;
-  std::string _config;
-  std::vector<NodePtr> _children;
-};
-
-class TreeParser {
- public:
-  TreeParser(std::vector<std::string> content):_content(content),
-                                         _line(0),
-                                         _column(1) {}
-
-  void parse() {
-    for (auto line : _content) {
-      _line++;
-      _column = 1;
-      parseNode(line);
-    }
-
-    _edges.insert(_edges.begin(), 0);
-
-    std::stack<int> stack_edges;
-    std::stack<config::DependencyTreePtr> stack_nodes;
-    for (unsigned int i = 0; i < _edges.size(); i++) {
-      std::cout << i << std::endl;
-      if (stack_edges.empty()) {
-        stack_edges.push(_edges[i]);
-        stack_nodes.push(_nodes[i]);
-      } else if (stack_edges.top() < _edges[i]) {
-        stack_edges.push(_edges[i]);
-        stack_nodes.push(_nodes[i]);
-      } else if (stack_edges.top() == _edges[i]) {
-        auto node1 = stack_nodes.top();
-        auto node2 = _nodes[i];
-        stack_edges.pop();
-        stack_nodes.pop();
-        auto n = std::get<decltype("children"_t)>(*stack_nodes.top());
-        auto c1 = std::make_shared<config::DependencyNode>();
-        c1->tree = node1;
-        n.push_back(c1);
-        auto c2 = std::make_shared<config::DependencyNode>();
-        c2->tree = node2;
-        n.push_back(c2);
-      } else {
-        auto node = stack_nodes.top();
-        stack_nodes.pop();
-        stack_edges.pop();
-        auto n = std::get<decltype("children"_t)>(*stack_nodes.top());
-        auto c1 = std::make_shared<config::DependencyNode>();
-        c1->tree = node;
-        n.push_back(c1);
-        i--;
-      }
-    }
-
-    while (stack_nodes.size() > 1) {
-      auto node = stack_nodes.top();
-      stack_nodes.pop();
-      auto n = std::get<decltype("children"_t)>(*stack_nodes.top());
-      auto c1 = std::make_shared<config::DependencyNode>();
-      c1->tree = node;
-      n.push_back(c1);
-    }
-  }
-
- private:
-  void parseNode(std::string line) {
-    _it = line.begin();
-    parseSpaces();
-    if (next() != '(') {
-      parseLevel();
-    }
-    consume('(');
-    auto id = parseId();
-    consume(')');
-    consume(' ');
-    consume('"');
-    auto config = parseString();
-    auto tree = std::make_shared<config::DependencyTree>();
-    std::get<decltype("position"_t)>(*tree) = id;
-    std::get<decltype("configuration"_t)>(*tree) = config;
-    _nodes.push_back(tree);
-    consume('"');
-  }
-
-  void resetEdgeIndex() {
-    _edge_index = -1;
-  }
-
-  int nextEdgeIndex() {
-    _edge_index++;
-    for (; _edge_index < _leaves.size(); _edge_index++) {
-      if (!_leaves[_edge_index])
-        return _edge_index;
-    }
-    return _edge_index;
-  }
-
-  void parseLevel() {
-    parseSpaces();
-    resetEdgeIndex();
-    while (next() == '|' && next(2) == ' ') {
-      if (_edges[nextEdgeIndex()] != _column) {
-        std::cerr << "Parser error at (" << _line << ", " << _column
-                  << "): Wrong edge position" << std::endl;
-        exit(0);
-      }
-      consume('|');
-      parseSpaces();
-    }
-    _edges.push_back(_column);
-    if (next() == '|')
-      parseChild();
-    else if (next() == '`')
-      parseLastChild();
-  }
-
-  void parseChild() {
-    _leaves.push_back(false);
-    consume('|');
-    consume('-');
-    parseSpaces();
-  }
-
-  void parseLastChild() {
-    _leaves.push_back(true);
-    consume('`');
-    consume('-');
-    parseSpaces();
-  }
-
-  int parseSpaces() {
-    int s = 0;
-    while (next() == ' ') {
-      s++;
-      consume();
-    }
-    return s;
-  }
-
-  std::string parseId() {
-    if (next() == '*') {
-      consume();
-      return "*";
-    }
-    else if (isDigit(next()))
-      return parseNumber();
-    std::cerr << "Parse error at (" << _line << ", " << _column
-              << "): Node ID should be a number or '*'" << std::endl;
-    exit(0);
-  }
-
-  std::string parseNumber() {
-    std::string num = "";
-    while (isDigit(next())) {
-      num += std::string(1, next());
-      consume();
-    }
-    return num;
-  }
-
-  std::string parseString() {
-    std::string str = "";
-    while (next() != '"' && next() != '\n') {
-      str += std::string(1, next());
-      consume();
-    }
-    return str;
-  }
-
-  void consume() {
-    _column++;
-    _it++;
-  }
-
-  void consume(char c) {
-    if (c == next()) {
-      _column++;
-      _it++;
-    }
-    else {
-      std::cerr << "Parse error at (" << _line << ", "
-                << _column << ") :" << std::endl;
-      std::cerr << "  Expecting: " << c << std::endl;
-      std::cerr << "  Got: " << next() <<std::endl;
-      exit(0);
-    }
-  }
-
-  char next() {
-    return *_it;
-  }
-
-  char next(int n) {
-    return *(_it + n - 1);
-  }
-
-  bool isDigit(char i) {
-    return i == '0' || i == '1' || i == '2' || i == '3' || i == '4' ||
-           i == '5' || i == '6' || i == '7' || i == '8' || i == '9';
-  }
-  std::vector<std::string> _content;
-  std::string::iterator _it;
-  std::vector<int> _edges;
-  std::vector<bool> _leaves;
-  std::vector<config::DependencyTreePtr> _nodes;
-  int _line;
-  int _column;
-  int _edge_index;
-};
-
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
                                       MAIN
  -------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////
 */
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) try {
   if (argc <= 1 || argc >= 5) {
     std::cerr << "USAGE: " << argv[0] << " model_config [dataset] [output_dir]"
               << std::endl;
@@ -1981,4 +1995,9 @@ int main(int argc, char **argv) {
   }
 
   return EXIT_SUCCESS;
+
+} catch(chaiscript::exception::eval_error &e) {
+  std::cerr << e.pretty_print() << std::endl;
+} catch(std::exception &e) {
+  std::cerr << e.what() << std::endl;
 }
