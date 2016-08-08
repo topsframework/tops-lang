@@ -286,7 +286,7 @@ using Pattern = std::string;
 using DependencyTreeConfig
   = config_with_options<
       option::Pattern(decltype("position"_t)),
-      option::Pattern(decltype("configuration"_t))
+      option::Model(decltype("configuration"_t))
     >::type;
 
 using DependencyTreeConfigPtr = std::shared_ptr<DependencyTreeConfig>;
@@ -893,6 +893,7 @@ class FilePrinter {
   virtual void print(config::StateConfigPtr state_ptr) = 0;
   virtual void print(config::DurationConfigPtr duration_ptr) = 0;
   virtual void print(config::FeatureFunctionLibraryConfigPtr library_ptr) = 0;
+  virtual void print(config::DependencyTreeConfigPtr tree_ptr) = 0;
 
   // Virtual methods
   virtual void changeOstream(const std::string &/* path */) {
@@ -924,10 +925,6 @@ class FilePrinter {
 
   void print(bool boolean) {
     *os_ << std::boolalpha << boolean;
-  }
-
-  void print(config::option::DependencyTrees &visited) {
-    *os_ << "[ " << "tree(\"" << visited[0]->path() << "\") ]";
   }
 
   template<typename Return, typename... Params>
@@ -1107,7 +1104,7 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   }
 
   void visitOption(config::option::DependencyTree &visited) override {
-    // TODO
+    printer_->print(visited);
   }
 
   void visitOption(config::option::FeatureFunctions &visited) override {
@@ -1176,6 +1173,15 @@ class SingleFilePrinter : public FilePrinter {
     closeSection('}');
   }
 
+  void print(config::DependencyTreeConfigPtr tree_ptr) override {
+    openFunction("tree");
+    // tree_ptr->accept(ModelConfigSerializer(
+    //       Self::make(os_, depth_, "", ", ", "")));
+    for (auto& child : tree_ptr->children())
+      print(child);
+    closeFunction();
+  }
+
  protected:
   // Hidden constructor inheritance
   using Base::Base;
@@ -1242,6 +1248,14 @@ class MultipleFilePrinter : public FilePrinter {
   void print(config::FeatureFunctionLibraryConfigPtr library_ptr) override {
     callFunction("lib", pathForHelperCall(library_ptr->path()));
     libraries_.push_back(library_ptr);
+  }
+
+  void print(config::DependencyTreeConfigPtr tree_ptr) override {
+    callFunction("tree", pathForHelperCall(tree_ptr->path()));
+    // tree_ptr->accept(ModelConfigSerializer(
+    //         Self::make(true, root_dir_, os_)));
+    for (auto& child : tree_ptr->children())
+      print(child);
   }
 
  protected:
@@ -1403,6 +1417,8 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 ////////////////////////////////////////////////////////////////////////////////
 */
 
+namespace lang {
+
 class Node;
 using NodePtr = std::shared_ptr<Node>;
 
@@ -1451,11 +1467,13 @@ class Node {
   std::vector<NodePtr> _children;
 };
 
+class Interpreter;
+
 class DependencyTreeParser {
  public:
   // Constructors
-  DependencyTreeParser(std::vector<std::string> content, std::string filename)
-      : _content(content), _line(0), _column(1), _filename(filename) {
+  DependencyTreeParser(Interpreter* interpreter, std::string root_dir, std::string filename, std::vector<std::string> content)
+      : _interpreter(interpreter), _root_dir(root_dir), _filename(filename), _content(content), _line(0), _column(1) {
   }
 
   // Concrete methods
@@ -1514,13 +1532,15 @@ class DependencyTreeParser {
     consume(')');
     consume(' ');
     consume('"');
-    auto config = parseString();
+    auto filepath = parseString();
     auto tree = config::DependencyTreeConfig::make(_filename);
     std::get<decltype("position"_t)>(*tree) = id;
-    std::get<decltype("configuration"_t)>(*tree) = config;
+    std::get<decltype("configuration"_t)>(*tree) = makeModelConfig(_root_dir + filepath);
     _nodes.push_back(tree);
     consume('"');
   }
+
+  config::ModelConfigPtr makeModelConfig(std::string filepath);
 
   void resetEdgeIndex() {
     _edge_index = -1;
@@ -1634,6 +1654,9 @@ class DependencyTreeParser {
     return *(_it + n - 1);
   }
 
+  Interpreter* _interpreter;
+  std::string _root_dir;
+  std::string _filename;
   std::vector<std::string> _content;
   std::string::iterator _it;
   std::vector<int> _edges;
@@ -1642,8 +1665,9 @@ class DependencyTreeParser {
   int _line;
   int _column;
   int _edge_index;
-  std::string _filename;
 };
+
+}  // namespace lang
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -1895,7 +1919,7 @@ class Interpreter {
       while (std::getline(src, line)) {
         content.push_back(line);
       }
-      DependencyTreeParser parser(content, file);
+      DependencyTreeParser parser(this, root_dir, file, content);
       return parser.parse();
     }), "tree");
   }
@@ -1945,6 +1969,12 @@ class Interpreter {
     }), "->");
   }
 };
+
+// Implementation of DependencyTreeParser::makeModelConfig()
+// to solve cyclic dependency with Interpreter
+config::ModelConfigPtr DependencyTreeParser::makeModelConfig(std::string filepath) {
+  return _interpreter->evalModel(filepath).model_config_ptr;
+}
 
 }  // namespace lang
 
