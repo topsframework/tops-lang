@@ -1419,54 +1419,6 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 
 namespace lang {
 
-class Node;
-using NodePtr = std::shared_ptr<Node>;
-
-class Node {
- public:
-  // Constructors
-  Node(std::string id, std::string config) : _id(id), _config(config) {
-  }
-
-  // Concrete methods
-  void addChild(NodePtr node) {
-    _children.push_back(node);
-  }
-
-  std::string toString() {
-    return toString(0, false, "");
-  }
-
-  std::string toString(int level, bool last, std::string prefix) {
-    std::string str;
-    std::string new_prefix = "    ";
-    if (level > 0) {
-      if (level == 1) {
-        prefix = " ";
-      }
-      if (last) {
-        str += prefix + "|- ";
-        new_prefix = "|   ";
-      }
-      else {
-        str += prefix + "`- ";
-      }
-    }
-    str += "(" + _id + "): " + _config + "\n";
-    for (unsigned int i = 0; i < _children.size(); i++) {
-      str += _children[i]->toString(
-        level + 1, i != (_children.size() - 1), prefix + new_prefix);
-    }
-    return str;
-  }
-
- private:
-  // Instance variables
-  std::string _id;
-  std::string _config;
-  std::vector<NodePtr> _children;
-};
-
 class Interpreter;
 
 class DependencyTreeParser {
