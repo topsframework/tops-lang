@@ -1472,8 +1472,15 @@ class Interpreter;
 class DependencyTreeParser {
  public:
   // Constructors
-  DependencyTreeParser(Interpreter* interpreter, std::string root_dir, std::string filename, std::vector<std::string> content)
-      : _interpreter(interpreter), _root_dir(root_dir), _filename(filename), _content(content), _line(0), _column(1) {
+  DependencyTreeParser(Interpreter* interpreter,
+                       std::string root_dir,
+                       std::string filename,
+                       std::vector<std::string> content)
+      : _interpreter(interpreter),
+        _root_dir(root_dir),
+        _filename(filename),
+        _content(content),
+        _line(0), _column(1) {
   }
 
   // Concrete methods
@@ -1523,21 +1530,35 @@ class DependencyTreeParser {
   // Concrete methods
   void parseNode(std::string line) {
     _it = line.begin();
+
     parseSpaces();
+
     if (next() != '(') {
       parseLevel();
     }
+
     consume('(');
     auto id = parseId();
     consume(')');
     consume(' ');
+    consume('m');
+    consume('o');
+    consume('d');
+    consume('e');
+    consume('l');
+    consume('(');
     consume('"');
+
     auto filepath = parseString();
-    auto tree = config::DependencyTreeConfig::make(_filename);
+
+    auto tree = config::DependencyTreeConfig::make(_root_dir + _filename);
     std::get<decltype("position"_t)>(*tree) = id;
-    std::get<decltype("configuration"_t)>(*tree) = makeModelConfig(_root_dir + filepath);
+    std::get<decltype("configuration"_t)>(*tree)
+      = makeModelConfig(_root_dir + filepath);
     _nodes.push_back(tree);
+
     consume('"');
+    consume(')');
   }
 
   config::ModelConfigPtr makeModelConfig(std::string filepath);
@@ -1560,7 +1581,7 @@ class DependencyTreeParser {
     resetEdgeIndex();
     while (next() == '|' && next(2) == ' ') {
       if (_edges[nextEdgeIndex()] != _column) {
-        std::cerr << "Parser error at (" << _line << ", " << _column
+        std::cerr << "Parse error at (" << _line << ", " << _column
                   << "): Wrong edge position" << std::endl;
         exit(0);
       }
@@ -1913,12 +1934,15 @@ class Interpreter {
 
     module->add(fun([this, filepath] (const std::string &file) {
       auto root_dir = extractDir(filepath);
+
       std::ifstream src(root_dir + file);
+
       std::string line;
       std::vector<std::string> content;
       while (std::getline(src, line)) {
         content.push_back(line);
       }
+
       DependencyTreeParser parser(this, root_dir, file, content);
       return parser.parse();
     }), "tree");
