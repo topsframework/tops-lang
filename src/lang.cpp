@@ -1017,8 +1017,9 @@ class FilePrinter {
     *os_ << separator;
   }
 
-  void indent() {
-    std::fill_n(std::ostreambuf_iterator<char>(*os_), 2*depth_, ' ');
+  void indent(unsigned int extra_depth = 0) {
+    std::fill_n(std::ostreambuf_iterator<char>(*os_),
+        2 * (depth_ + extra_depth), ' ');
   }
 
   template<typename Base, typename... Options>
