@@ -1518,7 +1518,7 @@ class DependencyTreeParser {
 
     _edges.insert(_edges.begin(), 0);
 
-    std::stack<int> stack_edges;
+    std::stack<unsigned int> stack_edges;
     std::stack<config::DependencyTreeConfigPtr> stack_nodes;
     for (unsigned int i = 0; i < _edges.size(); i++) {
       if (stack_edges.empty()) {
@@ -1589,12 +1589,18 @@ class DependencyTreeParser {
   config::ModelConfigPtr makeModelConfig(std::string filepath);
 
   void resetEdgeIndex() {
-    _edge_index = -1;
+    _reset_edge_index = true;
   }
 
-  int nextEdgeIndex() {
+  unsigned int nextEdgeIndex() {
     _edge_index++;
-    while (static_cast<std::size_t>(_edge_index) < _leaves.size()) {
+
+    if (_reset_edge_index) {
+      _edge_index = 0;
+      _reset_edge_index = false;
+    }
+
+    while (_edge_index < _leaves.size()) {
       if (!_leaves[_edge_index])
         return _edge_index;
       _edge_index++;
@@ -1706,13 +1712,15 @@ class DependencyTreeParser {
   std::string _filename;
   std::vector<std::string> _content;
   std::string::iterator _it;
-  std::vector<int> _edges;
+  std::vector<unsigned int> _edges;
   std::vector<bool> _leaves;
   std::vector<config::DependencyTreeConfigPtr> _nodes;
 
   unsigned int _line;
   unsigned int _column;
-  int _edge_index;
+  unsigned int _edge_index;
+
+  bool _reset_edge_index;
 };
 
 }  // namespace lang
