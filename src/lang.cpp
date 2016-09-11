@@ -1181,12 +1181,25 @@ class SingleFilePrinter : public FilePrinter {
   }
 
   void print(config::DependencyTreeConfigPtr tree_ptr) override {
-    openFunction("tree");
-    // tree_ptr->accept(ModelConfigSerializer(
-    //       Self::make(os_, depth_, "", ", ", "")));
-    for (auto& child : tree_ptr->children())
+    thread_local unsigned int depth_tree = 0;
+
+    if (depth_tree == 0)
+      openFunction("tree");
+
+    tree_ptr->accept(ModelConfigSerializer(
+          Self::make(os_, depth_ + depth_tree, "", ", ", "\n")));
+
+    depth_tree++;
+    for (auto& child : tree_ptr->children()) {
+      indent(depth_tree);
       print(child);
-    closeFunction();
+    }
+    depth_tree--;
+
+    if (depth_tree == 0) {
+      indent(depth_tree);
+      closeFunction();
+    }
   }
 
  protected:
