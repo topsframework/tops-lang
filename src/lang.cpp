@@ -888,6 +888,15 @@ namespace lang {
 
 class FilePrinter {
  public:
+  // Inner structs
+  struct Option {
+    std::string attribution = " = ";
+    std::string middle = "\n\n";
+    std::string end = "\n";
+    std::string string_start = "\"";
+    std::string string_end = "\"";
+  };
+
   // Purely virtual methods
   virtual void print(config::ModelConfigPtr config_ptr) = 0;
   virtual void print(config::StateConfigPtr state_ptr) = 0;
@@ -903,12 +912,14 @@ class FilePrinter {
   }
 
   virtual void endPrinting() {
-    *os_ << option_end_;
+    *os_ << option_.end;
   }
 
   // Concrete methods
   void print(const std::string &string) {
-    *os_ << '"' << string << '"';
+    *os_ << option_.string_start
+         << string
+         << option_.string_end;
   }
 
   void print(float num) {
@@ -955,11 +966,11 @@ class FilePrinter {
   void printTag(const std::string &tag, std::size_t count,
                                         std::size_t max) {
     if (count > 0 && count < max) {
-      *os_ << option_middle_;
+      *os_ << option_.middle;
     }
-    if (!option_attribution_.empty()) {
+    if (!option_.attribution.empty()) {
       indent();
-      *os_ << tag << option_attribution_;
+      *os_ << tag << option_.attribution;
     }
   }
 
@@ -972,15 +983,12 @@ class FilePrinter {
   unsigned int depth_;
 
   // Constructors
+  template<typename... OptionArgs>
   FilePrinter(std::shared_ptr<std::ostream> os,
-                        unsigned int initial_depth = 0,
-                        std::string option_attribution = " = ",
-                        std::string option_middle = "\n\n",
-                        std::string option_end = "\n")
+              unsigned int initial_depth,
+              OptionArgs&&... option_args)
       : os_(os), depth_(initial_depth),
-        option_attribution_(option_attribution),
-        option_middle_(option_middle),
-        option_end_(option_end) {
+        option_{ std::forward<OptionArgs>(option_args)... } {
   }
 
   // Concrete methods
@@ -1026,9 +1034,7 @@ class FilePrinter {
 
  private:
   // Instance variables
-  const std::string option_attribution_;
-  const std::string option_middle_;
-  const std::string option_end_;
+  const Option option_;
 };
 
 class ModelConfigSerializer : public config::ModelConfigVisitor {
@@ -1136,7 +1142,7 @@ class SingleFilePrinter : public FilePrinter {
 
   // Constructors
   explicit SingleFilePrinter(std::shared_ptr<std::ostream> os)
-    : Base(os) {
+    : Base(os, 0) {
   }
 
   // Static methods
@@ -1195,7 +1201,7 @@ class MultipleFilePrinter : public FilePrinter {
 
   // Constructors
   explicit MultipleFilePrinter(const std::string &root_dir)
-    : Base(nullptr), change_ostream_(true),
+    : Base(nullptr, 0), change_ostream_(true),
       root_dir_(cleanPath(root_dir + "/")) {
   }
 
