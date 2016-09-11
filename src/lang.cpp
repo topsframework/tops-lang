@@ -1226,10 +1226,12 @@ class MultipleFilePrinter : public FilePrinter {
 
     for (auto &submodel : submodels_)
       submodel->accept(ModelConfigSerializer(
-            Self::make(true, root_dir_, os_)));
+            Self::make(true, root_dir_, os_, 0)));
     for (auto &library : libraries_)
       copy(library, std::make_shared<std::ofstream>(
             root_dir_ + extractCorename(library->path())));
+    for (auto &tree : trees_)
+      printTree(tree);
   }
 
   void print(config::ModelConfigPtr config_ptr) override {
@@ -1258,10 +1260,7 @@ class MultipleFilePrinter : public FilePrinter {
 
   void print(config::DependencyTreeConfigPtr tree_ptr) override {
     callFunction("tree", pathForHelperCall(tree_ptr->path()));
-    // tree_ptr->accept(ModelConfigSerializer(
-    //         Self::make(true, root_dir_, os_)));
-    for (auto& child : tree_ptr->children())
-      print(child);
+    trees_.push_back(tree_ptr);
   }
 
  protected:
@@ -1273,6 +1272,7 @@ class MultipleFilePrinter : public FilePrinter {
 
   std::list<config::ModelConfigPtr> submodels_;
   std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
+  std::list<config::DependencyTreeConfigPtr> trees_;
 
   // Constructors
   template<typename... Args>
@@ -1286,6 +1286,51 @@ class MultipleFilePrinter : public FilePrinter {
   // Concrete methods
   std::string pathForHelperCall(const std::string &path) {
     return '"' + removeSubstring(working_dir_, extractCorename(path)) + '"';
+  }
+
+  void printTree(config::DependencyTreeConfigPtr tree_ptr) {
+    thread_local unsigned int tree_depth = 0;
+    thread_local std::vector<unsigned int> tree_nodes { 1 };
+
+    if (tree_depth == 0)
+      changeOstream(tree_ptr->path());
+
+    indent();
+    for (unsigned int i = 1; i < tree_nodes.size(); i++) {
+      if (i == tree_depth) {
+        if (tree_nodes[i] == 1)
+          *os_ << " `- ";
+        else
+          *os_ << " |- ";
+      }
+      else {
+        if (tree_nodes[i] == 0)
+          *os_ << "    ";
+        else
+          *os_ << " |  ";
+      }
+    }
+
+    tree_nodes[tree_depth]--;
+
+    if (tree_nodes.size() == tree_depth + 1
+    &&  tree_ptr->children().size() != 0)
+      tree_nodes.push_back(tree_ptr->children().size());
+
+    if (tree_nodes.size() == tree_depth + 1
+    &&  tree_nodes[tree_depth] == 0)
+      tree_nodes.pop_back();
+
+    tree_ptr->accept(ModelConfigSerializer(
+            Self::make(false, root_dir_, os_, depth_,
+                       "", " ", "\n", "(", ")")));
+
+    tree_depth++;
+
+    for (auto& child : tree_ptr->children())
+      printTree(child);
+
+    tree_depth--;
   }
 };
 
