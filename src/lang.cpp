@@ -1501,35 +1501,35 @@ class DependencyTreeParser {
                        std::string root_dir,
                        std::string filename,
                        std::vector<std::string> content)
-      : _interpreter(interpreter),
-        _root_dir(root_dir),
-        _filename(filename),
-        _content(content),
-        _line(0), _column(1) {
+      : interpreter_(interpreter),
+        root_dir_(root_dir),
+        filename_(filename),
+        content_(content),
+        line_(0), column_(1) {
   }
 
   // Concrete methods
   config::DependencyTreeConfigPtr parse() {
-    for (auto line : _content) {
-      _line++;
-      _column = 1;
+    for (auto line : content_) {
+      line_++;
+      column_ = 1;
       parseNode(line);
     }
 
-    _edges.insert(_edges.begin(), 0);
+    edges_.insert(edges_.begin(), 0);
 
     std::stack<unsigned int> stack_edges;
     std::stack<config::DependencyTreeConfigPtr> stack_nodes;
-    for (unsigned int i = 0; i < _edges.size(); i++) {
+    for (unsigned int i = 0; i < edges_.size(); i++) {
       if (stack_edges.empty()) {
-        stack_edges.push(_edges[i]);
-        stack_nodes.push(_nodes[i]);
-      } else if (stack_edges.top() < _edges[i]) {
-        stack_edges.push(_edges[i]);
-        stack_nodes.push(_nodes[i]);
-      } else if (stack_edges.top() == _edges[i]) {
+        stack_edges.push(edges_[i]);
+        stack_nodes.push(nodes_[i]);
+      } else if (stack_edges.top() < edges_[i]) {
+        stack_edges.push(edges_[i]);
+        stack_nodes.push(nodes_[i]);
+      } else if (stack_edges.top() == edges_[i]) {
         auto node1 = stack_nodes.top();
-        auto node2 = _nodes[i];
+        auto node2 = nodes_[i];
         stack_edges.pop();
         stack_nodes.pop();
         stack_nodes.top()->children().push_back(node1);
@@ -1554,7 +1554,7 @@ class DependencyTreeParser {
  private:
   // Concrete methods
   void parseNode(std::string line) {
-    _it = line.begin();
+    it_ = line.begin();
 
     parseSpaces();
 
@@ -1576,11 +1576,11 @@ class DependencyTreeParser {
 
     auto filepath = parseString();
 
-    auto tree = config::DependencyTreeConfig::make(_root_dir + _filename);
+    auto tree = config::DependencyTreeConfig::make(root_dir_ + filename_);
     std::get<decltype("position"_t)>(*tree) = id;
     std::get<decltype("configuration"_t)>(*tree)
-      = makeModelConfig(_root_dir + filepath);
-    _nodes.push_back(tree);
+      = makeModelConfig(root_dir_ + filepath);
+    nodes_.push_back(tree);
 
     consume('"');
     consume(')');
@@ -1589,38 +1589,38 @@ class DependencyTreeParser {
   config::ModelConfigPtr makeModelConfig(std::string filepath);
 
   void resetEdgeIndex() {
-    _reset_edge_index = true;
+    reset_edge_index_ = true;
   }
 
   unsigned int nextEdgeIndex() {
-    _edge_index++;
+    edge_index_++;
 
-    if (_reset_edge_index) {
-      _edge_index = 0;
-      _reset_edge_index = false;
+    if (reset_edge_index_) {
+      edge_index_ = 0;
+      reset_edge_index_ = false;
     }
 
-    while (_edge_index < _leaves.size()) {
-      if (!_leaves[_edge_index])
-        return _edge_index;
-      _edge_index++;
+    while (edge_index_ < leaves_.size()) {
+      if (!leaves_[edge_index_])
+        return edge_index_;
+      edge_index_++;
     }
-    return _edge_index;
+    return edge_index_;
   }
 
   void parseLevel() {
     parseSpaces();
     resetEdgeIndex();
     while (next() == '|' && next(2) == ' ') {
-      if (_edges[nextEdgeIndex()] != _column) {
-        std::cerr << "Parse error at (" << _line << ", " << _column
+      if (edges_[nextEdgeIndex()] != column_) {
+        std::cerr << "Parse error at (" << line_ << ", " << column_
                   << "): Wrong edge position" << std::endl;
         exit(0);
       }
       consume('|');
       parseSpaces();
     }
-    _edges.push_back(_column);
+    edges_.push_back(column_);
     if (next() == '|')
       parseChild();
     else if (next() == '`')
@@ -1628,14 +1628,14 @@ class DependencyTreeParser {
   }
 
   void parseChild() {
-    _leaves.push_back(false);
+    leaves_.push_back(false);
     consume('|');
     consume('-');
     parseSpaces();
   }
 
   void parseLastChild() {
-    _leaves.push_back(true);
+    leaves_.push_back(true);
     consume('`');
     consume('-');
     parseSpaces();
@@ -1657,7 +1657,7 @@ class DependencyTreeParser {
     }
     else if (std::isdigit(next()))
       return parseNumber();
-    std::cerr << "Parse error at (" << _line << ", " << _column
+    std::cerr << "Parse error at (" << line_ << ", " << column_
               << "): Node ID should be a number or '*'" << std::endl;
     exit(0);
   }
@@ -1681,18 +1681,18 @@ class DependencyTreeParser {
   }
 
   void consume() {
-    _column++;
-    _it++;
+    column_++;
+    it_++;
   }
 
   void consume(char c) {
     if (c == next()) {
-      _column++;
-      _it++;
+      column_++;
+      it_++;
     }
     else {
-      std::cerr << "Parse error at (" << _line << ", "
-                << _column << ") :" << std::endl;
+      std::cerr << "Parse error at (" << line_ << ", "
+                << column_ << ") :" << std::endl;
       std::cerr << "  Expecting: " << c << std::endl;
       std::cerr << "  Got: " << next() <<std::endl;
       exit(0);
@@ -1700,27 +1700,30 @@ class DependencyTreeParser {
   }
 
   char next() {
-    return *_it;
+    return *it_;
   }
 
   char next(int n) {
-    return *(_it + n - 1);
+    return *(it_ + n - 1);
   }
 
-  Interpreter* _interpreter;
-  std::string _root_dir;
-  std::string _filename;
-  std::vector<std::string> _content;
-  std::string::iterator _it;
-  std::vector<unsigned int> _edges;
-  std::vector<bool> _leaves;
-  std::vector<config::DependencyTreeConfigPtr> _nodes;
+  Interpreter* interpreter_;
 
-  unsigned int _line;
-  unsigned int _column;
-  unsigned int _edge_index;
+  std::string root_dir_;
+  std::string filename_;
 
-  bool _reset_edge_index;
+  std::vector<std::string> content_;
+  std::string::iterator it_;
+
+  std::vector<unsigned int> edges_;
+  std::vector<bool> leaves_;
+  std::vector<config::DependencyTreeConfigPtr> nodes_;
+
+  unsigned int line_;
+  unsigned int column_;
+  unsigned int edge_index_;
+
+  bool reset_edge_index_;
 };
 
 }  // namespace lang
@@ -2032,7 +2035,7 @@ class Interpreter {
 // Implementation of DependencyTreeParser::makeModelConfig()
 // to solve cyclic dependency with Interpreter
 config::ModelConfigPtr DependencyTreeParser::makeModelConfig(std::string filepath) {
-  return _interpreter->evalModel(filepath).model_config_ptr;
+  return interpreter_->evalModel(filepath).model_config_ptr;
 }
 
 }  // namespace lang
