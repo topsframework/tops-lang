@@ -1358,7 +1358,7 @@ class MultipleFilePrinter : public FilePrinter {
 
 ModelConfigSerializer::ModelConfigSerializer(std::ostream &os)
     : printer_(std::make_shared<SingleFilePrinter>(
-          std::shared_ptr<std::ostream>(&os, [] (void *memory) {}))) {
+          std::shared_ptr<std::ostream>(&os, [] (void *) {}))) {
 }
 
 ModelConfigSerializer::ModelConfigSerializer(const std::string &root_dir)
@@ -1594,9 +1594,10 @@ class DependencyTreeParser {
 
   int nextEdgeIndex() {
     _edge_index++;
-    for (; _edge_index < _leaves.size(); _edge_index++) {
+    while (static_cast<std::size_t>(_edge_index) < _leaves.size()) {
       if (!_leaves[_edge_index])
         return _edge_index;
+      _edge_index++;
     }
     return _edge_index;
   }
@@ -1708,8 +1709,9 @@ class DependencyTreeParser {
   std::vector<int> _edges;
   std::vector<bool> _leaves;
   std::vector<config::DependencyTreeConfigPtr> _nodes;
-  int _line;
-  int _column;
+
+  unsigned int _line;
+  unsigned int _column;
   int _edge_index;
 };
 
