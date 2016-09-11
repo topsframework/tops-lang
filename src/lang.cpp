@@ -1225,11 +1225,9 @@ class MultipleFilePrinter : public FilePrinter {
     Base::endPrinting();
 
     for (auto &submodel : submodels_)
-      submodel->accept(ModelConfigSerializer(
-            Self::make(true, root_dir_, os_, 0)));
+      printSubmodel(submodel);
     for (auto &library : libraries_)
-      copy(library, std::make_shared<std::ofstream>(
-            root_dir_ + extractCorename(library->path())));
+      printLibrary(library);
     for (auto &tree : trees_)
       printTree(tree);
   }
@@ -1286,6 +1284,16 @@ class MultipleFilePrinter : public FilePrinter {
   // Concrete methods
   std::string pathForHelperCall(const std::string &path) {
     return '"' + removeSubstring(working_dir_, extractCorename(path)) + '"';
+  }
+
+  void printSubmodel(config::ModelConfigPtr submodel_ptr) {
+    submodel_ptr->accept(ModelConfigSerializer(
+          Self::make(true, root_dir_, os_, 0)));
+  }
+
+  void printLibrary(config::FeatureFunctionLibraryConfigPtr library_ptr) {
+    copy(library_ptr, std::make_shared<std::ofstream>(
+          root_dir_ + extractCorename(library_ptr->path())));
   }
 
   void printTree(config::DependencyTreeConfigPtr tree_ptr) {
