@@ -1324,8 +1324,7 @@ class MultipleFilePrinter : public FilePrinter {
           *os_ << " `- ";
         else
           *os_ << " |- ";
-      }
-      else {
+      } else {
         if (tree_nodes[i] == 0)
           *os_ << "    ";
         else
@@ -1654,9 +1653,10 @@ class DependencyTreeParser {
     if (next() == '*') {
       consume();
       return "*";
-    }
-    else if (std::isdigit(next()))
+    } else if (std::isdigit(next())) {
       return parseNumber();
+    }
+
     std::cerr << "Parse error at (" << line_ << ", " << column_
               << "): Node ID should be a number or '*'" << std::endl;
     exit(0);
@@ -1689,8 +1689,7 @@ class DependencyTreeParser {
     if (c == next()) {
       column_++;
       it_++;
-    }
-    else {
+    } else {
       std::cerr << "Parse error at (" << line_ << ", "
                 << column_ << ") :" << std::endl;
       std::cerr << "  Expecting: " << c << std::endl;
@@ -2034,7 +2033,8 @@ class Interpreter {
 
 // Implementation of DependencyTreeParser::makeModelConfig()
 // to solve cyclic dependency with Interpreter
-config::ModelConfigPtr DependencyTreeParser::makeModelConfig(std::string filepath) {
+config::ModelConfigPtr
+DependencyTreeParser::makeModelConfig(std::string filepath) {
   return interpreter_->evalModel(filepath).model_config_ptr;
 }
 
@@ -2091,9 +2091,10 @@ int main(int argc, char **argv) try {
   }
 
   return EXIT_SUCCESS;
-
-} catch(chaiscript::exception::eval_error &e) {
+}
+catch(chaiscript::exception::eval_error &e) {
   std::cerr << e.pretty_print() << std::endl;
-} catch(std::exception &e) {
+}
+catch(std::exception &e) {
   std::cerr << e.what() << std::endl;
 }
