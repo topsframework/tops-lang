@@ -69,75 +69,14 @@
 #include "config/GeometricDurationConfig.hpp"
 #include "config/MaxLengthDurationConfig.hpp"
 
+#include "config/ModelConfigVisitor.hpp"
+
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 
 #include "named_types/named_tuple.hpp"
 #include "named_types/extensions/type_traits.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                    VISITOR
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace config {
-
-class ModelConfigVisitor {
- public:
-  // Concrete methods
-  template<typename Base, typename... Options>
-  void visit(std::shared_ptr<BasicConfig<Base, Options...>> config_ptr) {
-    std::size_t count = 0;
-    std::size_t max = config_ptr->number_of_options();
-    this->startVisit();
-    this->visitLabel(config_ptr->label());
-    this->visitPath(config_ptr->path());
-    config_ptr->for_each([this, &count, &max](const auto &tag, auto &value) {
-      using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
-      using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
-      this->visitTag(typename Tag::value_type().str(), count, max);
-      this->visitOption(const_cast<Value&>(value));
-      count++;
-    });
-    this->endVisit();
-  }
-
-  // Virtual destructor
-  virtual ~ModelConfigVisitor() = default;
-
- protected:
-  // Purely virtual methods
-  virtual void startVisit() = 0;
-  virtual void endVisit() = 0;
-
-  virtual void visitOption(option::Model &) = 0;
-  virtual void visitOption(option::State &) = 0;
-  virtual void visitOption(option::Duration &) = 0;
-  virtual void visitOption(option::FeatureFunctionLibrary &) = 0;
-
-  virtual void visitOption(option::Models &) = 0;
-  virtual void visitOption(option::States &) = 0;
-  virtual void visitOption(option::DependencyTrees &) = 0;
-  virtual void visitOption(option::FeatureFunctionLibraries &) = 0;
-
-  virtual void visitOption(option::Type &) = 0;
-  virtual void visitOption(option::Size &) = 0;
-  virtual void visitOption(option::Alphabet &) = 0;
-  virtual void visitOption(option::Probability &) = 0;
-  virtual void visitOption(option::Probabilities &) = 0;
-  virtual void visitOption(option::DependencyTree &) = 0;
-  virtual void visitOption(option::FeatureFunctions &) = 0;
-
-  virtual void visitTag(const std::string &, std::size_t, std::size_t) = 0;
-  virtual void visitLabel(const std::string &) = 0;
-  virtual void visitPath(const std::string &) = 0;
-};
-
-}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
