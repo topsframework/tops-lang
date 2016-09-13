@@ -49,6 +49,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/ModelConfig.hpp"
+#include "config/HMMConfig.hpp"
 #include "config/IIDConfig.hpp"
 #include "config/IMCConfig.hpp"
 #include "config/MDDConfig.hpp"
@@ -81,18 +82,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using HMMConfig
-  = config_with_options<
-      option::Probabilities(decltype("initial_probabilities"_t)),
-      option::Probabilities(decltype("transition_probabilities"_t)),
-      option::Probabilities(decltype("emission_probabilities"_t)),
-      option::Alphabet(decltype("labels"_t))
-    >::extending<ModelConfig>::type;
-
-using HMMConfigPtr = std::shared_ptr<HMMConfig>;
 
 /*----------------------------------------------------------------------------*/
 
