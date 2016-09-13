@@ -20,6 +20,12 @@
 #ifndef CONFIG_STATE_CONFIG_
 #define CONFIG_STATE_CONFIG_
 
+// Standard headers
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 

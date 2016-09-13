@@ -20,6 +20,9 @@
 #ifndef CONFIG_PERIODIC_IMC_CONFIG_
 #define CONFIG_PERIODIC_IMC_CONFIG_
 
+// Standard headers
+#include <memory>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 

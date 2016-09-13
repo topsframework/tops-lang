@@ -20,6 +20,9 @@
 #ifndef CONFIG_MAX_LENGTH_DURATION_CONFIG_
 #define CONFIG_MAX_LENGTH_DURATION_CONFIG_
 
+// Standard headers
+#include <memory>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 

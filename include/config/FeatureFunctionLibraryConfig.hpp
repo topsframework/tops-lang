@@ -20,6 +20,10 @@
 #ifndef CONFIG_FEATURE_FUNCTION_LIBRARY_CONFIG_
 #define CONFIG_FEATURE_FUNCTION_LIBRARY_CONFIG_
 
+// Standard headers
+#include <memory>
+#include <vector>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 

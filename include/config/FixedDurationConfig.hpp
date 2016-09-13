@@ -20,6 +20,9 @@
 #ifndef CONFIG_FIXED_DURATION_CONFIG_
 #define CONFIG_FIXED_DURATION_CONFIG_
 
+// Standard headers
+#include <memory>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 

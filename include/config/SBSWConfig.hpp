@@ -20,6 +20,9 @@
 #ifndef CONFIG_SBSW_CONFIG_
 #define CONFIG_SBSW_CONFIG_
 
+// Standard headers
+#include <memory>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 

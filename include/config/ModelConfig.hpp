@@ -20,6 +20,10 @@
 #ifndef CONFIG_MODEL_CONFIG_
 #define CONFIG_MODEL_CONFIG_
 
+// Standard headers
+#include <memory>
+#include <vector>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 

@@ -20,6 +20,9 @@
 #ifndef CONFIG_VLMC_CONFIG_
 #define CONFIG_VLMC_CONFIG_
 
+// Standard headers
+#include <memory>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 

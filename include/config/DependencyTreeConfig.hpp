@@ -20,6 +20,10 @@
 #ifndef CONFIG_DEPENDENCY_TREE_CONFIG_
 #define CONFIG_DEPENDENCY_TREE_CONFIG_
 
+// Standard headers
+#include <memory>
+#include <vector>
+
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
