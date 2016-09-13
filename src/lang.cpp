@@ -167,12 +167,12 @@ using Size = unsigned int;
 
 /*----------------------------------------------------------------------------*/
 
-using MaxLenghtConfig
+using MaxLengthDurationConfig
   = config_with_options<
       option::Size(decltype("size"_t))
     >::extending<DurationConfig>::type;
 
-using MaxLenghtConfigPtr = std::shared_ptr<MaxLenghtConfig>;
+using MaxLengthDurationConfigPtr = std::shared_ptr<MaxLengthDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
@@ -1911,10 +1911,10 @@ class Interpreter {
                        const std::string &filepath) {
     using chaiscript::fun;
 
-    using config::MaxLenghtConfig;
     using config::SignalDurationConfig;
     using config::ExplicitDurationConfig;
     using config::GeometricDurationConfig;
+    using config::MaxLengthDurationConfig;
     using config::FeatureFunctionLibraryConfig;
     using config::DependencyTreeConfig;
 
@@ -1959,10 +1959,10 @@ class Interpreter {
     }), "fixed");
 
     module->add(fun([this, filepath] (unsigned int size) {
-      auto duration_ptr = MaxLenghtConfig::make(filepath, "max_length");
+      auto duration_ptr = MaxLengthDurationConfig::make(filepath, "max_length");
       std::get<decltype("size"_t)>(*duration_ptr.get()) = size;
       return config::DurationConfigPtr(duration_ptr);
-    }), "max_lenght");
+    }), "max_length");
 
     module->add(fun([this, filepath] (const std::string &file) {
       auto root_dir = extractDir(filepath);
