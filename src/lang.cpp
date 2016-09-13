@@ -56,6 +56,7 @@
 #include "config/GHMMConfig.hpp"
 #include "config/SBSWConfig.hpp"
 #include "config/VLMCConfig.hpp"
+#include "config/LCCRFConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
 #include "config/FeatureFunctionLibraryConfig.hpp"
@@ -75,31 +76,6 @@
 
 #include "named_types/named_tuple.hpp"
 #include "named_types/extensions/type_traits.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                  MODEL CONFIGS
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using LCCRFConfig
-  = config_with_options<
-      option::Alphabet(decltype("labels"_t)),
-      option::Probabilities(decltype("feature_parameters"_t)),
-      option::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
-    >::extending<ModelConfig>::type;
-
-using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
