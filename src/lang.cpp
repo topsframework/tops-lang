@@ -41,6 +41,8 @@
 
 // Internal headers
 #include "ParameterPack.hpp"
+#include "StringLiteralSuffix.hpp"
+
 #include "filesystem/Filesystem.hpp"
 
 #include "config/ConfigWithOptions.hpp"
@@ -51,19 +53,6 @@
 
 #include "named_types/named_tuple.hpp"
 #include "named_types/extensions/type_traits.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                 LITERAL OVERLOAD
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-template<typename T, T... chars>
-constexpr decltype(auto) operator ""_t () {
-  return named_types::named_tag<named_types::string_literal<T, chars...>>{};
-}
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
