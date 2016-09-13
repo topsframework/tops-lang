@@ -48,6 +48,8 @@
 #include "config/Options.hpp"
 #include "config/ConfigWithOptions.hpp"
 
+#include "config/ModelConfig.hpp"
+
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
@@ -64,16 +66,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using ModelConfig
-  = config_with_options<
-      option::Type(decltype("model_type"_t)),
-      option::Alphabet(decltype("observations"_t))
-    >::type;
-
-using ModelConfigPtr = std::shared_ptr<ModelConfig>;
 
 /*----------------------------------------------------------------------------*/
 
@@ -106,14 +98,6 @@ using FixedDurationConfig
     >::extending<DurationConfig>::type;
 
 using FixedDurationConfigPtr = std::shared_ptr<FixedDurationConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using Model = ModelConfigPtr;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
@@ -160,14 +144,6 @@ using VLMCConfig
     >::extending<ModelConfig>::type;
 
 using VLMCConfigPtr = std::shared_ptr<VLMCConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using Models = std::vector<ModelConfigPtr>;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
