@@ -51,6 +51,7 @@
 #include "config/ModelConfig.hpp"
 #include "config/IIDConfig.hpp"
 #include "config/IMCConfig.hpp"
+#include "config/MDDConfig.hpp"
 #include "config/VLMCConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
@@ -79,16 +80,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using MDDConfig
-  = config_with_options<
-      option::Pattern(decltype("consensus"_t)),
-      option::DependencyTrees(decltype("dependencies"_t))
-    >::extending<ModelConfig>::type;
-
-using MDDConfigPtr = std::shared_ptr<MDDConfig>;
 
 /*----------------------------------------------------------------------------*/
 
