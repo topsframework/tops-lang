@@ -52,6 +52,7 @@
 #include "config/IIDConfig.hpp"
 #include "config/IMCConfig.hpp"
 #include "config/VLMCConfig.hpp"
+#include "config/PeriodicIMCConfig.hpp"
 
 #include "config/StateConfig.hpp"
 
@@ -77,15 +78,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using PeriodicIMCConfig
-  = config_with_options<
-      option::Models(decltype("position_specific_distributions"_t))
-    >::extending<ModelConfig>::type;
-
-using PeriodicIMCConfigPtr = std::shared_ptr<PeriodicIMCConfig>;
 
 /*----------------------------------------------------------------------------*/
 
