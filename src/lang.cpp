@@ -58,6 +58,7 @@
 #include "config/VLMCConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
+#include "config/MultipleSequentialModelsConfig.hpp"
 
 #include "config/StateConfig.hpp"
 
@@ -83,16 +84,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using MultipleSequentialModelsConfig
-  = config_with_options<
-      option::States(decltype("models"_t))
-    >::extending<ModelConfig>::type;
-
-using MultipleSequentialModelsConfigPtr
-  = std::shared_ptr<MultipleSequentialModelsConfig>;
 
 /*----------------------------------------------------------------------------*/
 
