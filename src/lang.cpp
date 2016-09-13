@@ -50,6 +50,7 @@
 
 #include "config/ModelConfig.hpp"
 #include "config/DurationConfig.hpp"
+#include "config/GeometricDurationConfig.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
@@ -67,13 +68,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using GeometricDurationConfig
-  = config_with_options<>::extending<DurationConfig>::type;
-
-using GeometricDurationConfigPtr = std::shared_ptr<GeometricDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
