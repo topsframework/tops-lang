@@ -46,7 +46,8 @@
 #include "filesystem/Filesystem.hpp"
 
 #include "config/Options.hpp"
-#include "config/ConfigWithOptions.hpp"
+#include "config/DependencyTreeConfig.hpp"
+#include "config/FeatureFunctionLibraryConfig.hpp"
 
 #include "config/ModelConfig.hpp"
 #include "config/HMMConfig.hpp"
@@ -58,8 +59,6 @@
 #include "config/VLMCConfig.hpp"
 #include "config/LCCRFConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
 #include "config/MultipleSequentialModelsConfig.hpp"
 
 #include "config/StateConfig.hpp"
