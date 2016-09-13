@@ -53,6 +53,7 @@
 #include "config/IMCConfig.hpp"
 #include "config/VLMCConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
+#include "config/DependencyTreeConfig.hpp"
 
 #include "config/StateConfig.hpp"
 
@@ -78,25 +79,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using DependencyTreeConfig
-  = config_with_options<
-      option::Pattern(decltype("position"_t)),
-      option::Model(decltype("configuration"_t))
-    >::type;
-
-using DependencyTreeConfigPtr = std::shared_ptr<DependencyTreeConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using DependencyTree = DependencyTreeConfigPtr;
-using DependencyTrees = std::vector<DependencyTreeConfigPtr>;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
