@@ -54,6 +54,7 @@
 #include "config/IMCConfig.hpp"
 #include "config/MDDConfig.hpp"
 #include "config/GHMMConfig.hpp"
+#include "config/SBSWConfig.hpp"
 #include "config/VLMCConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
@@ -82,19 +83,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using SBSWConfig
-  = config_with_options<
-      option::Probabilities(decltype("sequences"_t)),
-      option::Probability(decltype("normalizer"_t)),
-      option::Size(decltype("skip_offset"_t)),
-      option::Size(decltype("skip_length"_t)),
-      option::Sequence(decltype("skip_sequence"_t))
-    >::extending<ModelConfig>::type;
-
-using SBSWConfigPtr = std::shared_ptr<SBSWConfig>;
 
 /*----------------------------------------------------------------------------*/
 
