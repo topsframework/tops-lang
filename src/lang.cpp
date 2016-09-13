@@ -43,30 +43,14 @@
 #include "ParameterPack.hpp"
 #include "filesystem/Filesystem.hpp"
 
+#include "config/Util.hpp"
+
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 
 #include "named_types/named_tuple.hpp"
 #include "named_types/extensions/type_traits.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                  HELPER TRAITS
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace config {
-
-template<typename T>
-struct delayed_true : public std::true_type {};
-
-template<typename T>
-struct delayed_false : public std::false_type {};
-
-}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -184,7 +168,6 @@ using FixedDurationConfig
 using FixedDurationConfigPtr = std::shared_ptr<FixedDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
-
 
 namespace option {
 
