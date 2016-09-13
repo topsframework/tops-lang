@@ -50,6 +50,7 @@
 
 #include "config/ModelConfig.hpp"
 #include "config/IIDConfig.hpp"
+#include "config/IMCConfig.hpp"
 #include "config/VLMCConfig.hpp"
 
 #include "config/StateConfig.hpp"
@@ -76,15 +77,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using IMCConfig
-  = config_with_options<
-      option::Models(decltype("position_specific_distributions"_t))
-    >::extending<ModelConfig>::type;
-
-using IMCConfigPtr = std::shared_ptr<IMCConfig>;
 
 /*----------------------------------------------------------------------------*/
 
