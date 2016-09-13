@@ -50,6 +50,7 @@
 
 #include "config/ModelConfig.hpp"
 #include "config/IIDConfig.hpp"
+#include "config/VLMCConfig.hpp"
 
 #include "config/StateConfig.hpp"
 
@@ -75,15 +76,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using VLMCConfig
-  = config_with_options<
-      option::Probabilities(decltype("context_probabilities"_t))
-    >::extending<ModelConfig>::type;
-
-using VLMCConfigPtr = std::shared_ptr<VLMCConfig>;
 
 /*----------------------------------------------------------------------------*/
 
