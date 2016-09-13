@@ -51,6 +51,7 @@
 #include "config/ModelConfig.hpp"
 #include "config/DurationConfig.hpp"
 #include "config/GeometricDurationConfig.hpp"
+#include "config/MaxLengthDurationConfig.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
@@ -68,15 +69,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using MaxLengthDurationConfig
-  = config_with_options<
-      option::Size(decltype("size"_t))
-    >::extending<DurationConfig>::type;
-
-using MaxLengthDurationConfigPtr = std::shared_ptr<MaxLengthDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
