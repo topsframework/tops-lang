@@ -1,4 +1,4 @@
-model_type = "MultipleSequentialModels"
+model_type = "MSM"
 
 observations = [ "0", "1" ]
 

@@ -54,12 +54,12 @@
 #include "config/IIDConfig.hpp"
 #include "config/IMCConfig.hpp"
 #include "config/MDDConfig.hpp"
+#include "config/MSMConfig.hpp"
 #include "config/GHMMConfig.hpp"
 #include "config/SBSWConfig.hpp"
 #include "config/VLMCConfig.hpp"
 #include "config/LCCRFConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
-#include "config/MultipleSequentialModelsConfig.hpp"
 
 #include "config/StateConfig.hpp"
 
@@ -1463,8 +1463,8 @@ class Interpreter {
       return fillConfig<config::PeriodicIMCConfig>(filepath);
     } else if (model_type == "SBSW") {
       return fillConfig<config::SBSWConfig>(filepath);
-    } else if (model_type == "MultipleSequentialModels") {
-      return fillConfig<config::MultipleSequentialModelsConfig>(filepath);
+    } else if (model_type == "MSM") {
+      return fillConfig<config::MSMConfig>(filepath);
     } else if (model_type == "MDD") {
       return fillConfig<config::MDDConfig>(filepath);
     } else if (model_type == "") {

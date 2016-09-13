@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_MULTIPLE_SEQUENTIAL_MODELS_CONFIG_
-#define CONFIG_MULTIPLE_SEQUENTIAL_MODELS_CONFIG_
+#ifndef CONFIG_MSM_CONFIG_
+#define CONFIG_MSM_CONFIG_
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
@@ -29,21 +29,21 @@
 namespace config {
 
 /**
- * @typedef MultipleSequentialModelsConfig
+ * @typedef MSMConfig
  * @brief Alias to IR of a model::MultipleSequentialModel
  */
-using MultipleSequentialModelsConfig
+using MSMConfig
   = config_with_options<
       option::States(decltype("models"_t))
     >::extending<ModelConfig>::type;
 
 /**
- * @typedef MultipleSequentialModelsConfigPtr
- * @brief Alias of pointer to MultipleSequentialModelsConfig
+ * @typedef MSMConfigPtr
+ * @brief Alias of pointer to MSMConfig
  */
-using MultipleSequentialModelsConfigPtr
-  = std::shared_ptr<MultipleSequentialModelsConfig>;
+using MSMConfigPtr
+  = std::shared_ptr<MSMConfig>;
 
 }  // namespace config
 
-#endif  // CONFIG_MULTIPLE_SEQUENTIAL_MODELS_CONFIG_
+#endif  // CONFIG_MSM_CONFIG_
