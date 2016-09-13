@@ -50,6 +50,7 @@
 
 #include "config/ModelConfig.hpp"
 #include "config/DurationConfig.hpp"
+#include "config/FixedDurationConfig.hpp"
 #include "config/GeometricDurationConfig.hpp"
 #include "config/MaxLengthDurationConfig.hpp"
 
@@ -69,15 +70,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using FixedDurationConfig
-  = config_with_options<
-      option::Size(decltype("size"_t))
-    >::extending<DurationConfig>::type;
-
-using FixedDurationConfigPtr = std::shared_ptr<FixedDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
