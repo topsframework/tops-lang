@@ -58,6 +58,7 @@
 #include "config/VLMCConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
+#include "config/FeatureFunctionLibraryConfig.hpp"
 #include "config/MultipleSequentialModelsConfig.hpp"
 
 #include "config/StateConfig.hpp"
@@ -84,27 +85,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using FeatureFunctionLibraryConfig
-  = config_with_options<
-      option::Alphabet(decltype("observations"_t)),
-      option::Alphabet(decltype("labels"_t)),
-      option::FeatureFunctions(decltype("feature_functions"_t))
-    >::type;
-
-using FeatureFunctionLibraryConfigPtr
-  = std::shared_ptr<FeatureFunctionLibraryConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using FeatureFunctionLibrary = FeatureFunctionLibraryConfigPtr;
-using FeatureFunctionLibraries = std::vector<FeatureFunctionLibrary>;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
