@@ -45,6 +45,7 @@
 
 #include "filesystem/Filesystem.hpp"
 
+#include "config/Options.hpp"
 #include "config/ConfigWithOptions.hpp"
 
 // External headers
@@ -63,16 +64,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using Type = std::string;
-using Letter = std::string;
-using Alphabet = std::vector<Letter>;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
@@ -97,14 +88,6 @@ using GeometricDurationConfig
   = config_with_options<>::extending<DurationConfig>::type;
 
 using GeometricDurationConfigPtr = std::shared_ptr<GeometricDurationConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using Size = unsigned int;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
@@ -162,15 +145,6 @@ using StateConfigPtr = std::shared_ptr<StateConfig>;
 
 /*----------------------------------------------------------------------------*/
 
-namespace option {
-
-using Probability = double;
-using Probabilities = std::map<std::string, Probability>;
-
-}  // namespace option
-
-/*----------------------------------------------------------------------------*/
-
 using IIDConfig
   = config_with_options<
       option::Probabilities(decltype("emission_probabilities"_t))
@@ -212,14 +186,6 @@ using PeriodicIMCConfig
     >::extending<ModelConfig>::type;
 
 using PeriodicIMCConfigPtr = std::shared_ptr<PeriodicIMCConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using Pattern = std::string;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
@@ -284,14 +250,6 @@ using HMMConfigPtr = std::shared_ptr<HMMConfig>;
 
 /*----------------------------------------------------------------------------*/
 
-namespace option {
-
-using Sequence = std::string;
-
-}  // namespace option
-
-/*----------------------------------------------------------------------------*/
-
 using SBSWConfig
   = config_with_options<
       option::Probabilities(decltype("sequences"_t)),
@@ -312,16 +270,6 @@ using MultipleSequentialModelsConfig
 
 using MultipleSequentialModelsConfigPtr
   = std::shared_ptr<MultipleSequentialModelsConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using FeatureFunction = std::function<
-  double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)>;
-using FeatureFunctions = std::map<std::string, FeatureFunction>;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
@@ -354,6 +302,8 @@ using LCCRFConfig
     >::extending<ModelConfig>::type;
 
 using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
+
+/*----------------------------------------------------------------------------*/
 
 }  // namespace config
 
