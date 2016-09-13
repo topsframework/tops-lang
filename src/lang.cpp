@@ -52,6 +52,7 @@
 #include "config/IIDConfig.hpp"
 #include "config/IMCConfig.hpp"
 #include "config/MDDConfig.hpp"
+#include "config/GHMMConfig.hpp"
 #include "config/VLMCConfig.hpp"
 #include "config/PeriodicIMCConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
@@ -80,17 +81,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using GHMMConfig
-  = config_with_options<
-      option::Probabilities(decltype("initial_probabilities"_t)),
-      option::Probabilities(decltype("transition_probabilities"_t)),
-      option::States(decltype("states"_t))
-    >::extending<ModelConfig>::type;
-
-using GHMMConfigPtr = std::shared_ptr<GHMMConfig>;
 
 /*----------------------------------------------------------------------------*/
 
