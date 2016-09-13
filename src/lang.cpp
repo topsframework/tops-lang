@@ -43,7 +43,7 @@
 #include "ParameterPack.hpp"
 #include "filesystem/Filesystem.hpp"
 
-#include "config/Util.hpp"
+#include "config/ConfigWithOptions.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
@@ -51,38 +51,6 @@
 
 #include "named_types/named_tuple.hpp"
 #include "named_types/extensions/type_traits.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                 CONFIG FACTORY
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace config {
-
-// Forward declaration
-class BasicConfigInterface;
-template<typename Base, typename... Options> class BasicConfig;
-
-template<typename... Options>
-struct config_with_options {
-  using type = BasicConfig<BasicConfigInterface, Options...>;
-
-  template<typename T>
-  struct extending {
-    static_assert(delayed_false<T>::value, "Is not a configuration");
-  };
-
-  template<typename BaseBase, typename... BaseOptions>
-  struct extending<BasicConfig<BaseBase, BaseOptions...>> {
-    using type
-      = BasicConfig<BasicConfig<BaseBase, BaseOptions...>, Options...>;
-  };
-};
-
-}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
