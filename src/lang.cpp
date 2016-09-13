@@ -49,7 +49,10 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/ModelConfig.hpp"
+#include "config/IIDConfig.hpp"
+
 #include "config/StateConfig.hpp"
+
 #include "config/DurationConfig.hpp"
 #include "config/FixedDurationConfig.hpp"
 #include "config/ExplicitDurationConfig.hpp"
@@ -72,15 +75,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using IIDConfig
-  = config_with_options<
-      option::Probabilities(decltype("emission_probabilities"_t))
-    >::extending<ModelConfig>::type;
-
-using IIDConfigPtr = std::shared_ptr<IIDConfig>;
 
 /*----------------------------------------------------------------------------*/
 
