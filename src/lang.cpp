@@ -49,6 +49,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/ModelConfig.hpp"
+#include "config/StateConfig.hpp"
 #include "config/DurationConfig.hpp"
 #include "config/FixedDurationConfig.hpp"
 #include "config/ExplicitDurationConfig.hpp"
@@ -71,16 +72,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using StateConfig
-  = config_with_options<
-      option::Duration(decltype("duration"_t)),
-      option::Model(decltype("emission"_t))
-    >::type;
-
-using StateConfigPtr = std::shared_ptr<StateConfig>;
 
 /*----------------------------------------------------------------------------*/
 
@@ -146,15 +137,6 @@ using MDDConfig
     >::extending<ModelConfig>::type;
 
 using MDDConfigPtr = std::shared_ptr<MDDConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using State = StateConfigPtr;
-using States = std::map<std::string, State>;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
