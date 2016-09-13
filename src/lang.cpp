@@ -49,6 +49,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/ModelConfig.hpp"
+#include "config/DurationConfig.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
@@ -66,13 +67,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using DurationConfig
-  = config_with_options<>::type;
-
-using DurationConfigPtr = std::shared_ptr<DurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
@@ -108,14 +102,6 @@ using ExplicitDurationConfig
     >::extending<DurationConfig>::type;
 
 using ExplicitDurationConfigPtr = std::shared_ptr<ExplicitDurationConfig>;
-
-/*----------------------------------------------------------------------------*/
-
-namespace option {
-
-using Duration = DurationConfigPtr;
-
-}  // namespace option
 
 /*----------------------------------------------------------------------------*/
 
