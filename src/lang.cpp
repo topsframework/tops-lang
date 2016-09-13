@@ -51,6 +51,7 @@
 #include "config/ModelConfig.hpp"
 #include "config/DurationConfig.hpp"
 #include "config/FixedDurationConfig.hpp"
+#include "config/ExplicitDurationConfig.hpp"
 #include "config/GeometricDurationConfig.hpp"
 #include "config/MaxLengthDurationConfig.hpp"
 
@@ -70,16 +71,6 @@
 */
 
 namespace config {
-
-/*----------------------------------------------------------------------------*/
-
-using ExplicitDurationConfig
-  = config_with_options<
-      option::Model(decltype("model"_t)),
-      option::Size(decltype("max_size"_t))
-    >::extending<DurationConfig>::type;
-
-using ExplicitDurationConfigPtr = std::shared_ptr<ExplicitDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
