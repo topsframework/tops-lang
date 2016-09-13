@@ -176,12 +176,12 @@ using MaxLengthDurationConfigPtr = std::shared_ptr<MaxLengthDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
-using SignalDurationConfig
+using FixedDurationConfig
   = config_with_options<
       option::Size(decltype("size"_t))
     >::extending<DurationConfig>::type;
 
-using SignalDurationConfigPtr = std::shared_ptr<SignalDurationConfig>;
+using FixedDurationConfigPtr = std::shared_ptr<FixedDurationConfig>;
 
 /*----------------------------------------------------------------------------*/
 
@@ -1911,7 +1911,7 @@ class Interpreter {
                        const std::string &filepath) {
     using chaiscript::fun;
 
-    using config::SignalDurationConfig;
+    using config::FixedDurationConfig;
     using config::ExplicitDurationConfig;
     using config::GeometricDurationConfig;
     using config::MaxLengthDurationConfig;
@@ -1953,7 +1953,7 @@ class Interpreter {
     }), "explicit");
 
     module->add(fun([this, filepath] (unsigned int size) {
-      auto duration_ptr = SignalDurationConfig::make(filepath, "fixed");
+      auto duration_ptr = FixedDurationConfig::make(filepath, "fixed");
       std::get<decltype("size"_t)>(*duration_ptr.get()) = size;
       return config::DurationConfigPtr(duration_ptr);
     }), "fixed");
