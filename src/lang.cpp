@@ -71,79 +71,14 @@
 
 #include "config/ModelConfigVisitor.hpp"
 
+#include "config/BasicConfigInterface.hpp"
+
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 
 #include "named_types/named_tuple.hpp"
 #include "named_types/extensions/type_traits.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                             BASIC CONFIG INTERFACE
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace config {
-
-class BasicConfigInterface
-    : public std::enable_shared_from_this<BasicConfigInterface> {
- public:
-  // Alias
-  using Self = BasicConfigInterface;
-
-  // Constructors
-  explicit BasicConfigInterface(const std::string &path,
-                                const std::string &label)
-    : path_(path), label_(label) {
-  }
-
-  // Purely virtual methods
-  virtual void accept(ModelConfigVisitor &/* visitor */) const = 0;
-  virtual void accept(ModelConfigVisitor &&/* visitor */) const = 0;
-
-  // Virtual methods
-  virtual std::string path() {
-    return path_;
-  }
-
-  virtual const std::string path() const {
-    return path_;
-  }
-
-  virtual std::string label() {
-    return label_;
-  }
-
-  virtual const std::string label() const {
-    return label_;
-  }
-
-  virtual std::size_t number_of_options() const {
-    return 0;
-  }
-
-  // Concrete methods
-  template<typename Func>
-  constexpr void for_each(Func&& /* func */) const {}
-
-  template<typename... Args>
-  void initialize(Args&&... /* args */) const {}
-
-  template<class Tag>
-  inline constexpr decltype(auto) get() const {}
-
-  // Destructor
-  virtual ~BasicConfigInterface() = default;
-
- private:
-  std::string path_;
-  std::string label_;
-};
-
-}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
