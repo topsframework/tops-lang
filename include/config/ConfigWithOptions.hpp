@@ -21,6 +21,8 @@
 #define CONFIG_CONFIG_WITH_OPTIONS_
 
 // Internal headers
+#include "StringLiteralSuffix.hpp"
+
 #include "config/Util.hpp"
 
 namespace config {
