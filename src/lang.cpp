@@ -40,7 +40,6 @@
 #include <type_traits>
 
 // Internal headers
-#include "ParameterPack.hpp"
 #include "StringLiteralSuffix.hpp"
 
 #include "filesystem/Filesystem.hpp"
@@ -71,145 +70,11 @@
 
 #include "config/ModelConfigVisitor.hpp"
 
-#include "config/BasicConfigInterface.hpp"
-#include "config/HasTag.hpp"
+#include "config/BasicConfig.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
-
-#include "named_types/named_tuple.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                           BASIC CONFIG IMPLEMENTATION
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace config {
-
-template<typename Base, typename... Options>
-class BasicConfig : public Base {
- public:
-  // Alias
-  using Self = BasicConfig<Base, Options...>;
-  using Tuple = named_types::named_tuple<Options...>;
-
-  using SelfPtr = std::shared_ptr<BasicConfig<Base, Options...>>;
-
-  // Constructors
-  explicit BasicConfig(const std::string &path = {},
-                       const std::string &label = {})
-      : Base(path, label) {
-  }
-
-  // Static methods
-  template<typename... Params>
-  static SelfPtr make(Params&&... params) {
-    return std::make_shared<Self>(std::forward<Params>(params)...);
-  }
-
-  // Overriden methods
-  void accept(ModelConfigVisitor &visitor) const override {
-    auto ptr = std::static_pointer_cast<Self>(
-      const_cast<Self*>(this)->shared_from_this());
-    visitor.visit(ptr);
-  }
-
-  void accept(ModelConfigVisitor &&visitor) const override {
-    auto ptr = std::static_pointer_cast<Self>(
-      const_cast<Self*>(this)->shared_from_this());
-    visitor.visit(ptr);
-  }
-
-  std::size_t number_of_options() const override {
-    return this->Base::number_of_options()
-      + std::tuple_size<decltype(
-          named_types::forward_as_concatenated_tuple(attrs_))>::value;
-  }
-
-  // Concrete methods
-  template<typename Func>
-  constexpr void for_each(Func&& func) const {
-    this->Base::for_each(func);
-    named_types::for_each(func, attrs_);
-  }
-
-  template<typename... Args>
-  void initialize(Args&&... args) {
-    static_assert(sizeof...(Args) >= sizeof...(Options),
-      "Must have least as many arguments as options in `initialize`");
-
-    initialize_base(std::forward<Args>(args)...);
-    initialize_tuple(std::forward<Args>(args)...);
-  }
-
-  template<class Tag> inline constexpr decltype(auto) get(
-      std::enable_if_t<!has_tag<Tag, Options...>()>* = nullptr) const & {
-    return this->Base::template get<Tag>();
-  };
-
-  template<class Tag> inline constexpr decltype(auto) get(
-      std::enable_if_t<has_tag<Tag, Options...>()>* = nullptr) const & {
-    return std::get<Tag>(attrs_);
-  };
-
-  template<class Tag> inline decltype(auto) get(
-      std::enable_if_t<!has_tag<Tag, Options...>()>* = nullptr) & {
-    return this->Base::template get<Tag>();
-  };
-
-  template<class Tag> inline decltype(auto) get(
-      std::enable_if_t<has_tag<Tag, Options...>()>* = nullptr) & {
-    return std::get<Tag>(attrs_);
-  };
-
-  template<class Tag> inline decltype(auto) get(
-      std::enable_if_t<!has_tag<Tag, Options...>()>* = nullptr) && {
-    return this->Base::template get<Tag>();
-  };
-
-  template<class Tag> inline decltype(auto) get(
-      std::enable_if_t<has_tag<Tag, Options...>()>* = nullptr) && {
-    return std::get<Tag>(std::move(attrs_));
-  };
-
-  std::vector<SelfPtr> &children() {
-    return children_;
-  }
-
-  const std::vector<SelfPtr> &children() const {
-    return children_;
-  }
-
- private:
-  // Instance variables
-  Tuple attrs_;
-  std::vector<SelfPtr> children_;
-
-  // Concrete methods
-  template<typename... Args>
-  void initialize_base(Args&&... args) {
-    forward_subpack(
-      [this](auto&&... types) {
-        this->Base::initialize(std::forward<decltype(types)>(types)...); },
-      index_range<0, sizeof...(Args) - sizeof...(Options)>(),
-      std::forward<Args>(args)...);
-  }
-
-  template<typename... Args>
-  void initialize_tuple(Args&&... args) {
-    forward_subpack(
-      [this](auto&&... types) {
-        attrs_ = Tuple(std::forward<decltype(types)>(types)...); },
-      index_range<sizeof...(Args) - sizeof...(Options), sizeof...(Args)>(),
-      std::forward<Args>(args)...);
-  }
-};
-
-}  // namespace config
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
