@@ -72,13 +72,13 @@
 #include "config/ModelConfigVisitor.hpp"
 
 #include "config/BasicConfigInterface.hpp"
+#include "config/HasTag.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 
 #include "named_types/named_tuple.hpp"
-#include "named_types/extensions/type_traits.hpp"
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -89,17 +89,6 @@
 */
 
 namespace config {
-
-template <class Tag, class... Types>
-inline constexpr bool has_tag() {
-  bool value = false;
-  using swallow = bool[];
-  (void) swallow {
-    bool{},
-    (value = value || std::is_same<
-      Tag, named_types::__ntuple_tag_spec_t<Types>>::value)... };
-  return value;
-}
 
 template<typename Base, typename... Options>
 class BasicConfig : public Base {
