@@ -79,33 +79,6 @@
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  -------------------------------------------------------------------------------
-                                  GET OVERLOAD
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace std {
-
-template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(config::BasicConfig<Base, Options...> const &input) {
-  return input.template get<Tag>();
-}
-
-template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(config::BasicConfig<Base, Options...> &input) {
-  return input.template get<Tag>();
-}
-
-template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(config::BasicConfig<Base, Options...> &&input) {
-  return move(input).template get<Tag>();
-}
-
-}  // namespace std
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
                                     SEQUENCE
  -------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////

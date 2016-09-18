@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <cstddef>
+#include <utility>
 #include <type_traits>
 
 // Internal headers
@@ -118,6 +119,46 @@ class BasicConfig : public Base {
 };
 
 }  // namespace config
+
+namespace std {
+
+/**
+ * @fn get
+ * @brief Function overload to get option stored in config::BasicConfig
+ * @tparam Tag String literal to be looked up in list of Options
+ * @tparam Base Base class for the config IR
+ * @tparam Options List of Type(decltype("name"_t)) to be stored in config IR
+ */
+template<typename Tag, typename Base, typename... Options>
+decltype(auto) get(config::BasicConfig<Base, Options...> const &input) {
+  return input.template get<Tag>();
+}
+
+/**
+ * @fn get
+ * @brief Function overload to get option stored in config::BasicConfig
+ * @tparam Tag String literal to be looked up in list of Options
+ * @tparam Base Base class for the config IR
+ * @tparam Options List of Type(decltype("name"_t)) to be stored in config IR
+ */
+template<typename Tag, typename Base, typename... Options>
+decltype(auto) get(config::BasicConfig<Base, Options...> &input) {
+  return input.template get<Tag>();
+}
+
+/**
+ * @fn get
+ * @brief Function overload to get option stored in config::BasicConfig
+ * @tparam Tag String literal to be looked up in list of Options
+ * @tparam Base Base class for the config IR
+ * @tparam Options List of Type(decltype("name"_t)) to be stored in config IR
+ */
+template<typename Tag, typename Base, typename... Options>
+decltype(auto) get(config::BasicConfig<Base, Options...> &&input) {
+  return move(input).template get<Tag>();
+}
+
+}  // namespace std
 
 // Implementation header
 #include "config/BasicConfig.ipp"
