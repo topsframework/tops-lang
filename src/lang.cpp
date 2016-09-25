@@ -45,6 +45,7 @@
 #include "filesystem/Filesystem.hpp"
 
 #include "model/Symbol.hpp"
+#include "model/Sequence.hpp"
 
 #include "config/Options.hpp"
 #include "config/DependencyTreeConfig.hpp"
@@ -77,20 +78,6 @@
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                    SEQUENCE
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace model {
-
-using Sequence = std::vector<Symbol>;
-
-}  // namespace model
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
