@@ -44,6 +44,8 @@
 
 #include "filesystem/Filesystem.hpp"
 
+#include "model/Symbol.hpp"
+
 #include "config/Options.hpp"
 #include "config/DependencyTreeConfig.hpp"
 #include "config/FeatureFunctionLibraryConfig.hpp"
@@ -86,7 +88,6 @@
 
 namespace model {
 
-using Symbol = unsigned int;
 using Sequence = std::vector<Symbol>;
 
 }  // namespace model
