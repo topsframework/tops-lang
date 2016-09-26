@@ -76,98 +76,11 @@
 
 #include "config/Converter.hpp"
 
+#include "lang/Util.hpp"
+
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                 PRINTER HELPERS
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace lang {
-
-namespace detail {
-
-// To allow ADL with custom begin/end and custom to_string
-using std::begin;
-using std::end;
-using std::to_string;
-
-// is_iterable
-
-template<typename T>
-auto is_iterable_impl(void * = nullptr)
-    -> decltype(begin(std::declval<T>()) != end(std::declval<T>()),
-                ++std::declval<decltype(begin(std::declval<T>()))>(),
-                *begin(std::declval<T>()),
-                std::true_type{});
-
-template<typename T>
-std::false_type is_iterable_impl(...);
-
-// is_pair
-
-template<typename>
-struct is_pair_impl : std::false_type {};
-
-template<typename F, typename S>
-struct is_pair_impl<std::pair<F, S>> : std::true_type {};
-
-}  // namespace detail
-
-template <typename T>
-using is_iterable = decltype(detail::is_iterable_impl<T>(nullptr));
-
-template <typename T>
-using is_pair = detail::is_pair_impl<T>;
-
-// Path manipulation
-
-std::string removeSubstring(const std::string &substr, std::string str) {
-  if (substr.empty()) return str;
-
-  auto it = str.find(substr);
-  while (it != std::string::npos) {
-    str.erase(it, substr.length());
-    it = str.find(substr);
-  }
-  return str;
-}
-
-std::string cleanPath(std::string filepath) {
-  return removeSubstring("//", removeSubstring("./", filepath));
-}
-
-std::string extractRoot(const std::string &filepath) {
-  auto found = filepath.find_first_of("/\\");
-  return cleanPath(filepath).substr(0, found + 1);
-}
-
-std::string extractCorename(const std::string &filepath) {
-  auto found = filepath.find_first_of("/\\");
-  return cleanPath(filepath).substr(found + 1);
-}
-
-std::string extractDir(const std::string &filepath) {
-  auto found = filepath.find_last_of("/\\");
-  return cleanPath(filepath).substr(0, found + 1);
-}
-
-std::string extractBasename(const std::string &filepath) {
-  auto found = cleanPath(filepath).find_last_of("/\\");
-  return filepath.substr(found + 1);
-}
-
-std::string extractSuffix(const std::string &filepath) {
-  auto found = cleanPath(filepath).find_last_of(".");
-  return filepath.substr(found + 1);
-}
-
-}  // namespace lang
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
