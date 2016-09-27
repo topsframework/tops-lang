@@ -78,6 +78,7 @@
 
 #include "lang/Util.hpp"
 #include "lang/FilePrinter.hpp"
+#include "lang/ModelConfigSerializer.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
@@ -92,103 +93,6 @@
 */
 
 namespace lang {
-
-class ModelConfigSerializer : public config::ModelConfigVisitor {
- public:
-  // Constructors
-  explicit ModelConfigSerializer(std::ostream &os = std::cout);
-  explicit ModelConfigSerializer(const std::string &root_dir);
-
-  explicit ModelConfigSerializer(std::shared_ptr<FilePrinter> printer)
-      : printer_(printer) {
-  }
-
- protected:
-  // Overriden functions
-  void startVisit() override {
-    printer_->startPrinting();
-  }
-
-  void endVisit() override {
-    printer_->endPrinting();
-  }
-
-  void visitOption(config::option::Model &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::State &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::Duration &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::Models &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::States &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::Type &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::Size &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::Alphabet &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::Probability &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::Probabilities &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::DependencyTrees &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::DependencyTree &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitOption(config::option::FeatureFunctions &visited) override {
-    printer_->print(visited);
-  }
-
-  void visitTag(const std::string &tag, std::size_t count,
-                                        std::size_t max) override {
-    printer_->printTag(tag, count, max);
-  }
-
-  void visitLabel(const std::string &/* label */) override {
-  }
-
-  void visitPath(const std::string &path) override {
-    printer_->changeOstream(path);
-  }
-
- private:
-  // Instance variables
-  std::shared_ptr<FilePrinter> printer_;
-};
 
 class SingleFilePrinter : public FilePrinter {
  public:
