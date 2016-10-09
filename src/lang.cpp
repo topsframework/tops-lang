@@ -78,6 +78,7 @@
 
 #include "lang/Util.hpp"
 #include "lang/FilePrinter.hpp"
+#include "lang/SingleFilePrinter.hpp"
 #include "lang/ModelConfigSerializer.hpp"
 
 // External headers
@@ -93,78 +94,6 @@
 */
 
 namespace lang {
-
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Alias
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
-
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os)
-    : Base(os, 0) {
-  }
-
-  // Static methods
-  template<typename... Args>
-  static std::shared_ptr<Self> make(Args&&... args) {
-    return std::shared_ptr<Self>(new Self(std::forward<Args>(args)...));
-  }
-
-  // Overriden methods
-  void print(config::ModelConfigPtr config_ptr) override {
-    openSection('{');
-    config_ptr->accept(ModelConfigSerializer(
-          Self::make(os_, depth_)));
-    closeSection('}');
-  }
-
-  void print(config::StateConfigPtr state_ptr) override {
-    openSection('[');
-    state_ptr->accept(ModelConfigSerializer(
-          Self::make(os_, depth_, ": ", ",\n")));
-    closeSection(']');
-  }
-
-  void print(config::DurationConfigPtr duration_ptr) override {
-    openFunction(duration_ptr->label());
-    duration_ptr->accept(ModelConfigSerializer(
-          Self::make(os_, depth_, "", ", ", "")));
-    closeFunction();
-  }
-
-  void print(config::FeatureFunctionLibraryConfigPtr library_ptr) override {
-    openSection('{');
-    copy(library_ptr, os_);
-    closeSection('}');
-  }
-
-  void print(config::DependencyTreeConfigPtr tree_ptr) override {
-    thread_local unsigned int depth_tree = 0;
-
-    if (depth_tree == 0)
-      openFunction("tree");
-
-    tree_ptr->accept(ModelConfigSerializer(
-          Self::make(os_, depth_ + depth_tree, "", ", ", "\n")));
-
-    depth_tree++;
-    for (auto& child : tree_ptr->children()) {
-      indent(depth_tree);
-      print(child);
-    }
-    depth_tree--;
-
-    if (depth_tree == 0) {
-      indent(depth_tree);
-      closeFunction();
-    }
-  }
-
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
 
 class MultipleFilePrinter : public FilePrinter {
  public:
