@@ -78,8 +78,6 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   std::shared_ptr<FilePrinter> printer_;
 };
 
-
-
 }  // namespace lang
 
 #endif  // LANG_MODEL_CONFIG_SERIALIZER_

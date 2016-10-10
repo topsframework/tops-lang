@@ -19,7 +19,6 @@
 
 // Standard headers
 #include <map>
-#include <list>
 #include <memory>
 #include <string>
 #include <vector>
@@ -77,9 +76,6 @@
 #include "config/Converter.hpp"
 
 #include "lang/Util.hpp"
-#include "lang/FilePrinter.hpp"
-#include "lang/SingleFilePrinter.hpp"
-#include "lang/MultipleFilePrinter.hpp"
 #include "lang/ModelConfigSerializer.hpp"
 
 // External headers
@@ -93,19 +89,6 @@
  ------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
 */
-
-namespace lang {
-
-ModelConfigSerializer::ModelConfigSerializer(std::ostream &os)
-    : printer_(std::make_shared<SingleFilePrinter>(
-          std::shared_ptr<std::ostream>(&os, [] (void *) {}))) {
-}
-
-ModelConfigSerializer::ModelConfigSerializer(const std::string &root_dir)
-    : printer_(std::make_shared<MultipleFilePrinter>(root_dir)) {
-}
-
-}  // namespace lang
 
 template<typename... Ts>
 std::ostream &operator<<(std::ostream &os,

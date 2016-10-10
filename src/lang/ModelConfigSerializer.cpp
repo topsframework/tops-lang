@@ -25,6 +25,9 @@
 #include <string>
 
 // Internal headers
+#include "lang/SingleFilePrinter.hpp"
+#include "lang/MultipleFilePrinter.hpp"
+
 #include "config/Options.hpp"
 #include "config/ModelConfig.hpp"
 #include "config/StateConfig.hpp"
@@ -41,6 +44,19 @@ namespace lang {
 ModelConfigSerializer::ModelConfigSerializer(
     std::shared_ptr<FilePrinter> printer)
     : printer_(printer) {
+}
+
+/*----------------------------------------------------------------------------*/
+
+ModelConfigSerializer::ModelConfigSerializer(std::ostream &os)
+    : printer_(std::make_shared<SingleFilePrinter>(
+          std::shared_ptr<std::ostream>(&os, [] (void *) {}))) {
+}
+
+/*----------------------------------------------------------------------------*/
+
+ModelConfigSerializer::ModelConfigSerializer(const std::string &root_dir)
+    : printer_(std::make_shared<MultipleFilePrinter>(root_dir)) {
 }
 
 /*----------------------------------------------------------------------------*/
