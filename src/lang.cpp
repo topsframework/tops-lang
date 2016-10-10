@@ -85,21 +85,6 @@
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  ------------------------------------------------------------------------------
-                               SERIALIZER VISITOR
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
-*/
-
-template<typename... Ts>
-std::ostream &operator<<(std::ostream &os,
-                         const config::BasicConfig<Ts...> &config) {
-  config.accept(lang::ModelConfigSerializer{});
-  return os;
-}
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
                                 REGISTER VISITOR
  ------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////
@@ -809,7 +794,8 @@ int main(int argc, char **argv) try {
 
   switch (argc) {
     case 2: /* fall through */
-    case 3: std::cout << *env.model_config_ptr; break;
+    case 3: env.model_config_ptr->accept(lang::ModelConfigSerializer{});
+            break;
     case 4: env.model_config_ptr->accept(lang::ModelConfigSerializer(argv[3]));
             break;
   }
