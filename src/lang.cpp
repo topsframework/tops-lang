@@ -77,118 +77,11 @@
 
 #include "lang/Util.hpp"
 #include "lang/ModelConfigSerializer.hpp"
+#include "lang/ModelConfigRegister.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- ------------------------------------------------------------------------------
-                                REGISTER VISITOR
- ------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace lang {
-
-class ModelConfigRegister : public config::ModelConfigVisitor {
- public:
-  // Constructors
-  explicit ModelConfigRegister(chaiscript::ChaiScript &chai)
-      : chai_(chai) {
-  }
-
- protected:
-  // Overriden functions
-  void startVisit() override {
-  }
-
-  void endVisit() override {
-  }
-
-  void visitOption(config::option::Model &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::State &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::Duration &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibrary &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::Models &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::States &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::DependencyTrees &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::FeatureFunctionLibraries &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::Type &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::Size &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::Alphabet &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::Probability &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::Probabilities &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::DependencyTree &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-  }
-
-  void visitOption(config::option::FeatureFunctions &visited) override {
-    chai_.add(chaiscript::var(&visited), tag_);
-    chai_.add(chaiscript::fun([&visited] (
-        const std::string &name, config::option::FeatureFunction fun) {
-      visited.emplace(name, fun);
-    }), "feature");
-  }
-
-  void visitTag(const std::string &tag, std::size_t /* count */,
-                                        std::size_t /* max */) override {
-    tag_ = tag;
-  }
-
-  void visitLabel(const std::string &/* label */) override {
-  }
-
-  void visitPath(const std::string &/* path */) override {
-  }
-
- private:
-  // Instance variables
-  chaiscript::ChaiScript &chai_;
-  std::string tag_;
-};
-
-}  // namespace lang
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
