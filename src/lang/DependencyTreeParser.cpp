@@ -27,6 +27,8 @@
 #include <iostream>
 
 // Internal headers
+#include "lang/Interpreter.hpp"
+
 #include "config/BasicConfig.hpp"
 
 namespace lang {
@@ -125,6 +127,13 @@ void DependencyTreeParser::parseNode(std::string line) {
 
   consume('"');
   consume(')');
+}
+
+/*----------------------------------------------------------------------------*/
+
+config::ModelConfigPtr
+DependencyTreeParser::makeModelConfig(std::string filepath) {
+  return interpreter_->evalModel(filepath).model_config_ptr;
 }
 
 /*----------------------------------------------------------------------------*/

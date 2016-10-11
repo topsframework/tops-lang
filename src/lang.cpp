@@ -24,27 +24,6 @@
 // Internal headers
 #include "lang/Interpreter.hpp"
 #include "lang/ModelConfigSerializer.hpp"
-#include "lang/DependencyTreeParser.hpp"
-
-/*
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
- -------------------------------------------------------------------------------
-                                  INTERPRETER
- -------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
-*/
-
-namespace lang {
-
-
-// Implementation of DependencyTreeParser::makeModelConfig()
-// to solve cyclic dependency with Interpreter
-config::ModelConfigPtr
-DependencyTreeParser::makeModelConfig(std::string filepath) {
-  return interpreter_->evalModel(filepath).model_config_ptr;
-}
-
-}  // namespace lang
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
