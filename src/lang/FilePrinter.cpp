@@ -21,7 +21,10 @@
 #include "lang/FilePrinter.hpp"
 
 // Standard header
+#include <memory>
 #include <string>
+#include <ostream>
+#include <algorithm>
 
 namespace lang {
 

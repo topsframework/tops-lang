@@ -21,10 +21,14 @@
 #include "lang/ModelConfigSerializer.hpp"
 
 // Standard headers
+#include <map>
 #include <memory>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 // Internal headers
+#include "lang/FilePrinter.hpp"
 #include "lang/SingleFilePrinter.hpp"
 #include "lang/MultipleFilePrinter.hpp"
 

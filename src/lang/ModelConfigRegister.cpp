@@ -21,6 +21,7 @@
 #include "lang/ModelConfigRegister.hpp"
 
 // Standard headers
+#include <memory>
 #include <string>
 
 // Internal headers
@@ -30,6 +31,12 @@
 #include "config/DurationConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
 #include "config/FeatureFunctionLibraryConfig.hpp"
+
+// External headers
+#include "chaiscript/language/chaiscript_engine.hpp"
+
+#include "chaiscript/dispatchkit/boxed_value.hpp"
+#include "chaiscript/dispatchkit/register_function.hpp"
 
 namespace lang {
 

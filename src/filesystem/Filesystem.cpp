@@ -18,11 +18,10 @@
 /***********************************************************************/
 
 // Interface header
-#include "Filesystem.hpp"
+#include "filesystem/Filesystem.hpp"
 
 // Standard headers
 #include <string>
-#include <iostream>
 #include <system_error>
 
 // Platform-dependent C headers

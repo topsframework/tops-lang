@@ -29,10 +29,9 @@
 
 #include "config/ModelConfig.hpp"
 #include "config/StateConfig.hpp"
+#include "config/DurationConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
 #include "config/FeatureFunctionLibraryConfig.hpp"
-
-#include "filesystem/Filesystem.hpp"
 
 namespace lang {
 

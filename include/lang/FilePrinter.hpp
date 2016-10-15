@@ -21,15 +21,20 @@
 #define LANG_FILE_PRINTER_
 
 // Standard header
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <algorithm>
+#include <functional>
+#include <type_traits>
 
 // Internal headers
 #include "lang/Util.hpp"
 
+#include "config/BasicConfig.hpp"
 #include "config/ModelConfig.hpp"
 #include "config/StateConfig.hpp"
+#include "config/DurationConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
 #include "config/FeatureFunctionLibraryConfig.hpp"
 

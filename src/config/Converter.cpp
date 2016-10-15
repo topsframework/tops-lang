@@ -21,7 +21,9 @@
 #include "config/Converter.hpp"
 
 // Standard headers
+#include <memory>
 #include <string>
+#include <sstream>
 
 namespace config {
 

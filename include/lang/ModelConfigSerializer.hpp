@@ -26,11 +26,19 @@
 #include <iostream>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
-
+#include "config/Options.hpp"
 #include "config/ModelConfigVisitor.hpp"
 
+#include "config/ModelConfig.hpp"
+#include "config/StateConfig.hpp"
+#include "config/DurationConfig.hpp"
+#include "config/DependencyTreeConfig.hpp"
+#include "config/FeatureFunctionLibraryConfig.hpp"
+
 namespace lang {
+
+// Forward declarations
+class FilePrinter;
 
 /**
  * @class ModelConfigSerializer

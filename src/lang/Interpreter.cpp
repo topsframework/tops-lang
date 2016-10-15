@@ -26,6 +26,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <utility>
+#include <typeinfo>
+#include <stdexcept>
 
 // Internal headers
 #include "lang/Util.hpp"
@@ -59,6 +62,18 @@
 
 #include "config/DependencyTreeConfig.hpp"
 #include "config/FeatureFunctionLibraryConfig.hpp"
+
+// External headers
+
+#include "chaiscript/language/chaiscript_engine.hpp"
+
+#include "chaiscript/dispatchkit/any.hpp"
+#include "chaiscript/dispatchkit/type_info.hpp"
+#include "chaiscript/dispatchkit/boxed_cast.hpp"
+#include "chaiscript/dispatchkit/boxed_value.hpp"
+#include "chaiscript/dispatchkit/bootstrap_stl.hpp"
+#include "chaiscript/dispatchkit/type_conversions.hpp"
+#include "chaiscript/dispatchkit/register_function.hpp"
 
 namespace lang {
 

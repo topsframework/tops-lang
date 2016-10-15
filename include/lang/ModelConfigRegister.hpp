@@ -22,10 +22,18 @@
 
 // Standard headers
 #include <string>
+#include <cstddef>
 
 // Internal headers
+#include "config/Options.hpp"
 #include "config/BasicConfig.hpp"
 #include "config/ModelConfigVisitor.hpp"
+
+#include "config/ModelConfig.hpp"
+#include "config/StateConfig.hpp"
+#include "config/DurationConfig.hpp"
+#include "config/DependencyTreeConfig.hpp"
+#include "config/FeatureFunctionLibraryConfig.hpp"
 
 // External headers
 #include "chaiscript/chaiscript.hpp"

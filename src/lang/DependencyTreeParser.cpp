@@ -22,12 +22,17 @@
 
 // Standard headers
 #include <stack>
+#include <cctype>
+#include <memory>
 #include <string>
 #include <vector>
+#include <cstdlib>
 #include <iostream>
 
 // Internal headers
 #include "lang/Interpreter.hpp"
+
+#include "StringLiteralSuffix.hpp"
 
 #include "config/BasicConfig.hpp"
 

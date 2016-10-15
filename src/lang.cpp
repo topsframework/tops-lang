@@ -19,11 +19,21 @@
 
 // Standard headers
 #include <string>
-#include <fstream>
+#include <memory>
+#include <cstdlib>
+#include <iostream>
+#include <exception>
 
 // Internal headers
+#include "config/Converter.hpp"
+#include "config/BasicConfig.hpp"
+#include "config/ModelConfig.hpp"
+
 #include "lang/Interpreter.hpp"
 #include "lang/ModelConfigSerializer.hpp"
+
+// External headers
+#include "chaiscript/language/chaiscript_common.hpp"
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\

@@ -27,7 +27,7 @@
 
 namespace config {
 
-// Forward declaration
+// Forward declarations
 class ModelConfigVisitor;
 
 /**

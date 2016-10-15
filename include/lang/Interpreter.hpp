@@ -23,14 +23,14 @@
 // Standard headers
 #include <string>
 #include <memory>
+#include <exception>
 
 // Internal headers
 #include "config/Converter.hpp"
 #include "config/ModelConfig.hpp"
 
 // External headers
-#include "chaiscript/chaiscript.hpp"
-#include "chaiscript/dispatchkit/bootstrap_stl.hpp"
+#include "chaiscript/dispatchkit/dispatchkit.hpp"
 
 namespace lang {
 

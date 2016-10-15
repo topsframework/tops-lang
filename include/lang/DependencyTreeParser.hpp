@@ -25,11 +25,12 @@
 #include <vector>
 
 // Internal headers
+#include "config/ModelConfig.hpp"
 #include "config/DependencyTreeConfig.hpp"
 
 namespace lang {
 
-// Forward declaration
+// Forward declarations
 class Interpreter;
 
 /**
