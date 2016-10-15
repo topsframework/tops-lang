@@ -51,8 +51,8 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 
  protected:
   // Overriden functions
-  void startVisit() override;;
-  void endVisit() override;;
+  void startVisit() override;
+  void endVisit() override;
 
   void visitOption(config::option::Model &visited) override;
   void visitOption(config::option::State &visited) override;
