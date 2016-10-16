@@ -125,13 +125,9 @@ Interpreter::model_type_map {
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-typename Interpreter::Environment
-Interpreter::evalModel(const std::string &filepath) {
+config::ModelConfigPtr Interpreter::evalModel(const std::string &filepath) {
   checkExtension(filepath);
-
-  auto model_cfg = makeModelConfig(filepath);
-  auto converter = makeConverver(model_cfg);
-  return { model_cfg, converter };
+  return makeModelConfig(filepath);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -148,8 +144,7 @@ void Interpreter::checkExtension(const std::string &filepath) {
 
 /*----------------------------------------------------------------------------*/
 
-config::ModelConfigPtr
-Interpreter::makeModelConfig(const std::string &filepath) {
+config::ModelConfigPtr Interpreter::makeModelConfig(const std::string &filepath) {
   auto model_type = findModelType(filepath);
 
   switch (model_type) {
@@ -165,14 +160,6 @@ Interpreter::makeModelConfig(const std::string &filepath) {
     case ModelType::MSM:         return fillConfig<MSMConfig>(filepath);
     case ModelType::MDD:         return fillConfig<MDDConfig>(filepath);
   }
-}
-
-/*----------------------------------------------------------------------------*/
-
-config::ConverterPtr
-Interpreter::makeConverver(config::ModelConfigPtr model_cfg) {
-  return std::make_shared<config::Converter>(
-    std::get<decltype("observations"_t)>(*model_cfg.get()));
 }
 
 /*----------------------------------------------------------------------------*/

@@ -140,7 +140,7 @@ void DependencyTreeParser::parseNode(std::string line) {
 
 config::ModelConfigPtr
 DependencyTreeParser::makeModelConfig(std::string filepath) {
-  return interpreter_->evalModel(filepath).model_config_ptr;
+  return interpreter_->evalModel(filepath);
 }
 
 /*----------------------------------------------------------------------------*/

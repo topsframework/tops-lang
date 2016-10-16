@@ -41,14 +41,8 @@ namespace lang {
  */
 class Interpreter {
  public:
-  // Inner struct
-  struct Environment {
-    config::ModelConfigPtr model_config_ptr;
-    config::ConverterPtr converter_ptr;
-  };
-
   // Concrete methods
-  Environment evalModel(const std::string &filepath);
+  config::ModelConfigPtr evalModel(const std::string &filepath);
 
  private:
   // Enums
@@ -61,12 +55,9 @@ class Interpreter {
 
   // Concrete methods
   void checkExtension(const std::string &filepath);
-
   config::ModelConfigPtr makeModelConfig(const std::string &filepath);
-  config::ConverterPtr makeConverver(config::ModelConfigPtr model_cfg);
 
   ModelType findModelType(const std::string &filepath);
-
   bool missingObjectException(const std::exception &e);
 
   template<typename Config>

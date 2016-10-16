@@ -28,12 +28,16 @@
 #include "config/Converter.hpp"
 #include "config/BasicConfig.hpp"
 #include "config/ModelConfig.hpp"
+#include "config/StringLiteralSuffix.hpp"
 
 #include "lang/Interpreter.hpp"
 #include "lang/ModelConfigSerializer.hpp"
 
 // External headers
 #include "chaiscript/language/chaiscript_common.hpp"
+
+// Using declarations
+using config::operator ""_t;
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -51,7 +55,7 @@ int main(int argc, char **argv) try {
   }
 
   lang::Interpreter interpreter;
-  auto env = interpreter.evalModel(argv[1]);
+  auto model_cfg = interpreter.evalModel(argv[1]);
 
   /*--------------------------------------------------------------------------*/
   /*                                CONVERTER                                 */
@@ -60,6 +64,9 @@ int main(int argc, char **argv) try {
   if (argc >= 3) {
     std::fstream dataset(argv[2]);
 
+    auto converter = std::make_shared<config::Converter>(
+        std::get<decltype("observations"_t)>(*model_cfg.get()));
+
     std::string line;
     while (std::getline(dataset, line)) {
       std::cout << std::endl;
@@ -67,7 +74,7 @@ int main(int argc, char **argv) try {
       std::cout << "Input: " << line << std::endl;
 
       std::cout << "Output: ";
-      for (unsigned int n : env.converter_ptr->convert(line)) std::cout << n;
+      for (unsigned int n : converter->convert(line)) std::cout << n;
       std::cout << std::endl;
     }
 
@@ -80,10 +87,8 @@ int main(int argc, char **argv) try {
 
   switch (argc) {
     case 2: /* fall through */
-    case 3: env.model_config_ptr->accept(lang::ModelConfigSerializer{});
-            break;
-    case 4: env.model_config_ptr->accept(lang::ModelConfigSerializer(argv[3]));
-            break;
+    case 3: model_cfg->accept(lang::ModelConfigSerializer{}); break;
+    case 4: model_cfg->accept(lang::ModelConfigSerializer(argv[3])); break;
   }
 
   return EXIT_SUCCESS;
