@@ -27,8 +27,8 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
 #include "config/StateConfig.hpp"
+#include "config/DecodableModelConfig.hpp"
 
 namespace config {
 
@@ -41,7 +41,7 @@ using GHMMConfig
       option::Probabilities(decltype("initial_probabilities"_t)),
       option::Probabilities(decltype("transition_probabilities"_t)),
       option::States(decltype("states"_t))
-    >::extending<ModelConfig>::type;
+    >::extending<DecodableModelConfig>::type;
 
 /**
  * @typedef GHMMConfigPtr

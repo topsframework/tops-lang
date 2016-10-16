@@ -27,7 +27,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
+#include "config/DecodableModelConfig.hpp"
 
 namespace config {
 
@@ -41,7 +41,7 @@ using HMMConfig
       option::Probabilities(decltype("transition_probabilities"_t)),
       option::Probabilities(decltype("emission_probabilities"_t)),
       option::Alphabet(decltype("labels"_t))
-    >::extending<ModelConfig>::type;
+    >::extending<DecodableModelConfig>::type;
 
 /**
  * @typedef HMMConfigPtr

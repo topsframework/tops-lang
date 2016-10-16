@@ -67,6 +67,7 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
   void visitOption(config::option::Type &visited) override;
   void visitOption(config::option::Size &visited) override;
   void visitOption(config::option::Alphabet &visited) override;
+  void visitOption(config::option::Alphabets &visited) override;
   void visitOption(config::option::Probability &visited) override;
   void visitOption(config::option::Probabilities &visited) override;
   void visitOption(config::option::DependencyTree &visited) override;

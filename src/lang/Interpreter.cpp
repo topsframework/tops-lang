@@ -239,6 +239,7 @@ void Interpreter::registerTypes(chaiscript::ModulePtr &module,
                                 const std::string &/* filepath */) {
   REGISTER_TYPE(Type);
   REGISTER_TYPE(Alphabet);
+  REGISTER_TYPE(Alphabets);
   REGISTER_TYPE(Size);
   REGISTER_TYPE(Probabilities);
   REGISTER_TYPE(Duration);
@@ -252,6 +253,7 @@ void Interpreter::registerTypes(chaiscript::ModulePtr &module,
   REGISTER_TYPE(FeatureFunctionLibraries);
 
   REGISTER_VECTOR(Alphabet);
+  REGISTER_VECTOR(Alphabets);
   REGISTER_VECTOR(Models);
   REGISTER_VECTOR(DependencyTrees);
   REGISTER_VECTOR(FeatureFunctionLibraries);
@@ -358,12 +360,24 @@ void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
   using chaiscript::boxed_cast;
 
   using chaiscript::Boxed_Value;
+  using Vector = std::vector<Boxed_Value>;
   using Map = std::map<std::string, Boxed_Value>;
+
+  module->add(fun([] (config::option::Alphabets &conv, const Vector &orig) {
+    for (auto &element : orig) {
+      auto inner_orig = boxed_cast<Vector &>(element);
+      config::option::Alphabet inner_conv;
+
+      for (auto &inner_element : inner_orig)
+        inner_conv.push_back(boxed_cast<config::option::Letter>(inner_element));
+
+      conv.push_back(inner_conv);
+    }
+  }), "=");
 
   module->add(fun([filepath] (config::option::States &conv, const Map &orig) {
     for (auto &pair : orig) {
-      auto inner_orig
-        = boxed_cast<std::map<std::string, Boxed_Value> &>(pair.second);
+      auto inner_orig = boxed_cast<Map &>(pair.second);
 
       conv[pair.first] = std::make_shared<config::StateConfig>(filepath);
 

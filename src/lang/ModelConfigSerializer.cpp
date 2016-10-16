@@ -141,6 +141,12 @@ void ModelConfigSerializer::visitOption(config::option::Alphabet &visited) {
 
 /*----------------------------------------------------------------------------*/
 
+void ModelConfigSerializer::visitOption(config::option::Alphabets &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
 void ModelConfigSerializer::visitOption(config::option::Probability &visited) {
   printer_->print(visited);
 }

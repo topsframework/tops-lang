@@ -17,38 +17,36 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_LCCRF_CONFIG_
-#define CONFIG_LCCRF_CONFIG_
+#ifndef CONFIG_DECODABLE_MODEL_CONFIG_
+#define CONFIG_DECODABLE_MODEL_CONFIG_
 
 // Standard headers
 #include <memory>
+#include <vector>
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/DecodableModelConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/ModelConfig.hpp"
 
 namespace config {
 
 /**
- * @typedef LCCRFConfig
- * @brief Alias to IR of a model::LinearChainConditionalRandomField
+ * @typedef DecodableModelConfig
+ * @brief Alias to IR of a model::ProbabilisticDecodableModel
  */
-using LCCRFConfig
+using DecodableModelConfig
   = config_with_options<
-      option::Alphabet(decltype("labels"_t)),
-      option::Probabilities(decltype("feature_parameters"_t)),
-      option::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
-    >::extending<DecodableModelConfig>::type;
+      option::Alphabets(decltype("other_observations"_t))
+    >::extending<ModelConfig>::type;
 
 /**
- * @typedef LCCRFConfigPtr
- * @brief Alias of pointer to LCCRFConfig
+ * @typedef DecodableModelConfigPtr
+ * @brief Alias of pointer to DecodableModelConfig
  */
-using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
+using DecodableModelConfigPtr = std::shared_ptr<DecodableModelConfig>;
 
 }  // namespace config
 
-#endif  // CONFIG_LCCRF_CONFIG_
+#endif  // CONFIG_DECODABLE_MODEL_CONFIG_

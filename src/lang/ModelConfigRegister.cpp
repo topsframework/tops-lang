@@ -131,6 +131,12 @@ void ModelConfigRegister::visitOption(config::option::Alphabet &visited) {
 
 /*----------------------------------------------------------------------------*/
 
+void ModelConfigRegister::visitOption(config::option::Alphabets &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
 void ModelConfigRegister::visitOption(config::option::Probability &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }

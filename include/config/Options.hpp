@@ -33,9 +33,11 @@ using Type = std::string;
 using Letter = std::string;
 using Pattern = std::string;
 using Sequence = std::string;
-using Alphabet = std::vector<Letter>;
 
 using Size = unsigned int;
+
+using Alphabet = std::vector<Letter>;
+using Alphabets = std::vector<Alphabet>;
 
 using Probability = double;
 using Probabilities = std::map<std::string, Probability>;

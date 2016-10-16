@@ -65,6 +65,7 @@ class ModelConfigVisitor {
   virtual void visitOption(option::Type &) = 0;
   virtual void visitOption(option::Size &) = 0;
   virtual void visitOption(option::Alphabet &) = 0;
+  virtual void visitOption(option::Alphabets &) = 0;
   virtual void visitOption(option::Probability &) = 0;
   virtual void visitOption(option::Probabilities &) = 0;
   virtual void visitOption(option::DependencyTree &) = 0;
