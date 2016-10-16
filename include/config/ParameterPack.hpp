@@ -26,6 +26,8 @@
 #include <utility>
 #include <type_traits>
 
+namespace config {
+
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  -------------------------------------------------------------------------------
@@ -153,7 +155,7 @@ using index_range = typename detail::range_builder<Min, Max>::type;
 */
 
 // Implementation inspired by @jogojapan's answer to this question:
-// http://stackoverflow.com/questions/14089637/return-several-arguments-for-another-function-by-a-single-function
+// http://stackoverflow.com/questions/14089637/
 
 // Collects internal details for implementing functor invocation
 namespace detail {
@@ -236,3 +238,5 @@ template<typename F, typename... Ts>
 void forward_pack(F&& f, Ts&&... args) {
   f(std::forward<Ts>(args)...);
 }
+
+}  // namespace config

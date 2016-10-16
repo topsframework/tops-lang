@@ -29,9 +29,8 @@
 #include <type_traits>
 
 // Internal headers
-#include "ParameterPack.hpp"
-
 #include "config/HasTag.hpp"
+#include "config/ParameterPack.hpp"
 #include "config/BasicConfigInterface.hpp"
 
 // External headers
