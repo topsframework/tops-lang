@@ -24,9 +24,13 @@
 #include "named_types/named_tag.hpp"
 #include "named_types/literals/string_literal.hpp"
 
+namespace config {
+
 template<typename T, T... chars>
 constexpr decltype(auto) operator ""_t () {
   return named_types::named_tag<named_types::string_literal<T, chars...>>{};
 }
+
+}  // namespace config
 
 #endif  // STRING_LITERAL_SUFFIX_

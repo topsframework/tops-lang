@@ -32,9 +32,11 @@
 // Internal headers
 #include "lang/Interpreter.hpp"
 
-#include "StringLiteralSuffix.hpp"
-
 #include "config/BasicConfig.hpp"
+#include "config/StringLiteralSuffix.hpp"
+
+// Using declarations
+using config::operator ""_t;
 
 namespace lang {
 

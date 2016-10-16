@@ -36,7 +36,7 @@
 #include "lang/ModelConfigRegister.hpp"
 #include "lang/DependencyTreeParser.hpp"
 
-#include "StringLiteralSuffix.hpp"
+#include "config/StringLiteralSuffix.hpp"
 
 #include "config/Options.hpp"
 #include "config/BasicConfig.hpp"
@@ -65,7 +65,6 @@
 #include "config/FeatureFunctionLibraryConfig.hpp"
 
 // External headers
-
 #include "chaiscript/language/chaiscript_engine.hpp"
 
 #include "chaiscript/dispatchkit/any.hpp"
@@ -75,6 +74,9 @@
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 #include "chaiscript/dispatchkit/type_conversions.hpp"
 #include "chaiscript/dispatchkit/register_function.hpp"
+
+// Using declarations
+using config::operator ""_t;
 
 namespace lang {
 
