@@ -29,6 +29,7 @@
 #include <utility>
 #include <typeinfo>
 #include <stdexcept>
+#include <unordered_map>
 
 // Internal headers
 #include "lang/Util.hpp"
@@ -101,6 +102,24 @@ namespace lang {
   } while (false)
 
 /*----------------------------------------------------------------------------*/
+/*                              STATIC VARIABLES                              */
+/*----------------------------------------------------------------------------*/
+
+const std::unordered_map<std::string, Interpreter::ModelType>
+Interpreter::model_type_map {
+  { "GHMM"        , Interpreter::ModelType::GHMM         },
+  { "HMM"         , Interpreter::ModelType::HMM          },
+  { "LCCRF"       , Interpreter::ModelType::LCCRF        },
+  { "IID"         , Interpreter::ModelType::IID          },
+  { "VLMC"        , Interpreter::ModelType::VLMC         },
+  { "IMC"         , Interpreter::ModelType::IMC          },
+  { "PeriodicIMC" , Interpreter::ModelType::PeriodicIMC  },
+  { "SBSW"        , Interpreter::ModelType::SBSW         },
+  { "MSM"         , Interpreter::ModelType::MSM          },
+  { "MDD"         , Interpreter::ModelType::MDD          }
+};
+
+/*----------------------------------------------------------------------------*/
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
@@ -131,32 +150,18 @@ config::ModelConfigPtr
 Interpreter::makeModelConfig(const std::string &filepath) {
   auto model_type = findModelType(filepath);
 
-  if (model_type == "GHMM") {
-    return fillConfig<config::GHMMConfig>(filepath);
-  } else if (model_type == "HMM") {
-    return fillConfig<config::HMMConfig>(filepath);
-  } else if (model_type == "LCCRF") {
-    return fillConfig<config::LCCRFConfig>(filepath);
-  } else if (model_type == "IID") {
-    return fillConfig<config::IIDConfig>(filepath);
-  } else if (model_type == "VLMC") {
-    return fillConfig<config::VLMCConfig>(filepath);
-  } else if (model_type == "IMC") {
-    return fillConfig<config::IMCConfig>(filepath);
-  } else if (model_type == "PeriodicIMC") {
-    return fillConfig<config::PeriodicIMCConfig>(filepath);
-  } else if (model_type == "SBSW") {
-    return fillConfig<config::SBSWConfig>(filepath);
-  } else if (model_type == "MSM") {
-    return fillConfig<config::MSMConfig>(filepath);
-  } else if (model_type == "MDD") {
-    return fillConfig<config::MDDConfig>(filepath);
-  } else if (model_type == "") {
-    throw std::logic_error(
-      filepath + ": Model type not specified!");
-  } else {
-    throw std::logic_error(
-      filepath + ": Unknown model type \"" + model_type + "\"");
+  switch (model_type) {
+    using namespace config;  // NOLINT(build/namespaces)
+    case ModelType::GHMM:        return fillConfig<GHMMConfig>(filepath);
+    case ModelType::HMM:         return fillConfig<HMMConfig>(filepath);
+    case ModelType::LCCRF:       return fillConfig<LCCRFConfig>(filepath);
+    case ModelType::IID:         return fillConfig<IIDConfig>(filepath);
+    case ModelType::VLMC:        return fillConfig<VLMCConfig>(filepath);
+    case ModelType::IMC:         return fillConfig<IMCConfig>(filepath);
+    case ModelType::PeriodicIMC: return fillConfig<PeriodicIMCConfig>(filepath);
+    case ModelType::SBSW:        return fillConfig<SBSWConfig>(filepath);
+    case ModelType::MSM:         return fillConfig<MSMConfig>(filepath);
+    case ModelType::MDD:         return fillConfig<MDDConfig>(filepath);
   }
 }
 
@@ -170,7 +175,7 @@ Interpreter::makeConverver(config::ModelConfigPtr model_cfg) {
 
 /*----------------------------------------------------------------------------*/
 
-std::string Interpreter::findModelType(const std::string &filepath) {
+Interpreter::ModelType Interpreter::findModelType(const std::string &filepath) {
   auto root_dir = extractDir(filepath);
 
   std::vector<std::string> modulepaths;
@@ -182,13 +187,22 @@ std::string Interpreter::findModelType(const std::string &filepath) {
   auto cfg = std::make_shared<config::ModelConfig>(filepath);
   cfg->accept(ModelConfigRegister(chai));
 
-  try { chai.eval_file(filepath); }
-  catch (const std::exception &e) {
+  try {
+    chai.eval_file(filepath);
+  } catch (const std::exception &e) {
     // Explicitly ignore missing object exceptions
     if (!missingObjectException(e)) throw;
   }
 
-  return std::get<decltype("model_type"_t)>(*cfg.get());
+  auto model_name = std::get<decltype("model_type"_t)>(*cfg.get());
+
+  try {
+    return model_type_map.at(model_name);
+  } catch (const std::out_of_range &e) {
+    throw std::logic_error(
+        filepath + ": Model type "
+        + (model_name.empty() ? "not specified!" : "unknown"));
+  }
 }
 
 /*----------------------------------------------------------------------------*/
