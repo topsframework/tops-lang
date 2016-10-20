@@ -30,13 +30,13 @@ namespace config {
 namespace option {
 
 using Type = std::string;
-using Letter = std::string;
+using Symbol = std::string;
 using Pattern = std::string;
 using Sequence = std::string;
 
 using Size = unsigned int;
 
-using Alphabet = std::vector<Letter>;
+using Alphabet = std::vector<Symbol>;
 using Alphabets = std::vector<Alphabet>;
 
 using Probability = double;

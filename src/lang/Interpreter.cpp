@@ -144,7 +144,8 @@ void Interpreter::checkExtension(const std::string &filepath) {
 
 /*----------------------------------------------------------------------------*/
 
-config::ModelConfigPtr Interpreter::makeModelConfig(const std::string &filepath) {
+config::ModelConfigPtr
+Interpreter::makeModelConfig(const std::string &filepath) {
   auto model_type = findModelType(filepath);
 
   switch (model_type) {
@@ -356,7 +357,7 @@ void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
       config::option::Alphabet inner_conv;
 
       for (auto &inner_element : inner_orig)
-        inner_conv.push_back(boxed_cast<config::option::Letter>(inner_element));
+        inner_conv.push_back(boxed_cast<config::option::Symbol>(inner_element));
 
       conv.push_back(inner_conv);
     }
