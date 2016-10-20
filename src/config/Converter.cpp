@@ -44,7 +44,7 @@ model::Sequence Converter::convert(std::string orig) {
   std::smatch match;
 
   while (std::regex_search(orig, match, tokens_)) {
-    conv.emplace_back(dictionary.at(match.str()));
+    conv.emplace_back(dictionary_.at(match.str()));
     orig = match.suffix().str();
   }
 
@@ -57,11 +57,11 @@ std::string Converter::createRegex(const option::Alphabet &alphabet) {
   if (alphabet.size() == 0) return {};
 
   std::string regex_text { alphabet.front() };
-  dictionary[alphabet.front()] = 0;
+  dictionary_[alphabet.front()] = 0;
 
   for (std::size_t i = 1; i < alphabet.size(); ++i) {
     regex_text += "|" + alphabet[i];
-    dictionary[alphabet[i]] = i;
+    dictionary_[alphabet[i]] = i;
   }
 
   return regex_text;

@@ -58,7 +58,7 @@ class Converter {
  private:
   // Instance variables
   option::Alphabet alphabet_;
-  std::map<option::Letter, model::Symbol> dictionary;
+  std::map<option::Letter, model::Symbol> dictionary_;
   std::regex tokens_;
 
   // Concrete methods
