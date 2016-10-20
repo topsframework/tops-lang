@@ -25,9 +25,9 @@
 #include <exception>
 
 // Internal headers
-#include "config/Converter.hpp"
 #include "config/BasicConfig.hpp"
 #include "config/ModelConfig.hpp"
+#include "config/DiscreteConverter.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
 #include "lang/Interpreter.hpp"
@@ -64,7 +64,7 @@ int main(int argc, char **argv) try {
   if (argc >= 3) {
     std::fstream dataset(argv[2]);
 
-    auto converter = std::make_shared<config::Converter>(
+    auto converter = std::make_shared<config::DiscreteConverter>(
         std::get<decltype("observations"_t)>(*model_cfg.get()));
 
     std::string line;
@@ -74,7 +74,8 @@ int main(int argc, char **argv) try {
       std::cout << "Input: " << line << std::endl;
 
       std::cout << "Output: ";
-      for (unsigned int n : converter->convert(line)) std::cout << n;
+      for (const auto &c : line)
+        std::cout << converter->convert(std::string{c});
       std::cout << std::endl;
     }
 

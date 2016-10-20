@@ -17,39 +17,49 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_CONVERTER_
-#define CONFIG_CONVERTER_
+#ifndef CONFIG_DISCRETE_CONVERTER_
+#define CONFIG_DISCRETE_CONVERTER_
 
 // Standard headers
+#include <map>
 #include <memory>
 
 // Internal headers
 #include "config/Options.hpp"
+#include "config/Converter.hpp"
 
 #include "model/Symbol.hpp"
 
 namespace config {
 
 // Forward declarations
-class Converter;
+class DiscreteConverter;
 
 /**
- * @typedef ConverterPtr
- * @brief Alias of pointer to Converter
+ * @typedef DiscreteConverterPtr
+ * @brief Alias of pointer to DiscreteConverter
  */
-using ConverterPtr = std::shared_ptr<Converter>;
+using DiscreteConverterPtr = std::shared_ptr<DiscreteConverter>;
 
 /**
- * @class Converter
- * @brief Class to convert outter to/from inner symbols
+ * @class DiscreteConverter
+ * @brief Class to convert outter discrete alphabet to inner alphabet
  */
-class Converter {
+class DiscreteConverter : public Converter {
  public:
-  // Purely virtual methods
-  virtual model::Symbol convert(const option::Symbol &orig) const = 0;
-  virtual option::Symbol convert(const model::Symbol &orig) const = 0;
+  // Constructors
+  explicit DiscreteConverter(const option::Alphabet &alphabet);
+
+  // Overriden methods
+  model::Symbol convert(const option::Symbol &orig) const override;
+  option::Symbol convert(const model::Symbol &orig) const override;
+
+ private:
+  // Instance variables
+  std::map<model::Symbol, option::Symbol> in_to_out_;
+  std::map<option::Symbol, model::Symbol> out_to_in_;
 };
 
 }  // namespace config
 
-#endif  // CONFIG_CONVERTER_
+#endif  // CONFIG_DISCRETE_CONVERTER_

@@ -18,12 +18,7 @@
 /***********************************************************************/
 
 // Interface header
-#include "config/Converter.hpp"
-
-// Standard headers
-#include <memory>
-#include <string>
-#include <sstream>
+#include "config/DiscreteConverter.hpp"
 
 namespace config {
 
@@ -31,40 +26,28 @@ namespace config {
 /*                                CONSTRUCTORS                                */
 /*----------------------------------------------------------------------------*/
 
-Converter::Converter(const option::Alphabet &alphabet)
-  : alphabet_(alphabet), tokens_(createRegex(alphabet)) {
+DiscreteConverter::DiscreteConverter(const option::Alphabet &alphabet) {
+  model::Symbol i = 0;
+
+  for (const option::Symbol &s : alphabet) {
+    out_to_in_[s] = i;
+    in_to_out_[i] = s;
+    ++i;
+  }
 }
 
 /*----------------------------------------------------------------------------*/
-/*                              CONCRETE METHODS                              */
+/*                             OVERRIDEN METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-model::Sequence Converter::convert(std::string orig) {
-  model::Sequence conv;
-  std::smatch match;
-
-  while (std::regex_search(orig, match, tokens_)) {
-    conv.emplace_back(dictionary_.at(match.str()));
-    orig = match.suffix().str();
-  }
-
-  return conv;
+model::Symbol DiscreteConverter::convert(const option::Symbol &orig) const {
+  return out_to_in_.at(orig);
 }
 
 /*----------------------------------------------------------------------------*/
 
-std::string Converter::createRegex(const option::Alphabet &alphabet) {
-  if (alphabet.size() == 0) return {};
-
-  std::string regex_text { alphabet.front() };
-  dictionary_[alphabet.front()] = 0;
-
-  for (std::size_t i = 1; i < alphabet.size(); ++i) {
-    regex_text += "|" + alphabet[i];
-    dictionary_[alphabet[i]] = i;
-  }
-
-  return regex_text;
+option::Symbol DiscreteConverter::convert(const model::Symbol &orig) const {
+  return in_to_out_.at(orig);
 }
 
 /*----------------------------------------------------------------------------*/
