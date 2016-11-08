@@ -70,11 +70,16 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   void visitOption(config::option::Alphabet &visited) override;
   void visitOption(config::option::Alphabets &visited) override;
   void visitOption(config::option::Probability &visited) override;
-  void visitOption(config::option::DependencyTree &visited) override;
-
   void visitOption(config::option::Probabilities &visited) override;
+  void visitOption(config::option::DependencyTree &visited) override;
   void visitOption(config::option::DependencyTrees &visited) override;
   void visitOption(config::option::FeatureFunctions &visited) override;
+
+  void visitOption(config::option::Domain &visited) override;
+  void visitOption(config::option::Domains &visited) override;
+
+  void visitOption(config::option::OutToInSymbolFunction &visited) override;
+  void visitOption(config::option::InToOutSymbolFunction &visited) override;
 
   void visitTag(const std::string &tag, std::size_t count,
                                         std::size_t max) override;

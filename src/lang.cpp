@@ -64,8 +64,8 @@ int main(int argc, char **argv) try {
   if (argc >= 3) {
     std::fstream dataset(argv[2]);
 
-    auto converter = std::make_shared<config::DiscreteConverter>(
-        std::get<decltype("observations"_t)>(*model_cfg.get()));
+    auto converter =
+      std::get<decltype("observations"_t)>(*model_cfg.get())->makeConverter();
 
     std::string line;
     while (std::getline(dataset, line)) {

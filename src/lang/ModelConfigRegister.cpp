@@ -63,26 +63,43 @@ void ModelConfigRegister::endVisit() {
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigRegister::visitOption(config::option::Model &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
+  using element_type = typename config::option::Model::element_type;
+  visited = std::make_shared<element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigRegister::visitOption(config::option::State &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
+  using element_type = typename config::option::State::element_type;
+  visited = std::make_shared<element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(config::option::Domain &visited) {
+  using element_type = typename config::option::Domain::element_type;
+  visited = std::make_shared<element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigRegister::visitOption(config::option::Duration &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
+  using element_type = typename config::option::Duration::element_type;
+  visited = std::make_shared<element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigRegister::visitOption(
     config::option::FeatureFunctionLibrary &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
+  using element_type
+    = typename config::option::FeatureFunctionLibrary::element_type;
+  visited = std::make_shared<element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -94,6 +111,12 @@ void ModelConfigRegister::visitOption(config::option::Models &visited) {
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigRegister::visitOption(config::option::States &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(config::option::Domains &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
@@ -162,6 +185,20 @@ void ModelConfigRegister::visitOption(
       const std::string &name, config::option::FeatureFunction fun) {
     visited.emplace(name, fun);
   }), "feature");
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(
+    config::option::OutToInSymbolFunction &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(
+    config::option::InToOutSymbolFunction &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/

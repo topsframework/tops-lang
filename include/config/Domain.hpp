@@ -22,8 +22,11 @@
 
 // Standard headers
 #include <memory>
+#include <iostream>
 
 // Internal headers
+#include "config/ConfigWithOptions.hpp"
+
 #include "config/Converter.hpp"
 
 namespace config {
@@ -43,10 +46,33 @@ using DomainPtr = std::shared_ptr<Domain>;
  */
 class Domain {
  public:
-  // Purely virtual methods
-  virtual ConverterPtr makeConverter() const = 0;
+  // Alias
+  using Data = config_with_options<>::type;
+
+  // Virtual methods
+  virtual ConverterPtr makeConverter() const { return nullptr; }
+
+  virtual std::shared_ptr<Data> data() { std::cerr << "In base" << std::endl; return nullptr; }
+  virtual std::shared_ptr<const Data> data() const { std::cerr << "In base" << std::endl; return nullptr; }
+
+  // Destructor
+  virtual ~Domain() = default;
 };
 
+}  // namespace config
+
+namespace config {
+namespace option {
+
+using Domain = DomainPtr;
+using Domains = std::vector<DomainPtr>;
+
+using OutToInSymbolFunction
+  = std::function<model::Symbol(const option::Symbol&)>;
+using InToOutSymbolFunction
+  = std::function<option::Symbol(const model::Symbol&)>;
+
+}  // namespace option
 }  // namespace config
 
 #endif  // CONFIG_DOMAIN_

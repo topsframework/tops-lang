@@ -27,6 +27,7 @@
 #include "config/Domain.hpp"
 #include "config/Options.hpp"
 #include "config/Converter.hpp"
+#include "config/BasicConfig.hpp"
 
 namespace config {
 
@@ -45,17 +46,39 @@ using DiscreteDomainPtr = std::shared_ptr<DiscreteDomain>;
  */
 class DiscreteDomain : public Domain {
  public:
+  // Alias
+  using Base = Domain;
+
   // Constructors
   DiscreteDomain(option::Alphabet alphabet);
 
   // Overriden methods
   ConverterPtr makeConverter() const override;
 
- private:
+  std::shared_ptr<Data> data() override;
+  std::shared_ptr<const Data> data() const override;
+
+ protected:
+  // Alias
+  using Data = typename Base::Data;
+
+  using DerivedData = config_with_options<
+    option::Alphabet(decltype("alphabet"_t))
+  >::extending<Data>::type;
+
   // Instance variables
-  option::Alphabet alphabet_;
+  std::shared_ptr<DerivedData> data_;
 };
 
+}  // namespace config
+
+namespace config {
+namespace option {
+
+using DiscreteDomain = DiscreteDomainPtr;
+using DiscreteDomains = std::vector<DiscreteDomainPtr>;
+
+}  // namespace option
 }  // namespace config
 
 #endif  // CONFIG_DISCRETE_DOMAIN_

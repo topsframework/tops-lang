@@ -38,7 +38,7 @@ namespace config {
  */
 using DecodableModelConfig
   = config_with_options<
-      option::Alphabets(decltype("other_observations"_t))
+      option::Domains(decltype("other_observations"_t))
     >::extending<ModelConfig>::type;
 
 /**

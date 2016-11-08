@@ -31,7 +31,9 @@
 // Internal headers
 #include "lang/Util.hpp"
 
+#include "config/Domain.hpp"
 #include "config/BasicConfig.hpp"
+
 #include "config/ModelConfig.hpp"
 #include "config/StateConfig.hpp"
 #include "config/DurationConfig.hpp"
@@ -61,6 +63,8 @@ class FilePrinter {
   virtual void print(config::DurationConfigPtr duration_ptr) = 0;
   virtual void print(config::FeatureFunctionLibraryConfigPtr library_ptr) = 0;
   virtual void print(config::DependencyTreeConfigPtr tree_ptr) = 0;
+
+  virtual void print(config::DomainPtr domain_ptr) = 0;
 
   // Virtual methods
   virtual void changeOstream(const std::string &/* path */);

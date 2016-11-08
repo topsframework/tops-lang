@@ -154,14 +154,14 @@ void ModelConfigSerializer::visitOption(config::option::Probability &visited) {
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigSerializer::visitOption(
-    config::option::DependencyTree &visited) {
+    config::option::Probabilities &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigSerializer::visitOption(
-    config::option::Probabilities &visited) {
+    config::option::DependencyTree &visited) {
   printer_->print(visited);
 }
 
@@ -176,6 +176,32 @@ void ModelConfigSerializer::visitOption(
 
 void ModelConfigSerializer::visitOption(
     config::option::FeatureFunctions &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(config::option::Domain &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(config::option::Domains &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(
+    config::option::OutToInSymbolFunction &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(
+    config::option::InToOutSymbolFunction &visited) {
   printer_->print(visited);
 }
 

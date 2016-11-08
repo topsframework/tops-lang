@@ -29,6 +29,7 @@ template<typename Base, typename... Options> class BasicConfig;
 #include <type_traits>
 
 // Internal headers
+#include "config/Domain.hpp"
 #include "config/Options.hpp"
 #include "config/ModelConfig.hpp"
 #include "config/StateConfig.hpp"
@@ -70,6 +71,12 @@ class ModelConfigVisitor {
   virtual void visitOption(option::Probabilities &) = 0;
   virtual void visitOption(option::DependencyTree &) = 0;
   virtual void visitOption(option::FeatureFunctions &) = 0;
+
+  virtual void visitOption(config::option::Domain &) = 0;
+  virtual void visitOption(config::option::Domains &) = 0;
+
+  virtual void visitOption(config::option::OutToInSymbolFunction &) = 0;
+  virtual void visitOption(config::option::InToOutSymbolFunction &) = 0;
 
   virtual void visitTag(const std::string &, std::size_t, std::size_t) = 0;
   virtual void visitLabel(const std::string &) = 0;

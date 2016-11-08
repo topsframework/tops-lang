@@ -33,10 +33,11 @@ namespace config {
 /*                                CONSTRUCTORS                                */
 /*----------------------------------------------------------------------------*/
 
-CustomDomain::CustomDomain(OutToInFunction out_to_in,
-                           InToOutFunction in_to_out)
-    : out_to_in_(std::move(out_to_in)),
-      in_to_out_(std::move(in_to_out)) {
+CustomDomain::CustomDomain(OutToInSymbolFunction out_to_in,
+                           InToOutSymbolFunction in_to_out)
+    : data_(std::make_shared<DerivedData>("custom_domain")) {
+  std::get<decltype("out_to_in"_t)>(*data_) = std::move(out_to_in);
+  std::get<decltype("in_to_out"_t)>(*data_) = std::move(in_to_out);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -44,7 +45,21 @@ CustomDomain::CustomDomain(OutToInFunction out_to_in,
 /*----------------------------------------------------------------------------*/
 
 ConverterPtr CustomDomain::makeConverter() const {
-  return std::make_shared<CustomConverter>(out_to_in_, in_to_out_);
+  return std::make_shared<CustomConverter>(
+      std::get<decltype("out_to_in"_t)>(*data_),
+      std::get<decltype("in_to_out"_t)>(*data_));
+}
+
+/*----------------------------------------------------------------------------*/
+
+std::shared_ptr<typename CustomDomain::Data> CustomDomain::data() {
+  return data_;
+}
+
+/*----------------------------------------------------------------------------*/
+
+std::shared_ptr<const typename CustomDomain::Data> CustomDomain::data() const {
+  return data_;
 }
 
 /*----------------------------------------------------------------------------*/

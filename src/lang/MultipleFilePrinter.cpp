@@ -183,4 +183,13 @@ void MultipleFilePrinter::printTree(config::DependencyTreeConfigPtr tree_ptr) {
 
 /*----------------------------------------------------------------------------*/
 
+void MultipleFilePrinter::print(config::DomainPtr domain_ptr) {
+  openSection('{');
+  domain_ptr->data()->accept(ModelConfigSerializer(
+        Self::make(false, root_dir_, os_, depth_, "(", ", ", ")")));
+  closeSection('}');
+}
+
+/*----------------------------------------------------------------------------*/
+
 }  // namespace lang

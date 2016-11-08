@@ -63,6 +63,8 @@ class MultipleFilePrinter : public FilePrinter {
   void print(config::FeatureFunctionLibraryConfigPtr library_ptr) override;
   void print(config::DependencyTreeConfigPtr tree_ptr) override;
 
+  void print(config::DomainPtr domain_ptr) override;
+
  protected:
   // Instance variables
   bool change_ostream_;

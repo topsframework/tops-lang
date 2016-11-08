@@ -30,6 +30,7 @@
 #include <typeinfo>
 #include <stdexcept>
 #include <unordered_map>
+#include <iostream>
 
 // Internal headers
 #include "lang/Util.hpp"
@@ -37,6 +38,10 @@
 #include "lang/DependencyTreeParser.hpp"
 
 #include "config/StringLiteralSuffix.hpp"
+
+#include "config/Domain.hpp"
+#include "config/CustomDomain.hpp"
+#include "config/DiscreteDomain.hpp"
 
 #include "config/Options.hpp"
 #include "config/BasicConfig.hpp"
@@ -81,26 +86,55 @@ using config::operator ""_t;
 namespace lang {
 
 /*----------------------------------------------------------------------------*/
+/*                               LOCAL STRUCTS                                */
+/*----------------------------------------------------------------------------*/
+
+template<typename T>
+struct get_inner {
+  using type = std::remove_cv_t<T>;
+};
+
+template<typename T>
+struct get_inner<std::unique_ptr<T>> {
+  using type = typename std::unique_ptr<T>::element_type;
+};
+
+template<typename T>
+struct get_inner<std::shared_ptr<T>> {
+  using type = typename std::shared_ptr<T>::element_type;
+};
+
+template<typename T>
+using get_inner_t = typename get_inner<T>::type;
+
+/*----------------------------------------------------------------------------*/
 /*                                LOCAL MACROS                                */
 /*----------------------------------------------------------------------------*/
 
 #define REGISTER_TYPE(type) \
-  module->add(chaiscript::user_type<config::option::type>(), #type)
+  do { \
+    using chaiscript::bootstrap::standard_library::assignable_type; \
+    using registered_type = get_inner_t<config::option::type>; \
+    module->add(chaiscript::user_type<registered_type>(), #type); \
+    assignable_type<registered_type>(#type, module); \
+  } while (false)
 
 #define REGISTER_VECTOR(type) \
   do { \
     using chaiscript::vector_conversion; \
     using chaiscript::bootstrap::standard_library::vector_type; \
-    module->add(vector_type<config::option::type>(#type)); \
-    module->add(vector_conversion<config::option::type>()); \
+    using registered_type = get_inner_t<config::option::type>; \
+    module->add(vector_type<registered_type>(#type)); \
+    module->add(vector_conversion<registered_type>()); \
   } while (false)
 
 #define REGISTER_MAP(type) \
   do { \
     using chaiscript::map_conversion; \
     using chaiscript::bootstrap::standard_library::map_type; \
-    module->add(map_type<config::option::type>(#type)); \
-    module->add(map_conversion<config::option::type>()); \
+    using registered_type = get_inner_t<config::option::type>; \
+    module->add(map_type<registered_type>(#type)); \
+    module->add(map_conversion<registered_type>()); \
   } while (false)
 
 /*----------------------------------------------------------------------------*/
@@ -230,6 +264,8 @@ void Interpreter::registerTypes(chaiscript::ModulePtr &module,
   REGISTER_TYPE(Alphabets);
   REGISTER_TYPE(Size);
   REGISTER_TYPE(Probabilities);
+  REGISTER_TYPE(Domain);
+  REGISTER_TYPE(Domains);
   REGISTER_TYPE(Duration);
   REGISTER_TYPE(Model);
   REGISTER_TYPE(Models);
@@ -240,8 +276,12 @@ void Interpreter::registerTypes(chaiscript::ModulePtr &module,
   REGISTER_TYPE(FeatureFunctions);
   REGISTER_TYPE(FeatureFunctionLibraries);
 
+  // REGISTER_BASE(Domain, CustomDomain);
+  // REGISTER_BASE(Domain, DiscreteDomain);
+
   REGISTER_VECTOR(Alphabet);
   REGISTER_VECTOR(Alphabets);
+  REGISTER_VECTOR(Domains);
   REGISTER_VECTOR(Models);
   REGISTER_VECTOR(DependencyTrees);
   REGISTER_VECTOR(FeatureFunctionLibraries);
@@ -328,6 +368,11 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
     DependencyTreeParser parser(this, root_dir, file, content);
     return parser.parse();
   }), "tree");
+
+  module->add(fun([this, filepath] (const config::option::Alphabet &alphabet) {
+    auto domain_ptr = std::make_shared<config::DiscreteDomain>(alphabet);
+    return config::DomainPtr(domain_ptr);
+  }), "discrete_domain");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -350,6 +395,21 @@ void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
   using chaiscript::Boxed_Value;
   using Vector = std::vector<Boxed_Value>;
   using Map = std::map<std::string, Boxed_Value>;
+
+  // module->add(fun([] (config::option::Domain &conv, const config::option::Domain &orig) {
+  //   conv = orig;
+  // }), "=");
+
+  // module->add(fun([] (config::Domain &conv, const Vector &orig) {
+  //   config::option::Alphabet alphabet;
+  //   for (auto &element : orig)
+  //     alphabet.push_back(boxed_cast<config::option::Symbol>(element));
+  //
+  //   std::cerr << "Here" << std::endl;
+  //
+  //   conv = config::DiscreteDomain(alphabet);
+  //   // std::cerr << (conv.data() == nullptr ? 1 : 0) << std::endl;
+  // }), "=");
 
   module->add(fun([] (config::option::Alphabets &conv, const Vector &orig) {
     for (auto &element : orig) {

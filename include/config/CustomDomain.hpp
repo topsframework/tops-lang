@@ -27,6 +27,7 @@
 #include "config/Domain.hpp"
 #include "config/Options.hpp"
 #include "config/Converter.hpp"
+#include "config/BasicConfig.hpp"
 
 #include "model/Symbol.hpp"
 
@@ -47,23 +48,44 @@ using CustomDomainPtr = std::shared_ptr<CustomDomain>;
  */
 class CustomDomain : public Domain {
  public:
-  // Aliases
-  using OutToInFunction = std::function<model::Symbol(const option::Symbol&)>;
-  using InToOutFunction = std::function<option::Symbol(const model::Symbol&)>;
+  // Alias
+  using Base = Domain;
+
+  using OutToInSymbolFunction = option::OutToInSymbolFunction;
+  using InToOutSymbolFunction = option::InToOutSymbolFunction;
 
   // Constructors
-  explicit CustomDomain(OutToInFunction out_to_in,
-                        InToOutFunction in_to_out);
+  explicit CustomDomain(OutToInSymbolFunction out_to_in,
+                        InToOutSymbolFunction in_to_out);
 
   // Overriden methods
   ConverterPtr makeConverter() const override;
 
- private:
+  std::shared_ptr<Data> data() override;
+  std::shared_ptr<const Data> data() const override;
+
+ protected:
+  // Alias
+  using Data = typename Base::Data;
+
+  using DerivedData = config_with_options<
+    OutToInSymbolFunction(decltype("out_to_in"_t)),
+    InToOutSymbolFunction(decltype("in_to_out"_t))
+  >::extending<Data>::type;
+
   // Instance variables
-  OutToInFunction out_to_in_;
-  InToOutFunction in_to_out_;
+  std::shared_ptr<DerivedData> data_;
 };
 
+}  // namespace config
+
+namespace config {
+namespace option {
+
+using CustomDomain = CustomDomainPtr;
+using CustomDomains = std::vector<CustomDomainPtr>;
+
+}  // namespace option
 }  // namespace config
 
 #endif  // CONFIG_CUSTOM_DOMAIN_

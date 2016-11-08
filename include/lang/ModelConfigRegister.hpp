@@ -56,11 +56,14 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
 
   void visitOption(config::option::Model &visited) override;
   void visitOption(config::option::State &visited) override;
+  void visitOption(config::option::Domain &visited) override;
   void visitOption(config::option::Duration &visited) override;
+  void visitOption(config::option::DependencyTree &visited) override;
   void visitOption(config::option::FeatureFunctionLibrary &visited) override;
 
   void visitOption(config::option::Models &visited) override;
   void visitOption(config::option::States &visited) override;
+  void visitOption(config::option::Domains &visited) override;
   void visitOption(config::option::DependencyTrees &visited) override;
   void visitOption(config::option::FeatureFunctionLibraries &visited) override;
 
@@ -70,8 +73,10 @@ class ModelConfigRegister : public config::ModelConfigVisitor {
   void visitOption(config::option::Alphabets &visited) override;
   void visitOption(config::option::Probability &visited) override;
   void visitOption(config::option::Probabilities &visited) override;
-  void visitOption(config::option::DependencyTree &visited) override;
   void visitOption(config::option::FeatureFunctions &visited) override;
+
+  void visitOption(config::option::OutToInSymbolFunction &visited) override;
+  void visitOption(config::option::InToOutSymbolFunction &visited) override;
 
   void visitTag(const std::string &tag, std::size_t /* count */,
                                         std::size_t /* max */) override;

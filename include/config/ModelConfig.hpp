@@ -27,6 +27,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
+#include "config/Domain.hpp"
 #include "config/Options.hpp"
 
 namespace config {
@@ -38,7 +39,7 @@ namespace config {
 using ModelConfig
   = config_with_options<
       option::Type(decltype("model_type"_t)),
-      option::Alphabet(decltype("observations"_t))
+      option::Domain(decltype("observations"_t))
     >::type;
 
 /**

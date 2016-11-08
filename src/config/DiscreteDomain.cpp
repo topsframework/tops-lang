@@ -27,6 +27,8 @@
 // Internal headers
 #include "config/DiscreteConverter.hpp"
 
+#include <iostream>
+
 namespace config {
 
 /*----------------------------------------------------------------------------*/
@@ -34,7 +36,8 @@ namespace config {
 /*----------------------------------------------------------------------------*/
 
 DiscreteDomain::DiscreteDomain(option::Alphabet alphabet)
-    : alphabet_(std::move(alphabet)) {
+    : data_(std::make_shared<DerivedData>("", "discrete_domain")) {
+  std::get<decltype("alphabet"_t)>(*data_) = std::move(alphabet);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -42,7 +45,23 @@ DiscreteDomain::DiscreteDomain(option::Alphabet alphabet)
 /*----------------------------------------------------------------------------*/
 
 ConverterPtr DiscreteDomain::makeConverter() const {
-  return std::make_shared<DiscreteConverter>(alphabet_);
+  return std::make_shared<DiscreteConverter>(
+      std::get<decltype("alphabet"_t)>(*data_));
+}
+
+/*----------------------------------------------------------------------------*/
+
+std::shared_ptr<typename DiscreteDomain::Data> DiscreteDomain::data() {
+  std::cerr << "Here!!!!" << std::endl;
+  return data_;
+}
+
+/*----------------------------------------------------------------------------*/
+
+std::shared_ptr<const typename DiscreteDomain::Data>
+DiscreteDomain::data() const {
+  std::cerr << "Here!!!!" << std::endl;
+  return data_;
 }
 
 /*----------------------------------------------------------------------------*/
