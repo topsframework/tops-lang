@@ -29,10 +29,6 @@
 
 #include "config/BasicConfig.hpp"
 
-// Remove!
-#include <cassert>
-#include "config/DiscreteDomain.hpp"
-
 namespace lang {
 
 /*----------------------------------------------------------------------------*/
@@ -108,20 +104,9 @@ void SingleFilePrinter::print(config::DependencyTreeConfigPtr tree_ptr) {
 /*----------------------------------------------------------------------------*/
 
 void SingleFilePrinter::print(config::DomainPtr domain_ptr) {
-  assert(domain_ptr != nullptr);
-
-  if (not std::dynamic_pointer_cast<config::DiscreteDomain>(domain_ptr))
-    std::cerr << "Could not downcast" << std::endl;
-
-  auto dd_ptr = std::dynamic_pointer_cast<config::DiscreteDomain>(domain_ptr);
-  assert(dd_ptr != nullptr);
-
-  auto inner = dd_ptr->data();
-
-  assert(inner != nullptr);
-  openFunction(inner->label());
-  inner->accept(ModelConfigSerializer(
-        Self::make(os_, depth_, "", ", ", "")));
+  openFunction(domain_ptr->data()->label());
+  domain_ptr->data()->accept(ModelConfigSerializer(
+                             Self::make(os_, depth_, "", ", ", "")));
   closeFunction();
 }
 

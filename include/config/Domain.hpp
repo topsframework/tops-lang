@@ -25,6 +25,7 @@
 #include <iostream>
 
 // Internal headers
+#include "config/Options.hpp"
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Converter.hpp"
@@ -46,17 +47,43 @@ using DomainPtr = std::shared_ptr<Domain>;
  */
 class Domain {
  public:
+  // Tags
+  class discrete_domain {};
+  class custom_domain {};
+
   // Alias
   using Data = config_with_options<>::type;
+  using DataPtr = std::shared_ptr<Data>;
 
-  // Virtual methods
-  virtual ConverterPtr makeConverter() const { return nullptr; }
+  // Constructors
+  Domain() = default;
 
-  virtual std::shared_ptr<Data> data() { std::cerr << "In base" << std::endl; return nullptr; }
-  virtual std::shared_ptr<const Data> data() const { std::cerr << "In base" << std::endl; return nullptr; }
+  Domain(discrete_domain, option::Alphabet alphabet);
+
+  Domain(custom_domain, option::OutToInSymbolFunction out_to_in,
+                        option::InToOutSymbolFunction in_to_out);
+
+  // Concrete methods
+  ConverterPtr makeConverter() const;
+  std::shared_ptr<Data> data();
 
   // Destructor
   virtual ~Domain() = default;
+
+ private:
+  // Aliases
+  using DiscreteDomainData = config_with_options<
+    option::Alphabet(decltype("alphabet"_t))
+  >::extending<Data>::type;
+
+  using CustomDomainData = config_with_options<
+    option::OutToInSymbolFunction(decltype("out_to_in"_t)),
+    option::InToOutSymbolFunction(decltype("in_to_out"_t))
+  >::extending<Data>::type;
+
+  // Instance variables
+  ConverterPtr converter_;
+  DataPtr data_;
 };
 
 }  // namespace config
@@ -66,11 +93,6 @@ namespace option {
 
 using Domain = DomainPtr;
 using Domains = std::vector<DomainPtr>;
-
-using OutToInSymbolFunction
-  = std::function<model::Symbol(const option::Symbol&)>;
-using InToOutSymbolFunction
-  = std::function<option::Symbol(const model::Symbol&)>;
 
 }  // namespace option
 }  // namespace config

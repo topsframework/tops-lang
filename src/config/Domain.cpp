@@ -18,14 +18,16 @@
 /***********************************************************************/
 
 // Interface header
-#include "config/CustomDomain.hpp"
+#include "config/Domain.hpp"
 
 // Standard headers
 #include <memory>
 #include <utility>
 
 // Internal headers
+#include "config/BasicConfig.hpp"
 #include "config/CustomConverter.hpp"
+#include "config/DiscreteConverter.hpp"
 
 namespace config {
 
@@ -33,32 +35,35 @@ namespace config {
 /*                                CONSTRUCTORS                                */
 /*----------------------------------------------------------------------------*/
 
-CustomDomain::CustomDomain(OutToInSymbolFunction out_to_in,
-                           InToOutSymbolFunction in_to_out)
-    : data_(std::make_shared<DerivedData>("custom_domain")) {
-  std::get<decltype("out_to_in"_t)>(*data_) = std::move(out_to_in);
-  std::get<decltype("in_to_out"_t)>(*data_) = std::move(in_to_out);
+Domain::Domain(discrete_domain, option::Alphabet alphabet)
+    : converter_(std::make_shared<DiscreteConverter>(alphabet)) {
+  auto data = std::make_shared<DiscreteDomainData>("", "discrete_domain");
+  std::get<decltype("alphabet"_t)>(*data) = std::move(alphabet);
+  data_ = data;
+}
+
+/*----------------------------------------------------------------------------*/
+
+Domain::Domain(custom_domain, option::OutToInSymbolFunction out_to_in,
+                              option::InToOutSymbolFunction in_to_out)
+    : converter_(std::make_shared<CustomConverter>(out_to_in, in_to_out)) {
+  auto data = std::make_shared<CustomDomainData>("", "custom_domain");
+  std::get<decltype("out_to_in"_t)>(*data) = std::move(out_to_in);
+  std::get<decltype("in_to_out"_t)>(*data) = std::move(in_to_out);
+  data_ = data;
 }
 
 /*----------------------------------------------------------------------------*/
 /*                             OVERRIDEN METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-ConverterPtr CustomDomain::makeConverter() const {
-  return std::make_shared<CustomConverter>(
-      std::get<decltype("out_to_in"_t)>(*data_),
-      std::get<decltype("in_to_out"_t)>(*data_));
+ConverterPtr Domain::makeConverter() const {
+  return converter_;
 }
 
 /*----------------------------------------------------------------------------*/
 
-std::shared_ptr<typename CustomDomain::Data> CustomDomain::data() {
-  return data_;
-}
-
-/*----------------------------------------------------------------------------*/
-
-std::shared_ptr<const typename CustomDomain::Data> CustomDomain::data() const {
+std::shared_ptr<typename Domain::Data> Domain::data() {
   return data_;
 }
 

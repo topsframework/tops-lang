@@ -40,8 +40,6 @@
 #include "config/StringLiteralSuffix.hpp"
 
 #include "config/Domain.hpp"
-#include "config/CustomDomain.hpp"
-#include "config/DiscreteDomain.hpp"
 
 #include "config/Options.hpp"
 #include "config/BasicConfig.hpp"
@@ -225,7 +223,8 @@ Interpreter::ModelType Interpreter::findModelType(const std::string &filepath) {
   } catch (const std::out_of_range &e) {
     throw std::logic_error(
         filepath + ": Model type "
-        + (model_name.empty() ? "not specified!" : "unknown"));
+        + (model_name.empty() ? "not specified!" : "unknown: ")
+        + model_name);
   }
 }
 
@@ -275,9 +274,6 @@ void Interpreter::registerTypes(chaiscript::ModulePtr &module,
   REGISTER_TYPE(DependencyTrees);
   REGISTER_TYPE(FeatureFunctions);
   REGISTER_TYPE(FeatureFunctionLibraries);
-
-  // REGISTER_BASE(Domain, CustomDomain);
-  // REGISTER_BASE(Domain, DiscreteDomain);
 
   REGISTER_VECTOR(Alphabet);
   REGISTER_VECTOR(Alphabets);
@@ -369,10 +365,16 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
     return parser.parse();
   }), "tree");
 
-  module->add(fun([this, filepath] (const config::option::Alphabet &alphabet) {
-    auto domain_ptr = std::make_shared<config::DiscreteDomain>(alphabet);
-    return config::DomainPtr(domain_ptr);
+  module->add(fun([this] (const config::option::Alphabet &alphabet) {
+    return std::make_shared<config::Domain>(
+        typename config::Domain::discrete_domain{}, alphabet);
   }), "discrete_domain");
+
+  module->add(fun([this] (const config::option::OutToInSymbolFunction &o2i,
+                          const config::option::InToOutSymbolFunction &i2o) {
+    return std::make_shared<config::Domain>(
+        typename config::Domain::custom_domain{}, o2i, i2o);
+  }), "custom_domain");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -396,20 +398,13 @@ void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
   using Vector = std::vector<Boxed_Value>;
   using Map = std::map<std::string, Boxed_Value>;
 
-  // module->add(fun([] (config::option::Domain &conv, const config::option::Domain &orig) {
-  //   conv = orig;
-  // }), "=");
+  module->add(fun([] (config::Domain &conv, const Vector &orig) {
+    config::option::Alphabet alphabet;
+    for (auto &element : orig)
+      alphabet.push_back(boxed_cast<config::option::Symbol>(element));
 
-  // module->add(fun([] (config::Domain &conv, const Vector &orig) {
-  //   config::option::Alphabet alphabet;
-  //   for (auto &element : orig)
-  //     alphabet.push_back(boxed_cast<config::option::Symbol>(element));
-  //
-  //   std::cerr << "Here" << std::endl;
-  //
-  //   conv = config::DiscreteDomain(alphabet);
-  //   // std::cerr << (conv.data() == nullptr ? 1 : 0) << std::endl;
-  // }), "=");
+    conv = config::Domain(typename config::Domain::discrete_domain{}, alphabet);
+  }), "=");
 
   module->add(fun([] (config::option::Alphabets &conv, const Vector &orig) {
     for (auto &element : orig) {

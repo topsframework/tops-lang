@@ -26,6 +26,9 @@
 #include <vector>
 #include <functional>
 
+// Internal headers
+#include "model/Symbol.hpp"
+
 namespace config {
 namespace option {
 
@@ -45,6 +48,11 @@ using Probabilities = std::map<std::string, Probability>;
 using FeatureFunction = std::function<
   double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)>;
 using FeatureFunctions = std::map<std::string, FeatureFunction>;
+
+using OutToInSymbolFunction
+  = std::function<model::Symbol(const option::Symbol&)>;
+using InToOutSymbolFunction
+  = std::function<option::Symbol(const model::Symbol&)>;
 
 }  // namespace option
 }  // namespace config
