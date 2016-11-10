@@ -184,10 +184,10 @@ void MultipleFilePrinter::printTree(config::DependencyTreeConfigPtr tree_ptr) {
 /*----------------------------------------------------------------------------*/
 
 void MultipleFilePrinter::print(config::DomainPtr domain_ptr) {
-  openSection('{');
+  openFunction(domain_ptr->data()->label());
   domain_ptr->data()->accept(ModelConfigSerializer(
-        Self::make(false, root_dir_, os_, depth_, "(", ", ", ")")));
-  closeSection('}');
+        Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
+  closeFunction();
 }
 
 /*----------------------------------------------------------------------------*/
