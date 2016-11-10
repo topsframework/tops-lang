@@ -29,6 +29,7 @@
 #include "config/ModelConfig.hpp"
 #include "config/DiscreteConverter.hpp"
 #include "config/StringLiteralSuffix.hpp"
+#include "config/DecodableModelConfig.hpp"
 
 #include "lang/Interpreter.hpp"
 #include "lang/ModelConfigSerializer.hpp"
@@ -62,20 +63,42 @@ int main(int argc, char **argv) try {
   /*--------------------------------------------------------------------------*/
 
   if (argc >= 3) {
+    std::vector<config::ConverterPtr> converters {
+      std::get<decltype("observations"_t)>(*model_cfg)->makeConverter() };
+
+    auto decodable_model_cfg
+      = std::dynamic_pointer_cast<config::DecodableModelConfig>(model_cfg);
+
+    if (decodable_model_cfg) {
+      auto &domains
+        = std::get<decltype("other_observations"_t)>(*decodable_model_cfg);
+
+      for (auto &domain : domains)
+        converters.push_back(domain->makeConverter());
+
+      converters.push_back(
+        std::get<decltype("labels"_t)>(*decodable_model_cfg)->makeConverter());
+    }
+
     std::fstream dataset(argv[2]);
-
-    auto converter =
-      std::get<decltype("observations"_t)>(*model_cfg.get())->makeConverter();
-
     std::string line;
+
+    // Header
+    std::getline(dataset, line);
+    std::cout << line << std::endl;
+
+    // Data
     while (std::getline(dataset, line)) {
-      std::cout << std::endl;
+      std::stringstream ss(line);
 
-      std::cout << "Input: " << line << std::endl;
+      bool first = true;
+      std::string input;
+      for (const auto &converter : converters) {
+        std::getline(ss, input, '\t');
+        std::cout << (first ? '\0' : '\t') << converter->convert(input);
+        first = false;
+      }
 
-      std::cout << "Output: ";
-      for (const auto &c : line)
-        std::cout << converter->convert(std::string{c});
       std::cout << std::endl;
     }
 
