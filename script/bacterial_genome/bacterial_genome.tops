@@ -4,6 +4,8 @@ model_type = "GHMM"
 
 observations = [ "A", "C", "G", "T" ]
 
+labels = [ "Start", "Stop", "Coding", "NonCoding" ]
+
 initial_probabilities = [ "NonCoding": 1.0 ]
 
 transition_probabilities = [

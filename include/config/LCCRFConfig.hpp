@@ -38,7 +38,6 @@ namespace config {
  */
 using LCCRFConfig
   = config_with_options<
-      option::Alphabet(decltype("labels"_t)),
       option::Probabilities(decltype("feature_parameters"_t)),
       option::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
     >::extending<DecodableModelConfig>::type;
