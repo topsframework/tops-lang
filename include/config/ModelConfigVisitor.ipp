@@ -31,9 +31,11 @@ inline void ModelConfigVisitor::visit(
     std::shared_ptr<BasicConfig<Base, Options...>> config_ptr) {
   std::size_t count = 0;
   std::size_t max = config_ptr->number_of_options();
-  this->startVisit();
+
   this->visitLabel(config_ptr->label());
   this->visitPath(config_ptr->path());
+
+  this->startVisit();
   config_ptr->for_each([this, &count, &max] (const auto &tag, auto &value) {
     using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
     using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
