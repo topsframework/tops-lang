@@ -1,10 +1,15 @@
+// -*- mode: c++ -*-
+// vim: ft=chaiscript:
+
 model_type = "GHMM"
+
+observations = [ "1", "2", "3", "4", "5", "6" ]
 
 training_algorithm = "MaximumLikehood"
 
-training_set = dataset("datasets/cds.fa", "datasets/cds.gtf")
+training_set = dataset("data/cassino-dice.tsv")
 
-observations = [ "1", "2", "3", "4", "5", "6" ]
+labels = [ "Fair", "Loaded" ]
 
 states = [
   "Fair"   : [ duration: geometric(),

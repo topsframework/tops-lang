@@ -1,9 +1,16 @@
-training_algorithm = [ "HMM": "BaumWelch" ]
+// -*- mode: c++ -*-
+// vim: ft=chaiscript:
 
-training_set = "dataset/cds.fasta"
+model_type = "HMM"
+
+observations = [ "1", "2", "3", "4", "5", "6" ]
+
+training_algorithm = "BaumWelch"
+
+training_set = dataset("data/cassino-dice.tsv")
 
 initial_model = model("hmm.tops")
 
-maxiterations = 100
+maximum_iterations = 100
 
 diff_threshold = 1.23

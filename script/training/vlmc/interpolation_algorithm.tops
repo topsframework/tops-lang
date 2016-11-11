@@ -1,13 +1,18 @@
-training_algorithm = [ "VLMC": "Interpolation" ]
+// -*- mode: c++ -*-
+// vim: ft=chaiscript:
 
-alphabet = [ "A", "C", "G", "T" ]
+model_type = "VLMC"
 
-training_set = "dataset/cds.fasta"
+observations = [ "0", "1" ]
 
-weights = "dataset/cds.weights"
+training_algorithm = "Interpolation"
+
+training_set = dataset("data/cassino-coin.tsv")
+
+initial_model = model("vlmc.tops")
+
+weights = weights("data/cassino-coin.weights")
 
 order = 3
 
-pseudo_counts = 1.23
-
-initial_model = model("vlmc.tops")
+pseudo_counter = 1.23

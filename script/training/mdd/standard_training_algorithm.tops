@@ -1,17 +1,15 @@
-training_algorithm = [ "MDD": "Standard" ]
+// -*- mode: c++ -*-
+// vim: ft=chaiscript:
 
-alphabet = [ "A", "C", "G", "T" ]
+model_type = "MDD"
 
-training_set = "dataset/cds.fasta"
+observations = [ "A", "C", "G", "T" ]
 
-consensus_sequence = [
-  "A" | "C",
-  "C",
-  "G" | "A",
-  "T",
-  "T",
-  "A"
-]
+training_algorithm = "Standard"
+
+training_set = dataset("data/dna.tsv")
+
+consensus = "[AC]C[GA]TTA"
 
 consensus_model = model("consensus_model.tops")
 

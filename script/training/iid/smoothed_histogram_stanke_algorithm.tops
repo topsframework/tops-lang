@@ -1,10 +1,17 @@
-training_algorithm = [ "IID": "Stanke" ]
+// -*- mode: c++ -*-
+// vim: ft=chaiscript:
 
-training_set = "dataset/cds.fasta"
+model_type = "IID"
 
-weights = "dataset/cds.weights"
+observations = [ "1", "2", "3", "4", "5", "6" ]
 
-max_length = 123
+training_algorithm = "Stanke"
+
+training_set = dataset("data/cassino-dice.tsv")
+
+weights = weights("data/cassino-dice.weights")
+
+maximum_length = 123
 
 m = 123
 

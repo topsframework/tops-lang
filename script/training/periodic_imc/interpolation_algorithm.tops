@@ -1,15 +1,20 @@
-training_algorithm = [ "PeriodicIMC": "Interpolation" ]
+// -*- mode: c++ -*-
+// vim: ft=chaiscript:
 
-alphabet = [ "A", "C", "G", "T" ]
+model_type = "PeriodicIMC"
 
-training_set = "dataset/cds.fasta"
+observations = [ "0", "1" ]
 
-weights = "dataset/cds.weights"
+training_algorithm = "Interpolation"
+
+training_set = dataset("data/cassino-coin.tsv")
+
+initial_model = model("periodic_imc.tops")
+
+weights = weights("data/cassino-coin.weights")
 
 order = 3
 
-nphases = 3
+number_of_phases = 3
 
-pseudo_counts = 1.23
-
-initial_model = model("pimc.tops")
+pseudo_counter = 1.23

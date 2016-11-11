@@ -1,7 +1,12 @@
-training_algorithm = [ "VLMC": "Context" ]
+// -*- mode: c++ -*-
+// vim: ft=chaiscript:
 
-alphabet = [ "A", "C", "G", "T" ]
+model_type = "VLMC"
 
-training_set = "dataset/cds.fasta"
+observations = [ "0", "1" ]
+
+training_algorithm = "Context"
+
+training_set = dataset("data/cassino-coin.tsv")
 
 delta = 1.23
