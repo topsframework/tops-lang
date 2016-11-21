@@ -55,6 +55,7 @@ class MultipleFilePrinter : public FilePrinter {
   // Overriden methods
   void changeOstream(const std::string &path) override;
 
+  void startPrinting() override;
   void endPrinting() override;
 
   void print(config::ModelConfigPtr config_ptr) override;

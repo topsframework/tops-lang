@@ -61,6 +61,18 @@ void MultipleFilePrinter::changeOstream(const std::string &path) {
 
 /*----------------------------------------------------------------------------*/
 
+void MultipleFilePrinter::startPrinting() {
+  Base::startPrinting();
+
+  if (change_ostream_) {
+    *os_ << "// -*- mode: c++ -*-" << std::endl
+         << "// vim: ft=chaiscript:" << std::endl
+         << std::endl;
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
 void MultipleFilePrinter::endPrinting() {
   Base::endPrinting();
 
