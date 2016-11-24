@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_MSM_CONFIG_
-#define CONFIG_MSM_CONFIG_
+#ifndef CONFIG_DEFINITION_EXPLICIT_DURATION_CONFIG_
+#define CONFIG_DEFINITION_EXPLICIT_DURATION_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,27 +26,30 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/ModelConfig.hpp"
-#include "config/StateConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef MSMConfig
- * @brief Alias to IR of a model::MultipleSequentialModel
+ * @typedef ExplicitDurationConfig
+ * @brief Alias to intermediate representation of a model::ExplicitDuration
  */
-using MSMConfig
+using ExplicitDurationConfig
   = config_with_options<
-      option::States(decltype("models"_t))
-    >::extending<ModelConfig>::type;
+      option::Model(decltype("model"_t)),
+      option::Size(decltype("max_size"_t))
+    >::extending<DurationConfig>::type;
 
 /**
- * @typedef MSMConfigPtr
- * @brief Alias of pointer to MSMConfig
+ * @typedef ExplicitDurationConfigPtr
+ * @brief Alias of pointer to ExplicitDurationConfig
  */
-using MSMConfigPtr
-  = std::shared_ptr<MSMConfig>;
+using ExplicitDurationConfigPtr = std::shared_ptr<ExplicitDurationConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_MSM_CONFIG_
+#endif  // CONFIG_DEFINITION_EXPLICIT_DURATION_CONFIG_

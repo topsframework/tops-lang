@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_LCCRF_CONFIG_
-#define CONFIG_LCCRF_CONFIG_
+#ifndef CONFIG_DEFINITION_VLMC_CONFIG_
+#define CONFIG_DEFINITION_VLMC_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,28 +26,28 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/DecodableModelConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef LCCRFConfig
- * @brief Alias to IR of a model::LinearChainConditionalRandomField
+ * @typedef VLMCConfig
+ * @brief Alias to IR of a model::VariableLengthMarkovChain
  */
-using LCCRFConfig
+using VLMCConfig
   = config_with_options<
-      option::Probabilities(decltype("feature_parameters"_t)),
-      option::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
-    >::extending<DecodableModelConfig>::type;
+      option::Probabilities(decltype("context_probabilities"_t))
+    >::extending<ModelConfig>::type;
 
 /**
- * @typedef LCCRFConfigPtr
- * @brief Alias of pointer to LCCRFConfig
+ * @typedef VLMCConfigPtr
+ * @brief Alias of pointer to VLMCConfig
  */
-using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
+using VLMCConfigPtr = std::shared_ptr<VLMCConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_LCCRF_CONFIG_
+#endif  // CONFIG_DEFINITION_VLMC_CONFIG_

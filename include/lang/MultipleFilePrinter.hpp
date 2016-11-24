@@ -27,11 +27,15 @@
 // Internal headers
 #include "lang/FilePrinter.hpp"
 
-#include "config/ModelConfig.hpp"
-#include "config/StateConfig.hpp"
-#include "config/DurationConfig.hpp"
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/StateConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
 
 namespace lang {
 
@@ -41,7 +45,7 @@ namespace lang {
  */
 class MultipleFilePrinter : public FilePrinter {
  public:
-  // Alias
+  // Aliases
   using Base = FilePrinter;
   using Self = MultipleFilePrinter;
 
@@ -58,13 +62,13 @@ class MultipleFilePrinter : public FilePrinter {
   void startPrinting() override;
   void endPrinting() override;
 
-  void print(config::ModelConfigPtr config_ptr) override;
-  void print(config::StateConfigPtr state_ptr) override;
-  void print(config::DurationConfigPtr duration_ptr) override;
-  void print(config::FeatureFunctionLibraryConfigPtr library_ptr) override;
-  void print(config::DependencyTreeConfigPtr tree_ptr) override;
+  void print(cdo::Model model) override;
+  void print(cdo::State state) override;
+  void print(cdo::Duration duration) override;
+  void print(cdo::FeatureFunctionLibrary library) override;
+  void print(cdo::DependencyTree tree) override;
 
-  void print(config::DomainPtr domain_ptr) override;
+  void print(cdo::Domain domain) override;
 
  protected:
   // Instance variables
@@ -73,9 +77,9 @@ class MultipleFilePrinter : public FilePrinter {
   std::string root_dir_;
   std::string working_dir_;
 
-  std::list<config::ModelConfigPtr> submodels_;
-  std::list<config::FeatureFunctionLibraryConfigPtr> libraries_;
-  std::list<config::DependencyTreeConfigPtr> trees_;
+  std::list<cdo::Model> submodels_;
+  std::list<cdo::FeatureFunctionLibrary> libraries_;
+  std::list<cdo::DependencyTree> trees_;
 
   // Constructors
   template<typename... Args>
@@ -87,9 +91,9 @@ class MultipleFilePrinter : public FilePrinter {
   // Concrete methods
   std::string pathForHelperCall(const std::string &path);
 
-  void printSubmodel(config::ModelConfigPtr submodel_ptr);
-  void printLibrary(config::FeatureFunctionLibraryConfigPtr library_ptr);
-  void printTree(config::DependencyTreeConfigPtr tree_ptr);
+  void printSubmodel(cdo::Model submodel);
+  void printLibrary(cdo::FeatureFunctionLibrary library);
+  void printTree(cdo::DependencyTree tree);
 };
 
 }  // namespace lang

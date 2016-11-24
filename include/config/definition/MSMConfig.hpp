@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_PERIODIC_IMC_CONFIG_
-#define CONFIG_PERIODIC_IMC_CONFIG_
+#ifndef CONFIG_DEFINITION_MSM_CONFIG_
+#define CONFIG_DEFINITION_MSM_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,26 +26,29 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/StateConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef PeriodicIMCConfig
- * @brief Alias to IR of a model::PeriodicInhomogeneousMarkovChain
+ * @typedef MSMConfig
+ * @brief Alias to IR of a model::MultipleSequentialModel
  */
-using PeriodicIMCConfig
+using MSMConfig
   = config_with_options<
-      option::Models(decltype("position_specific_distributions"_t))
+      option::States(decltype("models"_t))
     >::extending<ModelConfig>::type;
 
 /**
- * @typedef PeriodicIMCConfigPtr
- * @brief Alias of pointer to PeriodicIMCConfig
+ * @typedef MSMConfigPtr
+ * @brief Alias of pointer to MSMConfig
  */
-using PeriodicIMCConfigPtr = std::shared_ptr<PeriodicIMCConfig>;
+using MSMConfigPtr
+  = std::shared_ptr<MSMConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_PERIODIC_IMC_CONFIG_
+#endif  // CONFIG_DEFINITION_MSM_CONFIG_

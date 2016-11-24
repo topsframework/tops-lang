@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_HMM_CONFIG_
-#define CONFIG_HMM_CONFIG_
+#ifndef CONFIG_DEFINITION_GHMM_CONFIG_
+#define CONFIG_DEFINITION_GHMM_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,28 +26,31 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/DecodableModelConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/StateConfig.hpp"
+#include "config/definition/DecodableModelConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef HMMConfig
- * @brief Alias to IR of a model::HiddenMarkovModel
+ * @typedef GHMMConfig
+ * @brief Alias to IR of a model::GeneralizedHiddenMarkovModel
  */
-using HMMConfig
+using GHMMConfig
   = config_with_options<
       option::Probabilities(decltype("initial_probabilities"_t)),
       option::Probabilities(decltype("transition_probabilities"_t)),
-      option::Probabilities(decltype("emission_probabilities"_t))
+      option::States(decltype("states"_t))
     >::extending<DecodableModelConfig>::type;
 
 /**
- * @typedef HMMConfigPtr
- * @brief Alias of pointer to HMMConfig
+ * @typedef GHMMConfigPtr
+ * @brief Alias of pointer to GHMMConfig
  */
-using HMMConfigPtr = std::shared_ptr<HMMConfig>;
+using GHMMConfigPtr = std::shared_ptr<GHMMConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_HMM_CONFIG_
+#endif  // CONFIG_DEFINITION_GHMM_CONFIG_

@@ -20,6 +20,9 @@
 #ifndef CONFIG_UTIL_
 #define CONFIG_UTIL_
 
+// Standard headers
+#include <type_traits>
+
 namespace config {
 
 template<typename T>
@@ -27,6 +30,25 @@ struct delayed_true : public std::true_type {};
 
 template<typename T>
 struct delayed_false : public std::false_type {};
+
+class generic_function {
+ public:
+  template<typename Func>
+  generic_function(Func *gfunc)
+      : gfunc_(reinterpret_cast<void*>(gfunc)) {
+    static_assert(std::is_function<std::decay_t<Func>>(),
+        "Parameter does not have a function type");
+  }
+
+  template<typename... Args>
+  decltype(auto) operator() (Args&&... args) {
+    auto func = reinterpret_cast<void(*)(Args...)>(gfunc_);
+    return func(std::forward<Args>(args)...);
+  }
+
+ private:
+  void *gfunc_;
+};
 
 }  // namespace config
 

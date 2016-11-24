@@ -26,16 +26,20 @@
 
 // Internal headers
 #include "config/BasicConfig.hpp"
-#include "config/ModelConfig.hpp"
 #include "config/DiscreteConverter.hpp"
 #include "config/StringLiteralSuffix.hpp"
-#include "config/DecodableModelConfig.hpp"
+
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/DecodableModelConfig.hpp"
 
 #include "lang/Interpreter.hpp"
 #include "lang/ModelConfigSerializer.hpp"
 
 // External headers
 #include "chaiscript/language/chaiscript_common.hpp"
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
 
 // Using declarations
 using config::operator ""_t;
@@ -66,8 +70,8 @@ int main(int argc, char **argv) try {
     std::vector<config::ConverterPtr> converters {
       std::get<decltype("observations"_t)>(*model_cfg)->makeConverter() };
 
-    auto decodable_model_cfg
-      = std::dynamic_pointer_cast<config::DecodableModelConfig>(model_cfg);
+    auto decodable_model_cfg = std::dynamic_pointer_cast<
+      config::definition::DecodableModelConfig>(model_cfg);
 
     if (decodable_model_cfg) {
       auto &domains

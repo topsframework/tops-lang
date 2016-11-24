@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_EXPLICIT_DURATION_CONFIG_
-#define CONFIG_EXPLICIT_DURATION_CONFIG_
+#ifndef CONFIG_DEFINITION_DURATION_CONFIG_
+#define CONFIG_DEFINITION_DURATION_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,28 +26,33 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
-#include "config/DurationConfig.hpp"
-
 namespace config {
+namespace definition {
 
 /**
- * @typedef ExplicitDurationConfig
- * @brief Alias to intermediate representation of a model::ExplicitDuration
+ * @typedef DurationConfig
+ * @brief Alias to intermediate representation of a model::Duration
  */
-using ExplicitDurationConfig
-  = config_with_options<
-      option::Model(decltype("model"_t)),
-      option::Size(decltype("max_size"_t))
-    >::extending<DurationConfig>::type;
+using DurationConfig
+  = config_with_options<>::type;
 
 /**
- * @typedef ExplicitDurationConfigPtr
- * @brief Alias of pointer to ExplicitDurationConfig
+ * @typedef DurationConfigPtr
+ * @brief Alias of pointer to DurationConfig
  */
-using ExplicitDurationConfigPtr = std::shared_ptr<ExplicitDurationConfig>;
+using DurationConfigPtr = std::shared_ptr<DurationConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_EXPLICIT_DURATION_CONFIG_
+namespace config {
+namespace definition {
+namespace option {
+
+using Duration = DurationConfigPtr;
+
+}  // namespace option
+}  // namespace definition
+}  // namespace config
+
+#endif  // CONFIG_DEFINITION_DURATION_CONFIG_

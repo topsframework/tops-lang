@@ -17,49 +17,37 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_STATE_CONFIG_
-#define CONFIG_STATE_CONFIG_
+#ifndef CONFIG_DEFINITION_MAX_LENGTH_DURATION_CONFIG_
+#define CONFIG_DEFINITION_MAX_LENGTH_DURATION_CONFIG_
 
 // Standard headers
-#include <map>
 #include <memory>
-#include <string>
-#include <vector>
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
-#include "config/DurationConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/DurationConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef StateConfig
- * @brief Alias to intermediate representation of a model::State
+ * @typedef MaxLengthDurationConfig
+ * @brief Alias to intermediate representation of a model::MaxLengthDuration
  */
-using StateConfig
+using MaxLengthDurationConfig
   = config_with_options<
-      option::Duration(decltype("duration"_t)),
-      option::Model(decltype("emission"_t))
-    >::type;
+      option::Size(decltype("size"_t))
+    >::extending<DurationConfig>::type;
 
 /**
- * @typedef StateConfigPtr
- * @brief Alias of pointer to StateConfig
+ * @typedef MaxLengthDurationConfigPtr
+ * @brief Alias of pointer to MaxLengthDurationConfig
  */
-using StateConfigPtr = std::shared_ptr<StateConfig>;
+using MaxLengthDurationConfigPtr = std::shared_ptr<MaxLengthDurationConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-namespace config {
-namespace option {
-
-using State = StateConfigPtr;
-using States = std::map<std::string, State>;
-
-}  // namespace option
-}  // namespace config
-
-#endif  // CONFIG_STATE_CONFIG_
+#endif  // CONFIG_DEFINITION_MAX_LENGTH_DURATION_CONFIG_

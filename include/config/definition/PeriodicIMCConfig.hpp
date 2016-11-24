@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_SBSW_CONFIG_
-#define CONFIG_SBSW_CONFIG_
+#ifndef CONFIG_DEFINITION_PERIODIC_IMC_CONFIG_
+#define CONFIG_DEFINITION_PERIODIC_IMC_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,30 +26,28 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef SBSWConfig
- * @brief Alias to IR of a model::SimilarityBasedSequenceWeighting
+ * @typedef PeriodicIMCConfig
+ * @brief Alias to IR of a model::PeriodicInhomogeneousMarkovChain
  */
-using SBSWConfig
+using PeriodicIMCConfig
   = config_with_options<
-      option::Probabilities(decltype("sequences"_t)),
-      option::Probability(decltype("normalizer"_t)),
-      option::Size(decltype("skip_offset"_t)),
-      option::Size(decltype("skip_length"_t)),
-      option::Sequence(decltype("skip_sequence"_t))
+      option::Models(decltype("position_specific_distributions"_t))
     >::extending<ModelConfig>::type;
 
 /**
- * @typedef SBSWConfigPtr
- * @brief Alias of pointer to SBSWConfig
+ * @typedef PeriodicIMCConfigPtr
+ * @brief Alias of pointer to PeriodicIMCConfig
  */
-using SBSWConfigPtr = std::shared_ptr<SBSWConfig>;
+using PeriodicIMCConfigPtr = std::shared_ptr<PeriodicIMCConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_SBSW_CONFIG_
+#endif  // CONFIG_DEFINITION_PERIODIC_IMC_CONFIG_

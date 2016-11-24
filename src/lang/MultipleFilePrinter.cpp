@@ -35,6 +35,9 @@
 
 #include "filesystem/Filesystem.hpp"
 
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
+
 namespace lang {
 
 /*----------------------------------------------------------------------------*/
@@ -86,42 +89,41 @@ void MultipleFilePrinter::endPrinting() {
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(config::ModelConfigPtr config_ptr) {
-  callFunction("model", pathForHelperCall(config_ptr->path()));
-  submodels_.push_back(config_ptr);
+void MultipleFilePrinter::print(cdo::Model config) {
+  callFunction("model", pathForHelperCall(config->path()));
+  submodels_.push_back(config);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(config::StateConfigPtr state_ptr) {
+void MultipleFilePrinter::print(cdo::State state) {
   openSection('[');
-  state_ptr->accept(ModelConfigSerializer(
+  state->accept(ModelConfigSerializer(
         Self::make(false, root_dir_, os_, depth_, ": ", ",\n")));
   closeSection(']');
 }
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(config::DurationConfigPtr duration_ptr) {
-  openFunction(duration_ptr->label());
-  duration_ptr->accept(ModelConfigSerializer(
+void MultipleFilePrinter::print(cdo::Duration duration) {
+  openFunction(duration->label());
+  duration->accept(ModelConfigSerializer(
         Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
   closeFunction();
 }
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(
-    config::FeatureFunctionLibraryConfigPtr library_ptr) {
-  callFunction("lib", pathForHelperCall(library_ptr->path()));
-  libraries_.push_back(library_ptr);
+void MultipleFilePrinter::print(cdo::FeatureFunctionLibrary library) {
+  callFunction("lib", pathForHelperCall(library->path()));
+  libraries_.push_back(library);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(config::DependencyTreeConfigPtr tree_ptr) {
-  callFunction("tree", pathForHelperCall(tree_ptr->path()));
-  trees_.push_back(tree_ptr);
+void MultipleFilePrinter::print(cdo::DependencyTree tree) {
+  callFunction("tree", pathForHelperCall(tree->path()));
+  trees_.push_back(tree);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -134,27 +136,26 @@ std::string MultipleFilePrinter::pathForHelperCall(const std::string &path) {
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::printSubmodel(config::ModelConfigPtr submodel_ptr) {
-  submodel_ptr->accept(ModelConfigSerializer(
+void MultipleFilePrinter::printSubmodel(cdo::Model submodel) {
+  submodel->accept(ModelConfigSerializer(
         Self::make(true, root_dir_, os_, 0)));
 }
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::printLibrary(
-    config::FeatureFunctionLibraryConfigPtr library_ptr) {
-  copy(library_ptr, std::make_shared<std::ofstream>(
-        root_dir_ + extractCorename(library_ptr->path())));
+void MultipleFilePrinter::printLibrary(cdo::FeatureFunctionLibrary library) {
+  copy(library, std::make_shared<std::ofstream>(
+        root_dir_ + extractCorename(library->path())));
 }
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::printTree(config::DependencyTreeConfigPtr tree_ptr) {
+void MultipleFilePrinter::printTree(cdo::DependencyTree tree) {
   thread_local unsigned int tree_depth = 0;
   thread_local std::vector<unsigned int> tree_nodes { 1 };
 
   if (tree_depth == 0)
-    changeOstream(tree_ptr->path());
+    changeOstream(tree->path());
 
   indent();
   for (unsigned int i = 1; i < tree_nodes.size(); i++) {
@@ -174,20 +175,20 @@ void MultipleFilePrinter::printTree(config::DependencyTreeConfigPtr tree_ptr) {
   tree_nodes[tree_depth]--;
 
   if (tree_nodes.size() == tree_depth + 1
-  &&  tree_ptr->children().size() != 0)
-    tree_nodes.push_back(tree_ptr->children().size());
+  &&  tree->children().size() != 0)
+    tree_nodes.push_back(tree->children().size());
 
   if (tree_nodes.size() == tree_depth + 1
   &&  tree_nodes[tree_depth] == 0)
     tree_nodes.pop_back();
 
-  tree_ptr->accept(ModelConfigSerializer(
+  tree->accept(ModelConfigSerializer(
           Self::make(false, root_dir_, os_, depth_,
                      "", " ", "\n", "(", ")")));
 
   tree_depth++;
 
-  for (auto& child : tree_ptr->children())
+  for (auto& child : tree->children())
     printTree(child);
 
   tree_depth--;
@@ -195,9 +196,9 @@ void MultipleFilePrinter::printTree(config::DependencyTreeConfigPtr tree_ptr) {
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(config::DomainPtr domain_ptr) {
-  openFunction(domain_ptr->data()->label());
-  domain_ptr->data()->accept(ModelConfigSerializer(
+void MultipleFilePrinter::print(cdo::Domain domain) {
+  openFunction(domain->data()->label());
+  domain->data()->accept(ModelConfigSerializer(
         Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
   closeFunction();
 }

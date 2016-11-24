@@ -17,46 +17,39 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_MODEL_CONFIG_
-#define CONFIG_MODEL_CONFIG_
+#ifndef CONFIG_DEFINITION_MDD_CONFIG_
+#define CONFIG_DEFINITION_MDD_CONFIG_
 
 // Standard headers
 #include <memory>
-#include <vector>
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Domain.hpp"
-#include "config/Options.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef ModelConfig
- * @brief Alias to IR of a model::ProbabilisticModel
+ * @typedef MDDConfig
+ * @brief Alias to IR of a model::MaximalDependenceDecomposition
  */
-using ModelConfig
+using MDDConfig
   = config_with_options<
-      option::Type(decltype("model_type"_t)),
-      option::Domain(decltype("observations"_t))
-    >::type;
+      option::Pattern(decltype("consensus"_t)),
+      option::DependencyTrees(decltype("dependencies"_t))
+    >::extending<ModelConfig>::type;
 
 /**
- * @typedef ModelConfigPtr
- * @brief Alias of pointer to ModelConfig
+ * @typedef MDDConfigPtr
+ * @brief Alias of pointer to MDDConfig
  */
-using ModelConfigPtr = std::shared_ptr<ModelConfig>;
+using MDDConfigPtr = std::shared_ptr<MDDConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-namespace config {
-namespace option {
-
-using Model = ModelConfigPtr;
-using Models = std::vector<ModelConfigPtr>;
-
-}  // namespace option
-}  // namespace config
-
-#endif  // CONFIG_MODEL_CONFIG_
+#endif  // CONFIG_DEFINITION_MDD_CONFIG_

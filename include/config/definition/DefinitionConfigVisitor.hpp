@@ -17,42 +17,26 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_MODEL_CONFIG_VISITOR_
-#define CONFIG_MODEL_CONFIG_VISITOR_
-
-// Forward declaration
-template<typename Base, typename... Options> class BasicConfig;
-
-// Standard headers
-#include <memory>
-#include <string>
-#include <type_traits>
+#ifndef CONFIG_DEFINITION_DEFINITION_CONFIG_VISITOR_
+#define CONFIG_DEFINITION_DEFINITION_CONFIG_VISITOR_
 
 // Internal headers
-#include "config/Domain.hpp"
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
-#include "config/StateConfig.hpp"
-#include "config/DurationConfig.hpp"
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/ConfigVisitor.hpp"
+#include "config/BasicConfigInterface.hpp"
+
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/StateConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
 namespace config {
+namespace definition {
 
-class ModelConfigVisitor {
+class DefinitionConfigVisitor : public ConfigVisitor {
  public:
-  // Concrete methods
-  template<typename Base, typename... Options>
-  void visit(std::shared_ptr<BasicConfig<Base, Options...>> config_ptr);
-
-  // Virtual destructor
-  virtual ~ModelConfigVisitor() = default;
-
- protected:
   // Purely virtual methods
-  virtual void startVisit() = 0;
-  virtual void endVisit() = 0;
-
   virtual void visitOption(option::Model &) = 0;
   virtual void visitOption(option::State &) = 0;
   virtual void visitOption(option::Duration &) = 0;
@@ -65,27 +49,19 @@ class ModelConfigVisitor {
 
   virtual void visitOption(option::Type &) = 0;
   virtual void visitOption(option::Size &) = 0;
+  virtual void visitOption(option::Domain &) = 0;
+  virtual void visitOption(option::Domains &) = 0;
   virtual void visitOption(option::Alphabet &) = 0;
   virtual void visitOption(option::Alphabets &) = 0;
   virtual void visitOption(option::Probability &) = 0;
   virtual void visitOption(option::Probabilities &) = 0;
   virtual void visitOption(option::DependencyTree &) = 0;
   virtual void visitOption(option::FeatureFunctions &) = 0;
-
-  virtual void visitOption(config::option::Domain &) = 0;
-  virtual void visitOption(config::option::Domains &) = 0;
-
-  virtual void visitOption(config::option::OutToInSymbolFunction &) = 0;
-  virtual void visitOption(config::option::InToOutSymbolFunction &) = 0;
-
-  virtual void visitTag(const std::string &, std::size_t, std::size_t) = 0;
-  virtual void visitLabel(const std::string &) = 0;
-  virtual void visitPath(const std::string &) = 0;
+  virtual void visitOption(option::OutToInSymbolFunction &) = 0;
+  virtual void visitOption(option::InToOutSymbolFunction &) = 0;
 };
 
+}  // namespace definition
 }  // namespace config
 
-// Implementation header
-#include "config/ModelConfigVisitor.ipp"
-
-#endif  // CONFIG_MODEL_CONFIG_VISITOR_
+#endif  // CONFIG_DEFINITION_DEFINITION_CONFIG_VISITOR_

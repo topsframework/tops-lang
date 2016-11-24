@@ -17,32 +17,50 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_GEOMETRIC_DURATION_CONFIG_
-#define CONFIG_GEOMETRIC_DURATION_CONFIG_
+#ifndef CONFIG_DEFINITION_DEPENDENCY_TREE_CONFIG_
+#define CONFIG_DEFINITION_DEPENDENCY_TREE_CONFIG_
 
 // Standard headers
 #include <memory>
+#include <vector>
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/DurationConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef GeometricDurationConfig
- * @brief Alias to intermediate representation of a model::GeometricDuration
+ * @typedef DependencyTreeConfig
+ * @brief Alias to helper IR of a dependency tree of a config::MDDConfig
  */
-using GeometricDurationConfig
-  = config_with_options<>::extending<DurationConfig>::type;
+using DependencyTreeConfig
+  = config_with_options<
+      option::Pattern(decltype("position"_t)),
+      option::Model(decltype("configuration"_t))
+    >::type;
 
 /**
- * @typedef GeometricDurationConfigPtr
- * @brief Alias of pointer to GeometricDurationConfig
+ * @typedef DependencyTreeConfigPtr
+ * @brief Alias of pointer to DependencyTreeConfig
  */
-using GeometricDurationConfigPtr = std::shared_ptr<GeometricDurationConfig>;
+using DependencyTreeConfigPtr = std::shared_ptr<DependencyTreeConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_GEOMETRIC_DURATION_CONFIG_
+namespace config {
+namespace definition {
+namespace option {
+
+using DependencyTree = DependencyTreeConfigPtr;
+using DependencyTrees = std::vector<DependencyTreeConfigPtr>;
+
+}  // namespace option
+}  // namespace definition
+}  // namespace config
+
+#endif  // CONFIG_DEFINITION_DEPENDENCY_TREE_CONFIG_

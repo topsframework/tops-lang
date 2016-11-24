@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_IMC_CONFIG_
-#define CONFIG_IMC_CONFIG_
+#ifndef CONFIG_DEFINITION_IMC_CONFIG_
+#define CONFIG_DEFINITION_IMC_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,9 +26,10 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/ModelConfig.hpp"
+#include "config/definition/ModelConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
  * @typedef IMCConfig
@@ -45,6 +46,7 @@ using IMCConfig
  */
 using IMCConfigPtr = std::shared_ptr<IMCConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_IMC_CONFIG_
+#endif  // CONFIG_DEFINITION_IMC_CONFIG_

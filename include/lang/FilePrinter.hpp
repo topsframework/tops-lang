@@ -31,16 +31,19 @@
 // Internal headers
 #include "lang/Util.hpp"
 
-#include "config/Domain.hpp"
 #include "config/BasicConfig.hpp"
 
-#include "config/ModelConfig.hpp"
-#include "config/StateConfig.hpp"
-#include "config/DurationConfig.hpp"
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/StateConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
 namespace lang {
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
 
 /**
  * @class FilePrinter
@@ -58,13 +61,13 @@ class FilePrinter {
   };
 
   // Purely virtual methods
-  virtual void print(config::ModelConfigPtr config_ptr) = 0;
-  virtual void print(config::StateConfigPtr state_ptr) = 0;
-  virtual void print(config::DurationConfigPtr duration_ptr) = 0;
-  virtual void print(config::FeatureFunctionLibraryConfigPtr library_ptr) = 0;
-  virtual void print(config::DependencyTreeConfigPtr tree_ptr) = 0;
+  virtual void print(cdo::Model model) = 0;
+  virtual void print(cdo::State state) = 0;
+  virtual void print(cdo::Duration duration) = 0;
+  virtual void print(cdo::FeatureFunctionLibrary library) = 0;
+  virtual void print(cdo::DependencyTree tree) = 0;
 
-  virtual void print(config::DomainPtr domain_ptr) = 0;
+  virtual void print(cdo::Domain domain) = 0;
 
   // Virtual methods
   virtual void changeOstream(const std::string &/* path */);

@@ -37,35 +37,34 @@
 #include "lang/ModelConfigRegister.hpp"
 #include "lang/DependencyTreeParser.hpp"
 
+#include "config/Domain.hpp"
+#include "config/BasicConfig.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
-#include "config/Domain.hpp"
+#include "config/definition/Options.hpp"
 
-#include "config/Options.hpp"
-#include "config/BasicConfig.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/HMMConfig.hpp"
+#include "config/definition/IIDConfig.hpp"
+#include "config/definition/IMCConfig.hpp"
+#include "config/definition/MDDConfig.hpp"
+#include "config/definition/MSMConfig.hpp"
+#include "config/definition/GHMMConfig.hpp"
+#include "config/definition/SBSWConfig.hpp"
+#include "config/definition/VLMCConfig.hpp"
+#include "config/definition/LCCRFConfig.hpp"
+#include "config/definition/PeriodicIMCConfig.hpp"
 
-#include "config/ModelConfig.hpp"
-#include "config/HMMConfig.hpp"
-#include "config/IIDConfig.hpp"
-#include "config/IMCConfig.hpp"
-#include "config/MDDConfig.hpp"
-#include "config/MSMConfig.hpp"
-#include "config/GHMMConfig.hpp"
-#include "config/SBSWConfig.hpp"
-#include "config/VLMCConfig.hpp"
-#include "config/LCCRFConfig.hpp"
-#include "config/PeriodicIMCConfig.hpp"
+#include "config/definition/StateConfig.hpp"
 
-#include "config/StateConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
+#include "config/definition/FixedDurationConfig.hpp"
+#include "config/definition/ExplicitDurationConfig.hpp"
+#include "config/definition/GeometricDurationConfig.hpp"
+#include "config/definition/MaxLengthDurationConfig.hpp"
 
-#include "config/DurationConfig.hpp"
-#include "config/FixedDurationConfig.hpp"
-#include "config/ExplicitDurationConfig.hpp"
-#include "config/GeometricDurationConfig.hpp"
-#include "config/MaxLengthDurationConfig.hpp"
-
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
 // External headers
 #include "chaiscript/language/chaiscript_engine.hpp"
@@ -80,6 +79,9 @@
 
 // Using declarations
 using config::operator ""_t;
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
 
 namespace lang {
 
@@ -112,7 +114,7 @@ using get_inner_t = typename get_inner<T>::type;
 #define REGISTER_TYPE(type) \
   do { \
     using chaiscript::bootstrap::standard_library::assignable_type; \
-    using registered_type = get_inner_t<config::option::type>; \
+    using registered_type = get_inner_t<cdo::type>; \
     module->add(chaiscript::user_type<registered_type>(), #type); \
     assignable_type<registered_type>(#type, module); \
   } while (false)
@@ -121,7 +123,7 @@ using get_inner_t = typename get_inner<T>::type;
   do { \
     using chaiscript::vector_conversion; \
     using chaiscript::bootstrap::standard_library::vector_type; \
-    using registered_type = get_inner_t<config::option::type>; \
+    using registered_type = get_inner_t<cdo::type>; \
     module->add(vector_type<registered_type>(#type)); \
     module->add(vector_conversion<registered_type>()); \
   } while (false)
@@ -130,7 +132,7 @@ using get_inner_t = typename get_inner<T>::type;
   do { \
     using chaiscript::map_conversion; \
     using chaiscript::bootstrap::standard_library::map_type; \
-    using registered_type = get_inner_t<config::option::type>; \
+    using registered_type = get_inner_t<cdo::type>; \
     module->add(map_type<registered_type>(#type)); \
     module->add(map_conversion<registered_type>()); \
   } while (false)
@@ -157,7 +159,7 @@ Interpreter::model_type_map {
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-config::ModelConfigPtr Interpreter::evalModel(const std::string &filepath) {
+cdo::Model Interpreter::evalModel(const std::string &filepath) {
   checkExtension(filepath);
   return makeModelConfig(filepath);
 }
@@ -176,12 +178,11 @@ void Interpreter::checkExtension(const std::string &filepath) {
 
 /*----------------------------------------------------------------------------*/
 
-config::ModelConfigPtr
-Interpreter::makeModelConfig(const std::string &filepath) {
+cdo::Model Interpreter::makeModelConfig(const std::string &filepath) {
   auto model_type = findModelType(filepath);
 
   switch (model_type) {
-    using namespace config;  // NOLINT(build/namespaces)
+    using namespace config::definition;  // NOLINT(build/namespaces)
     case ModelType::GHMM:        return fillConfig<GHMMConfig>(filepath);
     case ModelType::HMM:         return fillConfig<HMMConfig>(filepath);
     case ModelType::LCCRF:       return fillConfig<LCCRFConfig>(filepath);
@@ -206,7 +207,8 @@ Interpreter::ModelType Interpreter::findModelType(const std::string &filepath) {
   chaiscript::ChaiScript chai(modulepaths, usepaths);
   chai.add(makeInterpreterLibrary(filepath));
 
-  auto cfg = std::make_shared<config::ModelConfig>(filepath);
+  auto cfg = config::definition::ModelConfig::make(filepath);
+  std::cerr << "Registering ModelConfigRegister" << std::endl;
   cfg->accept(ModelConfigRegister(chai));
 
   try {
@@ -292,12 +294,12 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
                                   const std::string &filepath) {
   using chaiscript::fun;
 
-  using config::FixedDurationConfig;
-  using config::ExplicitDurationConfig;
-  using config::GeometricDurationConfig;
-  using config::MaxLengthDurationConfig;
-  using config::FeatureFunctionLibraryConfig;
-  using config::DependencyTreeConfig;
+  using config::definition::FixedDurationConfig;
+  using config::definition::ExplicitDurationConfig;
+  using config::definition::GeometricDurationConfig;
+  using config::definition::MaxLengthDurationConfig;
+  using config::definition::FeatureFunctionLibraryConfig;
+  using config::definition::DependencyTreeConfig;
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto root_dir = extractDir(filepath);
@@ -305,44 +307,44 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
   }), "model");
 
   module->add(fun([this, filepath]() {
-    auto duration_ptr = GeometricDurationConfig::make(filepath, "geometric");
-    return config::DurationConfigPtr(duration_ptr);
+    auto duration = GeometricDurationConfig::make(filepath, "geometric");
+    return cdo::Duration(duration);
   }), "geometric");
 
   module->add(fun([this, filepath] (const std::string &file) {
-    auto duration_ptr = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("model"_t)>(*duration_ptr.get())
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("model"_t)>(*duration.get())
       = this->makeModelConfig(extractDir(filepath) + file);
-    return config::DurationConfigPtr(duration_ptr);
+    return cdo::Duration(duration);
   }), "explicit");
 
   module->add(fun([this, filepath] (const std::string &file,
                                     unsigned int size) {
-    auto duration_ptr = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("max_size"_t)>(*duration_ptr.get()) = size;
-    std::get<decltype("model"_t)>(*duration_ptr.get())
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("max_size"_t)>(*duration.get()) = size;
+    std::get<decltype("model"_t)>(*duration.get())
       = this->makeModelConfig(extractDir(filepath) + file);
-    return config::DurationConfigPtr(duration_ptr);
+    return cdo::Duration(duration);
   }), "explicit");
 
-  module->add(fun([this, filepath] (config::ModelConfigPtr model_ptr,
+  module->add(fun([this, filepath] (cdo::Model model,
                                     unsigned int size) {
-    auto duration_ptr = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("max_size"_t)>(*duration_ptr.get()) = size;
-    std::get<decltype("model"_t)>(*duration_ptr.get()) = model_ptr;
-    return config::DurationConfigPtr(duration_ptr);
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("max_size"_t)>(*duration.get()) = size;
+    std::get<decltype("model"_t)>(*duration.get()) = model;
+    return cdo::Duration(duration);
   }), "explicit");
 
   module->add(fun([this, filepath] (unsigned int size) {
-    auto duration_ptr = FixedDurationConfig::make(filepath, "fixed");
-    std::get<decltype("size"_t)>(*duration_ptr.get()) = size;
-    return config::DurationConfigPtr(duration_ptr);
+    auto duration = FixedDurationConfig::make(filepath, "fixed");
+    std::get<decltype("size"_t)>(*duration.get()) = size;
+    return cdo::Duration(duration);
   }), "fixed");
 
   module->add(fun([this, filepath] (unsigned int size) {
-    auto duration_ptr = MaxLengthDurationConfig::make(filepath, "max_length");
-    std::get<decltype("size"_t)>(*duration_ptr.get()) = size;
-    return config::DurationConfigPtr(duration_ptr);
+    auto duration = MaxLengthDurationConfig::make(filepath, "max_length");
+    std::get<decltype("size"_t)>(*duration.get()) = size;
+    return cdo::Duration(duration);
   }), "max_length");
 
   module->add(fun([this, filepath] (const std::string &file) {
@@ -365,13 +367,13 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
     return parser.parse();
   }), "tree");
 
-  module->add(fun([this] (const config::option::Alphabet &alphabet) {
+  module->add(fun([this] (const cdo::Alphabet &alphabet) {
     return std::make_shared<config::Domain>(
         typename config::Domain::discrete_domain{}, alphabet);
   }), "discrete_domain");
 
-  module->add(fun([this] (const config::option::OutToInSymbolFunction &o2i,
-                          const config::option::InToOutSymbolFunction &i2o) {
+  module->add(fun([this] (const cdo::OutToInSymbolFunction &o2i,
+                          const cdo::InToOutSymbolFunction &i2o) {
     return std::make_shared<config::Domain>(
         typename config::Domain::custom_domain{}, o2i, i2o);
   }), "custom_domain");
@@ -399,36 +401,36 @@ void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
   using Map = std::map<std::string, Boxed_Value>;
 
   module->add(fun([] (config::Domain &conv, const Vector &orig) {
-    config::option::Alphabet alphabet;
+    cdo::Alphabet alphabet;
     for (auto &element : orig)
-      alphabet.push_back(boxed_cast<config::option::Symbol>(element));
+      alphabet.push_back(boxed_cast<cdo::Symbol>(element));
 
     conv = config::Domain(typename config::Domain::discrete_domain{}, alphabet);
   }), "=");
 
-  module->add(fun([] (config::option::Alphabets &conv, const Vector &orig) {
+  module->add(fun([] (cdo::Alphabets &conv, const Vector &orig) {
     for (auto &element : orig) {
       auto inner_orig = boxed_cast<Vector &>(element);
-      config::option::Alphabet inner_conv;
+      cdo::Alphabet inner_conv;
 
       for (auto &inner_element : inner_orig)
-        inner_conv.push_back(boxed_cast<config::option::Symbol>(inner_element));
+        inner_conv.push_back(boxed_cast<cdo::Symbol>(inner_element));
 
       conv.push_back(inner_conv);
     }
   }), "=");
 
-  module->add(fun([filepath] (config::option::States &conv, const Map &orig) {
+  module->add(fun([filepath] (cdo::States &conv, const Map &orig) {
     for (auto &pair : orig) {
       auto inner_orig = boxed_cast<Map &>(pair.second);
 
-      conv[pair.first] = std::make_shared<config::StateConfig>(filepath);
+      conv[pair.first] = config::definition::StateConfig::make(filepath);
 
       std::get<decltype("duration"_t)>(*conv[pair.first])
-        = boxed_cast<config::DurationConfigPtr>(inner_orig["duration"]);
+        = boxed_cast<cdo::Duration>(inner_orig["duration"]);
 
       std::get<decltype("emission"_t)>(*conv[pair.first])
-        = boxed_cast<config::ModelConfigPtr>(inner_orig["emission"]);
+        = boxed_cast<cdo::Model>(inner_orig["emission"]);
     }
   }), "=");
 }

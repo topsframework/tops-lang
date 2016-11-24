@@ -26,10 +26,13 @@
 // Internal headers
 #include "lang/FilePrinter.hpp"
 
-#include "config/ModelConfig.hpp"
-#include "config/StateConfig.hpp"
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/StateConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
 
 namespace lang {
 
@@ -39,7 +42,7 @@ namespace lang {
  */
 class SingleFilePrinter : public FilePrinter {
  public:
-  // Alias
+  // Aliases
   using Base = FilePrinter;
   using Self = SingleFilePrinter;
 
@@ -51,13 +54,13 @@ class SingleFilePrinter : public FilePrinter {
   static decltype(auto) make(Args&&... args);
 
   // Overriden methods
-  void print(config::ModelConfigPtr config_ptr) override;
-  void print(config::StateConfigPtr state_ptr) override;
-  void print(config::DurationConfigPtr duration_ptr) override;
-  void print(config::FeatureFunctionLibraryConfigPtr library_ptr) override;
-  void print(config::DependencyTreeConfigPtr tree_ptr) override;
+  void print(cdo::Model config) override;
+  void print(cdo::State state) override;
+  void print(cdo::Duration duration) override;
+  void print(cdo::FeatureFunctionLibrary library) override;
+  void print(cdo::DependencyTree tree) override;
 
-  void print(config::DomainPtr domain_ptr) override;
+  void print(cdo::Domain domain) override;
 
  protected:
   // Hidden constructor inheritance

@@ -25,10 +25,19 @@
 #include <string>
 #include <cstddef>
 
+#include "config/Util.hpp"
+
 namespace config {
 
 // Forward declarations
-class ModelConfigVisitor;
+class BasicConfigInterface;
+class ConfigVisitor;
+
+/**
+ * @class BasicConfigInterfacePtr
+ * @brief Pointer to config::BasicConfigInterface
+ */
+using BasicConfigInterfacePtr = std::shared_ptr<BasicConfigInterface>;
 
 /**
  * @class BasicConfigInterface
@@ -45,8 +54,8 @@ class BasicConfigInterface
                        const std::string &label);
 
   // Purely virtual methods
-  virtual void accept(ModelConfigVisitor &/* visitor */) const = 0;
-  virtual void accept(ModelConfigVisitor &&/* visitor */) const = 0;
+  virtual void accept(ConfigVisitor &/* visitor */) const = 0;
+  virtual void accept(ConfigVisitor &&/* visitor */) const = 0;
 
   // Virtual methods
   virtual std::string path();
@@ -59,7 +68,7 @@ class BasicConfigInterface
 
   // Concrete methods
   template<typename Func>
-  constexpr void for_each(Func&& /* func */) const;
+  void for_each(Func&& /* func */) const;
 
   template<typename... Args>
   void initialize(Args&&... /* args */) const;

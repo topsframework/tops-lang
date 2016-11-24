@@ -17,38 +17,39 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_DURATION_CONFIG_
-#define CONFIG_DURATION_CONFIG_
+#ifndef CONFIG_DEFINITION_DECODABLE_MODEL_CONFIG_
+#define CONFIG_DEFINITION_DECODABLE_MODEL_CONFIG_
 
 // Standard headers
 #include <memory>
+#include <vector>
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-namespace config {
-
-/**
- * @typedef DurationConfig
- * @brief Alias to intermediate representation of a model::Duration
- */
-using DurationConfig
-  = config_with_options<>::type;
-
-/**
- * @typedef DurationConfigPtr
- * @brief Alias of pointer to DurationConfig
- */
-using DurationConfigPtr = std::shared_ptr<DurationConfig>;
-
-}  // namespace config
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
 
 namespace config {
-namespace option {
+namespace definition {
 
-using Duration = DurationConfigPtr;
+/**
+ * @typedef DecodableModelConfig
+ * @brief Alias to IR of a model::ProbabilisticDecodableModel
+ */
+using DecodableModelConfig
+  = config_with_options<
+      option::Domains(decltype("other_observations"_t)),
+      option::Domain(decltype("labels"_t))
+    >::extending<ModelConfig>::type;
 
-}  // namespace option
+/**
+ * @typedef DecodableModelConfigPtr
+ * @brief Alias of pointer to DecodableModelConfig
+ */
+using DecodableModelConfigPtr = std::shared_ptr<DecodableModelConfig>;
+
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_DURATION_CONFIG_
+#endif  // CONFIG_DEFINITION_DECODABLE_MODEL_CONFIG_

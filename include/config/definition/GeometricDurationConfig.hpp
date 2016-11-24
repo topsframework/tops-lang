@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_MAX_LENGTH_DURATION_CONFIG_
-#define CONFIG_MAX_LENGTH_DURATION_CONFIG_
+#ifndef CONFIG_DEFINITION_GEOMETRIC_DURATION_CONFIG_
+#define CONFIG_DEFINITION_GEOMETRIC_DURATION_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,26 +26,25 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/DurationConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef MaxLengthDurationConfig
- * @brief Alias to intermediate representation of a model::MaxLengthDuration
+ * @typedef GeometricDurationConfig
+ * @brief Alias to intermediate representation of a model::GeometricDuration
  */
-using MaxLengthDurationConfig
-  = config_with_options<
-      option::Size(decltype("size"_t))
-    >::extending<DurationConfig>::type;
+using GeometricDurationConfig
+  = config_with_options<>::extending<DurationConfig>::type;
 
 /**
- * @typedef MaxLengthDurationConfigPtr
- * @brief Alias of pointer to MaxLengthDurationConfig
+ * @typedef GeometricDurationConfigPtr
+ * @brief Alias of pointer to GeometricDurationConfig
  */
-using MaxLengthDurationConfigPtr = std::shared_ptr<MaxLengthDurationConfig>;
+using GeometricDurationConfigPtr = std::shared_ptr<GeometricDurationConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_MAX_LENGTH_DURATION_CONFIG_
+#endif  // CONFIG_DEFINITION_GEOMETRIC_DURATION_CONFIG_

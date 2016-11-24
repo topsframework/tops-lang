@@ -24,7 +24,7 @@ namespace config {
 /*----------------------------------------------------------------------------*/
 
 template<typename Func>
-constexpr void BasicConfigInterface::for_each(Func&& /* func */) const {
+void BasicConfigInterface::for_each(Func&& /* func */) const {
 }
 
 /*----------------------------------------------------------------------------*/

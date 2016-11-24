@@ -17,47 +17,37 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_FEATURE_FUNCTION_LIBRARY_CONFIG_
-#define CONFIG_FEATURE_FUNCTION_LIBRARY_CONFIG_
+#ifndef CONFIG_DEFINITION_FIXED_DURATION_CONFIG_
+#define CONFIG_DEFINITION_FIXED_DURATION_CONFIG_
 
 // Standard headers
 #include <memory>
-#include <vector>
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/DurationConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef FeatureFunctionLibraryConfig
- * @brief Alias to helper IR of a feature function library
+ * @typedef FixedDurationConfig
+ * @brief Alias to intermediate representation of a model::FixedDuration
  */
-using FeatureFunctionLibraryConfig
+using FixedDurationConfig
   = config_with_options<
-      option::Alphabet(decltype("observations"_t)),
-      option::Alphabet(decltype("labels"_t)),
-      option::FeatureFunctions(decltype("feature_functions"_t))
-    >::type;
+      option::Size(decltype("size"_t))
+    >::extending<DurationConfig>::type;
 
 /**
- * @typedef FeatureFunctionLibraryConfigPtr
- * @brief Alias of pointer to FeatureFunctionLibraryConfig
+ * @typedef FixedDurationConfigPtr
+ * @brief Alias of pointer to FixedDurationConfig
  */
-using FeatureFunctionLibraryConfigPtr
-  = std::shared_ptr<FeatureFunctionLibraryConfig>;
+using FixedDurationConfigPtr = std::shared_ptr<FixedDurationConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-namespace config {
-namespace option {
-
-using FeatureFunctionLibrary = FeatureFunctionLibraryConfigPtr;
-using FeatureFunctionLibraries = std::vector<FeatureFunctionLibrary>;
-
-}  // namespace option
-}  // namespace config
-
-#endif  // CONFIG_FEATURE_FUNCTION_LIBRARY_CONFIG_
+#endif  // CONFIG_DEFINITION_FIXED_DURATION_CONFIG_

@@ -25,6 +25,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cstddef>
 #include <algorithm>
 
 // Internal headers
@@ -32,12 +33,15 @@
 #include "lang/SingleFilePrinter.hpp"
 #include "lang/MultipleFilePrinter.hpp"
 
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
-#include "config/StateConfig.hpp"
-#include "config/DurationConfig.hpp"
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/StateConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
 
 namespace lang {
 
@@ -79,129 +83,122 @@ void ModelConfigSerializer::endVisit() {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(config::option::Model &visited) {
+void ModelConfigSerializer::visitOption(cdo::Model &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(config::option::State &visited) {
+void ModelConfigSerializer::visitOption(cdo::State &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(config::option::Duration &visited) {
+void ModelConfigSerializer::visitOption(cdo::Duration &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(
-    config::option::FeatureFunctionLibrary &visited) {
+void ModelConfigSerializer::visitOption(cdo::FeatureFunctionLibrary &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(config::option::Models &visited) {
+void ModelConfigSerializer::visitOption(cdo::Models &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(config::option::States &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(
-    config::option::FeatureFunctionLibraries &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(config::option::Type &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(config::option::Size &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(config::option::Alphabet &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(config::option::Alphabets &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(config::option::Probability &visited) {
+void ModelConfigSerializer::visitOption(cdo::States &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigSerializer::visitOption(
-    config::option::Probabilities &visited) {
+    cdo::FeatureFunctionLibraries &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(
-    config::option::DependencyTree &visited) {
+void ModelConfigSerializer::visitOption(cdo::Type &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(
-    config::option::DependencyTrees &visited) {
+void ModelConfigSerializer::visitOption(cdo::Size &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(
-    config::option::FeatureFunctions &visited) {
+void ModelConfigSerializer::visitOption(cdo::Alphabet &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(config::option::Domain &visited) {
+void ModelConfigSerializer::visitOption(cdo::Alphabets &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(config::option::Domains &visited) {
+void ModelConfigSerializer::visitOption(cdo::Probability &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(
-    config::option::OutToInSymbolFunction &visited) {
+void ModelConfigSerializer::visitOption(cdo::Probabilities &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(
-    config::option::InToOutSymbolFunction &visited) {
+void ModelConfigSerializer::visitOption(cdo::DependencyTree &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cdo::DependencyTrees &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cdo::FeatureFunctions &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cdo::Domain &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cdo::Domains &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cdo::OutToInSymbolFunction &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cdo::InToOutSymbolFunction &visited) {
   printer_->print(visited);
 }
 

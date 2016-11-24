@@ -35,6 +35,9 @@
 #include "config/BasicConfig.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
+
 // Using declarations
 using config::operator ""_t;
 
@@ -59,7 +62,7 @@ DependencyTreeParser::DependencyTreeParser(Interpreter* interpreter,
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-config::DependencyTreeConfigPtr DependencyTreeParser::parse() {
+cdo::DependencyTree DependencyTreeParser::parse() {
   for (auto line : content_) {
     line_++;
     column_ = 1;
@@ -69,7 +72,7 @@ config::DependencyTreeConfigPtr DependencyTreeParser::parse() {
   edges_.insert(edges_.begin(), 0);
 
   std::stack<unsigned int> stack_edges;
-  std::stack<config::DependencyTreeConfigPtr> stack_nodes;
+  std::stack<cdo::DependencyTree> stack_nodes;
   for (unsigned int i = 0; i < edges_.size(); i++) {
     if (stack_edges.empty()) {
       stack_edges.push(edges_[i]);
@@ -126,7 +129,8 @@ void DependencyTreeParser::parseNode(std::string line) {
 
   auto filepath = parseString();
 
-  auto tree = config::DependencyTreeConfig::make(root_dir_ + filename_);
+  auto tree
+    = config::definition::DependencyTreeConfig::make(root_dir_ + filename_);
   std::get<decltype("position"_t)>(*tree) = id;
   std::get<decltype("configuration"_t)>(*tree)
     = makeModelConfig(root_dir_ + filepath);
@@ -138,8 +142,7 @@ void DependencyTreeParser::parseNode(std::string line) {
 
 /*----------------------------------------------------------------------------*/
 
-config::ModelConfigPtr
-DependencyTreeParser::makeModelConfig(std::string filepath) {
+cdo::Model DependencyTreeParser::makeModelConfig(std::string filepath) {
   return interpreter_->evalModel(filepath);
 }
 

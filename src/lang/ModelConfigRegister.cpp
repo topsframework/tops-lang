@@ -23,20 +23,29 @@
 // Standard headers
 #include <memory>
 #include <string>
+#include <cstddef>
 
 // Internal headers
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
-#include "config/StateConfig.hpp"
-#include "config/DurationConfig.hpp"
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/BasicConfig.hpp"
+
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/StateConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
 // External headers
 #include "chaiscript/language/chaiscript_engine.hpp"
 
 #include "chaiscript/dispatchkit/boxed_value.hpp"
 #include "chaiscript/dispatchkit/register_function.hpp"
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
+
+// Remove!
+#include <iostream>
 
 namespace lang {
 
@@ -62,149 +71,140 @@ void ModelConfigRegister::endVisit() {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Model &visited) {
-  using element_type = typename config::option::Model::element_type;
-  visited = std::make_shared<element_type>();
+void ModelConfigRegister::visitOption(cdo::Model &visited) {
+  visited = std::make_shared<typename cdo::Model::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::State &visited) {
-  using element_type = typename config::option::State::element_type;
-  visited = std::make_shared<element_type>();
+void ModelConfigRegister::visitOption(cdo::State &visited) {
+  visited = std::make_shared<typename cdo::State::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Domain &visited) {
-  using element_type = typename config::option::Domain::element_type;
-  visited = std::make_shared<element_type>();
+void ModelConfigRegister::visitOption(cdo::Domain &visited) {
+  visited = std::make_shared<typename cdo::Domain::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Duration &visited) {
-  using element_type = typename config::option::Duration::element_type;
-  visited = std::make_shared<element_type>();
+void ModelConfigRegister::visitOption(cdo::Duration &visited) {
+  visited = std::make_shared<typename cdo::Duration::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(
-    config::option::FeatureFunctionLibrary &visited) {
-  using element_type
-    = typename config::option::FeatureFunctionLibrary::element_type;
-  visited = std::make_shared<element_type>();
+void ModelConfigRegister::visitOption(cdo::FeatureFunctionLibrary &visited) {
+  visited
+    = std::make_shared<typename cdo::FeatureFunctionLibrary::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Models &visited) {
+void ModelConfigRegister::visitOption(cdo::Models &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::States &visited) {
+void ModelConfigRegister::visitOption(cdo::States &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Domains &visited) {
+void ModelConfigRegister::visitOption(cdo::Domains &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(
-    config::option::DependencyTrees &visited) {
+void ModelConfigRegister::visitOption(cdo::DependencyTrees &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(
-    config::option::FeatureFunctionLibraries &visited) {
+void ModelConfigRegister::visitOption(cdo::FeatureFunctionLibraries &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Type &visited) {
+void ModelConfigRegister::visitOption(cdo::Type &visited) {
+  std::cerr << "Registering Type" << std::endl;
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Size &visited) {
+void ModelConfigRegister::visitOption(cdo::Size &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Alphabet &visited) {
+void ModelConfigRegister::visitOption(cdo::Alphabet &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Alphabets &visited) {
+void ModelConfigRegister::visitOption(cdo::Alphabets &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Probability &visited) {
+void ModelConfigRegister::visitOption(cdo::Probability &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::Probabilities &visited) {
+void ModelConfigRegister::visitOption(cdo::Probabilities &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(config::option::DependencyTree &visited) {
+void ModelConfigRegister::visitOption(cdo::DependencyTree &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(
-    config::option::FeatureFunctions &visited) {
+void ModelConfigRegister::visitOption(cdo::FeatureFunctions &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
   chai_.add(chaiscript::fun([&visited] (
-      const std::string &name, config::option::FeatureFunction fun) {
+      const std::string &name, cdo::FeatureFunction fun) {
     visited.emplace(name, fun);
   }), "feature");
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(
-    config::option::OutToInSymbolFunction &visited) {
+void ModelConfigRegister::visitOption(cdo::OutToInSymbolFunction &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(
-    config::option::InToOutSymbolFunction &visited) {
+void ModelConfigRegister::visitOption(cdo::InToOutSymbolFunction &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitTag(
-    const std::string &tag, std::size_t /* count */, std::size_t /* max */) {
+void ModelConfigRegister::visitTag(const std::string &tag,
+                                   std::size_t /* count */,
+                                   std::size_t /* max */) {
   tag_ = tag;
 }
 

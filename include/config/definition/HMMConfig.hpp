@@ -17,35 +17,39 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
+#ifndef CONFIG_DEFINITION_HMM_CONFIG_
+#define CONFIG_DEFINITION_HMM_CONFIG_
+
 // Standard headers
 #include <memory>
 
+// Internal headers
+#include "config/ConfigWithOptions.hpp"
+
+#include "config/definition/Options.hpp"
+#include "config/definition/DecodableModelConfig.hpp"
+
 namespace config {
+namespace definition {
 
-/*----------------------------------------------------------------------------*/
-/*                              CONCRETE METHODS                              */
-/*----------------------------------------------------------------------------*/
+/**
+ * @typedef HMMConfig
+ * @brief Alias to IR of a model::HiddenMarkovModel
+ */
+using HMMConfig
+  = config_with_options<
+      option::Probabilities(decltype("initial_probabilities"_t)),
+      option::Probabilities(decltype("transition_probabilities"_t)),
+      option::Probabilities(decltype("emission_probabilities"_t))
+    >::extending<DecodableModelConfig>::type;
 
-template<typename Base, typename... Options>
-inline void ModelConfigVisitor::visit(
-    std::shared_ptr<BasicConfig<Base, Options...>> config_ptr) {
-  std::size_t count = 0;
-  std::size_t max = config_ptr->number_of_options();
+/**
+ * @typedef HMMConfigPtr
+ * @brief Alias of pointer to HMMConfig
+ */
+using HMMConfigPtr = std::shared_ptr<HMMConfig>;
 
-  this->visitLabel(config_ptr->label());
-  this->visitPath(config_ptr->path());
-
-  this->startVisit();
-  config_ptr->for_each([this, &count, &max] (const auto &tag, auto &value) {
-    using Tag = std::remove_cv_t<std::remove_reference_t<decltype(tag)>>;
-    using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
-    this->visitTag(typename Tag::value_type().str(), count, max);
-    this->visitOption(const_cast<Value&>(value));
-    count++;
-  });
-  this->endVisit();
-}
-
-/*----------------------------------------------------------------------------*/
-
+}  // namespace definition
 }  // namespace config
+
+#endif  // CONFIG_DEFINITION_HMM_CONFIG_

@@ -28,10 +28,13 @@
 
 // Internal headers
 #include "config/Converter.hpp"
-#include "config/ModelConfig.hpp"
+#include "config/definition/ModelConfig.hpp"
 
 // External headers
 #include "chaiscript/dispatchkit/dispatchkit.hpp"
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
 
 namespace lang {
 
@@ -42,7 +45,7 @@ namespace lang {
 class Interpreter {
  public:
   // Concrete methods
-  config::ModelConfigPtr evalModel(const std::string &filepath);
+  cdo::Model evalModel(const std::string &filepath);
 
  private:
   // Enums
@@ -55,7 +58,7 @@ class Interpreter {
 
   // Concrete methods
   void checkExtension(const std::string &filepath);
-  config::ModelConfigPtr makeModelConfig(const std::string &filepath);
+  cdo::Model makeModelConfig(const std::string &filepath);
 
   ModelType findModelType(const std::string &filepath);
   bool missingObjectException(const std::exception &e);

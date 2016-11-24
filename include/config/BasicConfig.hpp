@@ -33,13 +33,15 @@
 #include "config/ParameterPack.hpp"
 #include "config/BasicConfigInterface.hpp"
 
+#include "config/Util.hpp"
+
 // External headers
 #include "named_types/named_tuple.hpp"
 
 namespace config {
 
 // Forward declarations
-class ModelConfigVisitor;
+class ConfigVisitor;
 
 /**
  * @class BasicConfig
@@ -65,14 +67,14 @@ class BasicConfig : public Base {
   static SelfPtr make(Params&&... params);
 
   // Overriden methods
-  void accept(ModelConfigVisitor &visitor) const override;
-  void accept(ModelConfigVisitor &&visitor) const override;
+  void accept(ConfigVisitor &visitor) const override;
+  void accept(ConfigVisitor &&visitor) const override;
 
   std::size_t number_of_options() const override;
 
   // Concrete methods
   template<typename Func>
-  constexpr void for_each(Func&& func) const;
+  void for_each(Func&& func) const;
 
   template<typename... Args>
   void initialize(Args&&... args);

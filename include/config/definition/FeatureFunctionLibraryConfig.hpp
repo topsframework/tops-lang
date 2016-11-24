@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_DEPENDENCY_TREE_CONFIG_
-#define CONFIG_DEPENDENCY_TREE_CONFIG_
+#ifndef CONFIG_DEFINITION_FEATURE_FUNCTION_LIBRARY_CONFIG_
+#define CONFIG_DEFINITION_FEATURE_FUNCTION_LIBRARY_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -27,36 +27,41 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
+#include "config/definition/Options.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef DependencyTreeConfig
- * @brief Alias to helper IR of a dependency tree of a config::MDDConfig
+ * @typedef FeatureFunctionLibraryConfig
+ * @brief Alias to helper IR of a feature function library
  */
-using DependencyTreeConfig
+using FeatureFunctionLibraryConfig
   = config_with_options<
-      option::Pattern(decltype("position"_t)),
-      option::Model(decltype("configuration"_t))
+      option::Alphabet(decltype("observations"_t)),
+      option::Alphabet(decltype("labels"_t)),
+      option::FeatureFunctions(decltype("feature_functions"_t))
     >::type;
 
 /**
- * @typedef DependencyTreeConfigPtr
- * @brief Alias of pointer to DependencyTreeConfig
+ * @typedef FeatureFunctionLibraryConfigPtr
+ * @brief Alias of pointer to FeatureFunctionLibraryConfig
  */
-using DependencyTreeConfigPtr = std::shared_ptr<DependencyTreeConfig>;
+using FeatureFunctionLibraryConfigPtr
+  = std::shared_ptr<FeatureFunctionLibraryConfig>;
 
+}  // namespace definition
 }  // namespace config
 
 namespace config {
+namespace definition {
 namespace option {
 
-using DependencyTree = DependencyTreeConfigPtr;
-using DependencyTrees = std::vector<DependencyTreeConfigPtr>;
+using FeatureFunctionLibrary = FeatureFunctionLibraryConfigPtr;
+using FeatureFunctionLibraries = std::vector<FeatureFunctionLibrary>;
 
 }  // namespace option
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_DEPENDENCY_TREE_CONFIG_
+#endif  // CONFIG_DEFINITION_FEATURE_FUNCTION_LIBRARY_CONFIG_

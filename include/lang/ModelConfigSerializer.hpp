@@ -23,17 +23,20 @@
 // Standard headers
 #include <memory>
 #include <string>
-#include <iostream>
+#include <cstddef>
 
 // Internal headers
-#include "config/Options.hpp"
-#include "config/ModelConfigVisitor.hpp"
+#include "config/definition/DefinitionConfigVisitor.hpp"
 
-#include "config/ModelConfig.hpp"
-#include "config/StateConfig.hpp"
-#include "config/DurationConfig.hpp"
-#include "config/DependencyTreeConfig.hpp"
-#include "config/FeatureFunctionLibraryConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/StateConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
+#include "config/definition/DependencyTreeConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+
+// Namespace aliases
+namespace { namespace cdo = config::definition::option; }
 
 namespace lang {
 
@@ -42,9 +45,11 @@ class FilePrinter;
 
 /**
  * @class ModelConfigSerializer
- * @brief Implementation of config::ModelConfigVisitor for serialization
+ * Implementation of config::definition::DefinitionConfigVisitor
+ * for serialization.
  */
-class ModelConfigSerializer : public config::ModelConfigVisitor {
+class ModelConfigSerializer
+    : public config::definition::DefinitionConfigVisitor {
  public:
   // Constructors
   explicit ModelConfigSerializer(std::ostream &os = std::cout);
@@ -56,30 +61,28 @@ class ModelConfigSerializer : public config::ModelConfigVisitor {
   void startVisit() override;
   void endVisit() override;
 
-  void visitOption(config::option::Model &visited) override;
-  void visitOption(config::option::State &visited) override;
-  void visitOption(config::option::Duration &visited) override;
-  void visitOption(config::option::FeatureFunctionLibrary &visited) override;
+  void visitOption(cdo::Model &visited) override;
+  void visitOption(cdo::State &visited) override;
+  void visitOption(cdo::Duration &visited) override;
+  void visitOption(cdo::FeatureFunctionLibrary &visited) override;
 
-  void visitOption(config::option::Models &visited) override;
-  void visitOption(config::option::States &visited) override;
-  void visitOption(config::option::FeatureFunctionLibraries &visited) override;
+  void visitOption(cdo::Models &visited) override;
+  void visitOption(cdo::States &visited) override;
+  void visitOption(cdo::FeatureFunctionLibraries &visited) override;
 
-  void visitOption(config::option::Type &visited) override;
-  void visitOption(config::option::Size &visited) override;
-  void visitOption(config::option::Alphabet &visited) override;
-  void visitOption(config::option::Alphabets &visited) override;
-  void visitOption(config::option::Probability &visited) override;
-  void visitOption(config::option::Probabilities &visited) override;
-  void visitOption(config::option::DependencyTree &visited) override;
-  void visitOption(config::option::DependencyTrees &visited) override;
-  void visitOption(config::option::FeatureFunctions &visited) override;
-
-  void visitOption(config::option::Domain &visited) override;
-  void visitOption(config::option::Domains &visited) override;
-
-  void visitOption(config::option::OutToInSymbolFunction &visited) override;
-  void visitOption(config::option::InToOutSymbolFunction &visited) override;
+  void visitOption(cdo::Type &visited) override;
+  void visitOption(cdo::Size &visited) override;
+  void visitOption(cdo::Domain &visited) override;
+  void visitOption(cdo::Domains &visited) override;
+  void visitOption(cdo::Alphabet &visited) override;
+  void visitOption(cdo::Alphabets &visited) override;
+  void visitOption(cdo::Probability &visited) override;
+  void visitOption(cdo::Probabilities &visited) override;
+  void visitOption(cdo::DependencyTree &visited) override;
+  void visitOption(cdo::DependencyTrees &visited) override;
+  void visitOption(cdo::FeatureFunctions &visited) override;
+  void visitOption(cdo::OutToInSymbolFunction &visited) override;
+  void visitOption(cdo::InToOutSymbolFunction &visited) override;
 
   void visitTag(const std::string &tag, std::size_t count,
                                         std::size_t max) override;

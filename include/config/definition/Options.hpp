@@ -17,35 +17,41 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_VLMC_CONFIG_
-#define CONFIG_VLMC_CONFIG_
-
-// Standard headers
-#include <memory>
+#ifndef CONFIG_DEFINITION_OPTION_
+#define CONFIG_DEFINITION_OPTION_
 
 // Internal headers
-#include "config/ConfigWithOptions.hpp"
-
+#include "config/Domain.hpp"
 #include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
 
 namespace config {
+namespace definition {
+namespace option {
 
-/**
- * @typedef VLMCConfig
- * @brief Alias to IR of a model::VariableLengthMarkovChain
- */
-using VLMCConfig
-  = config_with_options<
-      option::Probabilities(decltype("context_probabilities"_t))
-    >::extending<ModelConfig>::type;
+using Type = config::option::Type;
+using Symbol = config::option::Symbol;
+using Pattern = config::option::Pattern;
+using Sequence = config::option::Sequence;
 
-/**
- * @typedef VLMCConfigPtr
- * @brief Alias of pointer to VLMCConfig
- */
-using VLMCConfigPtr = std::shared_ptr<VLMCConfig>;
+using Size = config::option::Size;
 
+using Alphabet = config::option::Alphabet;
+using Alphabets = config::option::Alphabets;
+
+using Probability = config::option::Probability;
+using Probabilities = config::option::Probabilities;
+
+using FeatureFunction = config::option::FeatureFunction;
+using FeatureFunctions = config::option::FeatureFunctions;
+
+using OutToInSymbolFunction = config::option::OutToInSymbolFunction;
+using InToOutSymbolFunction = config::option::InToOutSymbolFunction;
+
+using Domain = config::option::Domain;
+using Domains = config::option::Domains;
+
+}  // namespace option
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_VLMC_CONFIG_
+#endif  // CONFIG_DEFINITION_OPTION_

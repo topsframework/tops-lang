@@ -24,7 +24,7 @@
 #include <utility>
 
 // Internal headers
-#include "config/ModelConfigVisitor.hpp"
+#include "config/ConfigVisitor.hpp"
 
 namespace config {
 
@@ -54,7 +54,7 @@ BasicConfig<Base, Options...>::make(Params&&... params) {
 /*----------------------------------------------------------------------------*/
 
 template<typename Base, typename... Options>
-void BasicConfig<Base, Options...>::accept(ModelConfigVisitor &visitor) const {
+void BasicConfig<Base, Options...>::accept(ConfigVisitor &visitor) const {
   auto ptr = std::static_pointer_cast<Self>(
     const_cast<Self*>(this)->shared_from_this());
   visitor.visit(ptr);
@@ -63,7 +63,7 @@ void BasicConfig<Base, Options...>::accept(ModelConfigVisitor &visitor) const {
 /*----------------------------------------------------------------------------*/
 
 template<typename Base, typename... Options>
-void BasicConfig<Base, Options...>::accept(ModelConfigVisitor &&visitor) const {
+void BasicConfig<Base, Options...>::accept(ConfigVisitor &&visitor) const {
   auto ptr = std::static_pointer_cast<Self>(
     const_cast<Self*>(this)->shared_from_this());
   visitor.visit(ptr);
@@ -84,7 +84,7 @@ std::size_t BasicConfig<Base, Options...>::number_of_options() const {
 
 template<typename Base, typename... Options>
 template<typename Func>
-constexpr void BasicConfig<Base, Options...>::for_each(Func&& func) const {
+void BasicConfig<Base, Options...>::for_each(Func&& func) const {
   this->Base::for_each(func);
   named_types::for_each(func, attrs_);
 }

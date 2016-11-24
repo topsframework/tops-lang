@@ -17,37 +17,41 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_DECODABLE_MODEL_CONFIG_
-#define CONFIG_DECODABLE_MODEL_CONFIG_
+#ifndef CONFIG_DEFINITION_SBSW_CONFIG_
+#define CONFIG_DEFINITION_SBSW_CONFIG_
 
 // Standard headers
 #include <memory>
-#include <vector>
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef DecodableModelConfig
- * @brief Alias to IR of a model::ProbabilisticDecodableModel
+ * @typedef SBSWConfig
+ * @brief Alias to IR of a model::SimilarityBasedSequenceWeighting
  */
-using DecodableModelConfig
+using SBSWConfig
   = config_with_options<
-      option::Domains(decltype("other_observations"_t)),
-      option::Domain(decltype("labels"_t))
+      option::Probabilities(decltype("sequences"_t)),
+      option::Probability(decltype("normalizer"_t)),
+      option::Size(decltype("skip_offset"_t)),
+      option::Size(decltype("skip_length"_t)),
+      option::Sequence(decltype("skip_sequence"_t))
     >::extending<ModelConfig>::type;
 
 /**
- * @typedef DecodableModelConfigPtr
- * @brief Alias of pointer to DecodableModelConfig
+ * @typedef SBSWConfigPtr
+ * @brief Alias of pointer to SBSWConfig
  */
-using DecodableModelConfigPtr = std::shared_ptr<DecodableModelConfig>;
+using SBSWConfigPtr = std::shared_ptr<SBSWConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_DECODABLE_MODEL_CONFIG_
+#endif  // CONFIG_DEFINITION_SBSW_CONFIG_

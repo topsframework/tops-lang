@@ -17,8 +17,8 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_FIXED_DURATION_CONFIG_
-#define CONFIG_FIXED_DURATION_CONFIG_
+#ifndef CONFIG_DEFINITION_LCCRF_CONFIG_
+#define CONFIG_DEFINITION_LCCRF_CONFIG_
 
 // Standard headers
 #include <memory>
@@ -26,26 +26,30 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/DurationConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/DecodableModelConfig.hpp"
+#include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef FixedDurationConfig
- * @brief Alias to intermediate representation of a model::FixedDuration
+ * @typedef LCCRFConfig
+ * @brief Alias to IR of a model::LinearChainConditionalRandomField
  */
-using FixedDurationConfig
+using LCCRFConfig
   = config_with_options<
-      option::Size(decltype("size"_t))
-    >::extending<DurationConfig>::type;
+      option::Probabilities(decltype("feature_parameters"_t)),
+      option::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
+    >::extending<DecodableModelConfig>::type;
 
 /**
- * @typedef FixedDurationConfigPtr
- * @brief Alias of pointer to FixedDurationConfig
+ * @typedef LCCRFConfigPtr
+ * @brief Alias of pointer to LCCRFConfig
  */
-using FixedDurationConfigPtr = std::shared_ptr<FixedDurationConfig>;
+using LCCRFConfigPtr = std::shared_ptr<LCCRFConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_FIXED_DURATION_CONFIG_
+#endif  // CONFIG_DEFINITION_LCCRF_CONFIG_

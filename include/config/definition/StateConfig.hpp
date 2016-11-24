@@ -17,35 +17,53 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_IID_CONFIG_
-#define CONFIG_IID_CONFIG_
+#ifndef CONFIG_DEFINITION_STATE_CONFIG_
+#define CONFIG_DEFINITION_STATE_CONFIG_
 
 // Standard headers
+#include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
+#include "config/definition/Options.hpp"
+#include "config/definition/ModelConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
 
 namespace config {
+namespace definition {
 
 /**
- * @typedef IIDConfig
- * @brief Alias to IR of a model::DiscreteIIDModel
+ * @typedef StateConfig
+ * @brief Alias to intermediate representation of a model::State
  */
-using IIDConfig
+using StateConfig
   = config_with_options<
-      option::Probabilities(decltype("emission_probabilities"_t))
-    >::extending<ModelConfig>::type;
+      option::Duration(decltype("duration"_t)),
+      option::Model(decltype("emission"_t))
+    >::type;
 
 /**
- * @typedef IIDConfigPtr
- * @brief Alias of pointer to IIDConfig
+ * @typedef StateConfigPtr
+ * @brief Alias of pointer to StateConfig
  */
-using IIDConfigPtr = std::shared_ptr<IIDConfig>;
+using StateConfigPtr = std::shared_ptr<StateConfig>;
 
+}  // namespace definition
 }  // namespace config
 
-#endif  // CONFIG_IID_CONFIG_
+namespace config {
+namespace definition {
+namespace option {
+
+using State = StateConfigPtr;
+using States = std::map<std::string, State>;
+
+}  // namespace option
+}  // namespace definition
+}  // namespace config
+
+#endif  // CONFIG_DEFINITION_STATE_CONFIG_
