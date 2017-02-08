@@ -86,13 +86,6 @@ void ModelConfigRegister::visitOption(cod::State &visited) {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(co::Domain &visited) {
-  visited = std::make_shared<typename co::Domain::element_type>();
-  chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
 void ModelConfigRegister::visitOption(cod::Duration &visited) {
   visited = std::make_shared<typename cod::Duration::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
@@ -120,12 +113,6 @@ void ModelConfigRegister::visitOption(cod::States &visited) {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(co::Domains &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
 void ModelConfigRegister::visitOption(cod::DependencyTrees &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
@@ -138,13 +125,26 @@ void ModelConfigRegister::visitOption(cod::FeatureFunctionLibraries &visited) {
 
 /*----------------------------------------------------------------------------*/
 
+void ModelConfigRegister::visitOption(co::Size &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
 void ModelConfigRegister::visitOption(co::Type &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(co::Size &visited) {
+void ModelConfigRegister::visitOption(co::Domain &visited) {
+  visited = std::make_shared<typename co::Domain::element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(co::Domains &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 

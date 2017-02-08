@@ -70,8 +70,8 @@ class ModelConfigRegister
   void visitOption(cod::DependencyTrees &visited) override;
   void visitOption(cod::FeatureFunctionLibraries &visited) override;
 
-  void visitOption(co::Type &visited) override;
   void visitOption(co::Size &visited) override;
+  void visitOption(co::Type &visited) override;
   void visitOption(co::Domain &visited) override;
   void visitOption(co::Domains &visited) override;
   void visitOption(co::Alphabet &visited) override;

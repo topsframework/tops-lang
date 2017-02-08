@@ -65,22 +65,22 @@ class ModelConfigSerializer
   void visitOption(cod::Model &visited) override;
   void visitOption(cod::State &visited) override;
   void visitOption(cod::Duration &visited) override;
+  void visitOption(cod::DependencyTree &visited) override;
   void visitOption(cod::FeatureFunctionLibrary &visited) override;
 
   void visitOption(cod::Models &visited) override;
   void visitOption(cod::States &visited) override;
+  void visitOption(cod::DependencyTrees &visited) override;
   void visitOption(cod::FeatureFunctionLibraries &visited) override;
 
-  void visitOption(co::Type &visited) override;
   void visitOption(co::Size &visited) override;
+  void visitOption(co::Type &visited) override;
   void visitOption(co::Domain &visited) override;
   void visitOption(co::Domains &visited) override;
   void visitOption(co::Alphabet &visited) override;
   void visitOption(co::Alphabets &visited) override;
   void visitOption(co::Probability &visited) override;
   void visitOption(co::Probabilities &visited) override;
-  void visitOption(cod::DependencyTree &visited) override;
-  void visitOption(cod::DependencyTrees &visited) override;
   void visitOption(co::FeatureFunctions &visited) override;
   void visitOption(co::OutToInSymbolFunction &visited) override;
   void visitOption(co::InToOutSymbolFunction &visited) override;
