@@ -35,7 +35,7 @@
 namespace config {
 
 // Forward declaration
-class BasicConfigInterface;
+class Config;
 
 /**
  * @class ConfigVisitor

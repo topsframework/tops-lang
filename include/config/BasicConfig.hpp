@@ -31,7 +31,7 @@
 // Internal headers
 #include "config/HasTag.hpp"
 #include "config/ParameterPack.hpp"
-#include "config/BasicConfigInterface.hpp"
+#include "config/Config.hpp"
 
 #include "config/Util.hpp"
 

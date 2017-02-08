@@ -27,7 +27,7 @@
 namespace config {
 
 // Forward declaration
-class BasicConfigInterface;
+class Config;
 template<typename Base, typename... Options> class BasicConfig;
 
 /**
@@ -36,7 +36,7 @@ template<typename Base, typename... Options> class BasicConfig;
  */
 template<typename... Options>
 struct config_with_options {
-  using type = BasicConfig<BasicConfigInterface, Options...>;
+  using type = BasicConfig<Config, Options...>;
 
   template<typename T>
   struct extending {

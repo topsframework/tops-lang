@@ -30,27 +30,27 @@
 namespace config {
 
 // Forward declarations
-class BasicConfigInterface;
+class Config;
 class ConfigVisitor;
 
 /**
- * @class BasicConfigInterfacePtr
- * @brief Pointer to config::BasicConfigInterface
+ * @class ConfigPtr
+ * @brief Pointer to config::Config
  */
-using BasicConfigInterfacePtr = std::shared_ptr<BasicConfigInterface>;
+using ConfigPtr = std::shared_ptr<Config>;
 
 /**
- * @class BasicConfigInterface
+ * @class Config
  * Base class for config::BasicConfig hierarchy representing a config IR
  */
-class BasicConfigInterface
-    : public std::enable_shared_from_this<BasicConfigInterface> {
+class Config
+    : public std::enable_shared_from_this<Config> {
  public:
   // Alias
-  using Self = BasicConfigInterface;
+  using Self = Config;
 
   // Constructors
-  BasicConfigInterface(const std::string &path,
+  Config(const std::string &path,
                        const std::string &label);
 
   // Purely virtual methods
@@ -77,7 +77,7 @@ class BasicConfigInterface
   constexpr decltype(auto) get() const;
 
   // Destructor
-  virtual ~BasicConfigInterface() = default;
+  virtual ~Config() = default;
 
  private:
   std::string path_;
@@ -87,6 +87,6 @@ class BasicConfigInterface
 }  // namespace config
 
 // Implementation header
-#include "config/BasicConfigInterface.ipp"
+#include "config/Config.ipp"
 
 #endif  // CONFIG_BASIC_CONFIG_INTERFACE_

@@ -17,53 +17,26 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-// Interface header
-#include "config/BasicConfigInterface.hpp"
-
-// Standard headers
-#include <string>
-
 namespace config {
 
 /*----------------------------------------------------------------------------*/
-/*                                CONSTRUCTORS                                */
+/*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-BasicConfigInterface::BasicConfigInterface(const std::string &path,
-                                           const std::string &label)
-    : path_(path), label_(label) {
-}
-
-/*----------------------------------------------------------------------------*/
-/*                              VIRTUAL METHODS                               */
-/*----------------------------------------------------------------------------*/
-
-std::string BasicConfigInterface::path() {
-  return path_;
+template<typename Func>
+void Config::for_each(Func&& /* func */) const {
 }
 
 /*----------------------------------------------------------------------------*/
 
-const std::string BasicConfigInterface::path() const {
-  return path_;
+template<typename... Args>
+void Config::initialize(Args&&... /* args */) const {
 }
 
 /*----------------------------------------------------------------------------*/
 
-std::string BasicConfigInterface::label() {
-  return label_;
-}
-
-/*----------------------------------------------------------------------------*/
-
-const std::string BasicConfigInterface::label() const {
-  return label_;
-}
-
-/*----------------------------------------------------------------------------*/
-
-std::size_t BasicConfigInterface::number_of_options() const {
-  return 0;
+template<class Tag>
+inline constexpr decltype(auto) Config::get() const {
 }
 
 /*----------------------------------------------------------------------------*/

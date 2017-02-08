@@ -17,26 +17,52 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
+// Interface header
+#include "config/Config.hpp"
+
+// Standard headers
+#include <string>
+
 namespace config {
 
 /*----------------------------------------------------------------------------*/
-/*                              CONCRETE METHODS                              */
+/*                                CONSTRUCTORS                                */
 /*----------------------------------------------------------------------------*/
 
-template<typename Func>
-void BasicConfigInterface::for_each(Func&& /* func */) const {
+Config::Config(const std::string &path, const std::string &label)
+    : path_(path), label_(label) {
+}
+
+/*----------------------------------------------------------------------------*/
+/*                              VIRTUAL METHODS                               */
+/*----------------------------------------------------------------------------*/
+
+std::string Config::path() {
+  return path_;
 }
 
 /*----------------------------------------------------------------------------*/
 
-template<typename... Args>
-void BasicConfigInterface::initialize(Args&&... /* args */) const {
+const std::string Config::path() const {
+  return path_;
 }
 
 /*----------------------------------------------------------------------------*/
 
-template<class Tag>
-inline constexpr decltype(auto) BasicConfigInterface::get() const {
+std::string Config::label() {
+  return label_;
+}
+
+/*----------------------------------------------------------------------------*/
+
+const std::string Config::label() const {
+  return label_;
+}
+
+/*----------------------------------------------------------------------------*/
+
+std::size_t Config::number_of_options() const {
+  return 0;
 }
 
 /*----------------------------------------------------------------------------*/
