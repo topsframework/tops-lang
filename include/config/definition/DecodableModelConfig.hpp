@@ -27,7 +27,8 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Domain.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 
 namespace config {

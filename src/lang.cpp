@@ -39,7 +39,7 @@
 #include "chaiscript/language/chaiscript_common.hpp"
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
 
 // Using declarations
 using config::operator ""_t;

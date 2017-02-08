@@ -26,7 +26,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
 
@@ -39,7 +39,7 @@ namespace definition {
  */
 using ExplicitDurationConfig
   = config_with_options<
-      option::Model(decltype("model"_t)),
+      option::definition::Model(decltype("model"_t)),
       option::Size(decltype("max_size"_t))
     >::extending<DurationConfig>::type;
 

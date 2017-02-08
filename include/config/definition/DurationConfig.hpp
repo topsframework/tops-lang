@@ -46,13 +46,13 @@ using DurationConfigPtr = std::shared_ptr<DurationConfig>;
 }  // namespace config
 
 namespace config {
-namespace definition {
 namespace option {
+namespace definition {
 
-using Duration = DurationConfigPtr;
+using Duration = config::definition::DurationConfigPtr;
 
-}  // namespace option
 }  // namespace definition
+}  // namespace option
 }  // namespace config
 
 #endif  // CONFIG_DEFINITION_DURATION_CONFIG_

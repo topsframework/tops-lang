@@ -26,7 +26,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 
 namespace config {
@@ -38,7 +38,7 @@ namespace definition {
  */
 using PeriodicIMCConfig
   = config_with_options<
-      option::Models(decltype("position_specific_distributions"_t))
+      option::definition::Models(decltype("position_specific_distributions"_t))
     >::extending<ModelConfig>::type;
 
 /**

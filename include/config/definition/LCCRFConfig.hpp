@@ -26,7 +26,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/DecodableModelConfig.hpp"
 #include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
@@ -40,7 +40,7 @@ namespace definition {
 using LCCRFConfig
   = config_with_options<
       option::Probabilities(decltype("feature_parameters"_t)),
-      option::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
+      option::definition::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
     >::extending<DecodableModelConfig>::type;
 
 /**

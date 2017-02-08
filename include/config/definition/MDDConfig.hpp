@@ -26,7 +26,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/DependencyTreeConfig.hpp"
 
@@ -40,7 +40,7 @@ namespace definition {
 using MDDConfig
   = config_with_options<
       option::Pattern(decltype("consensus"_t)),
-      option::DependencyTrees(decltype("dependencies"_t))
+      option::definition::DependencyTrees(decltype("dependencies"_t))
     >::extending<ModelConfig>::type;
 
 /**

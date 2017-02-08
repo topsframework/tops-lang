@@ -38,7 +38,7 @@ namespace definition {
  */
 using MSMConfig
   = config_with_options<
-      option::States(decltype("models"_t))
+      option::definition::States(decltype("models"_t))
     >::extending<ModelConfig>::type;
 
 /**

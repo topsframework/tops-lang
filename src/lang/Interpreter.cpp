@@ -41,7 +41,7 @@
 #include "config/BasicConfig.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/HMMConfig.hpp"
@@ -81,7 +81,8 @@
 using config::operator ""_t;
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -111,31 +112,46 @@ using get_inner_t = typename get_inner<T>::type;
 /*                                LOCAL MACROS                                */
 /*----------------------------------------------------------------------------*/
 
-#define REGISTER_TYPE(type) \
+#define REGISTER_TYPE(type, name) \
   do { \
     using chaiscript::bootstrap::standard_library::assignable_type; \
-    using registered_type = get_inner_t<cdo::type>; \
-    module->add(chaiscript::user_type<registered_type>(), #type); \
-    assignable_type<registered_type>(#type, module); \
+    using registered_type = get_inner_t<co::type>; \
+    module->add(chaiscript::user_type<registered_type>(), name); \
+    assignable_type<registered_type>(name, module); \
   } while (false)
 
-#define REGISTER_VECTOR(type) \
+#define REGISTER_VECTOR(type, name) \
   do { \
     using chaiscript::vector_conversion; \
     using chaiscript::bootstrap::standard_library::vector_type; \
-    using registered_type = get_inner_t<cdo::type>; \
-    module->add(vector_type<registered_type>(#type)); \
+    using registered_type = get_inner_t<co::type>; \
+    module->add(vector_type<registered_type>(name)); \
     module->add(vector_conversion<registered_type>()); \
   } while (false)
 
-#define REGISTER_MAP(type) \
+#define REGISTER_MAP(type, name) \
   do { \
     using chaiscript::map_conversion; \
     using chaiscript::bootstrap::standard_library::map_type; \
-    using registered_type = get_inner_t<cdo::type>; \
-    module->add(map_type<registered_type>(#type)); \
+    using registered_type = get_inner_t<co::type>; \
+    module->add(map_type<registered_type>(name)); \
     module->add(map_conversion<registered_type>()); \
   } while (false)
+
+#define REGISTER_COMMON_TYPE(type) \
+  REGISTER_TYPE(type, #type)
+#define REGISTER_DEFINITION_TYPE(type) \
+  REGISTER_TYPE(definition::type, #type "Definition")
+
+#define REGISTER_COMMON_VECTOR(type) \
+  REGISTER_VECTOR(type, #type)
+#define REGISTER_DEFINITION_VECTOR(type) \
+  REGISTER_VECTOR(definition::type, #type "Definition")
+
+#define REGISTER_COMMON_MAP(type) \
+  REGISTER_MAP(type, #type)
+#define REGISTER_DEFINITION_MAP(type) \
+  REGISTER_MAP(definition::type, #type "Definition")
 
 /*----------------------------------------------------------------------------*/
 /*                              STATIC VARIABLES                              */
@@ -159,7 +175,7 @@ Interpreter::model_type_map {
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-cdo::Model Interpreter::evalModel(const std::string &filepath) {
+cod::Model Interpreter::evalModel(const std::string &filepath) {
   checkExtension(filepath);
   return makeModelConfig(filepath);
 }
@@ -178,7 +194,7 @@ void Interpreter::checkExtension(const std::string &filepath) {
 
 /*----------------------------------------------------------------------------*/
 
-cdo::Model Interpreter::makeModelConfig(const std::string &filepath) {
+cod::Model Interpreter::makeModelConfig(const std::string &filepath) {
   auto model_type = findModelType(filepath);
 
   switch (model_type) {
@@ -208,7 +224,6 @@ Interpreter::ModelType Interpreter::findModelType(const std::string &filepath) {
   chai.add(makeInterpreterLibrary(filepath));
 
   auto cfg = config::definition::ModelConfig::make(filepath);
-  std::cerr << "Registering ModelConfigRegister" << std::endl;
   cfg->accept(ModelConfigRegister(chai));
 
   try {
@@ -260,32 +275,40 @@ Interpreter::makeInterpreterLibrary(const std::string &filepath) {
 
 void Interpreter::registerTypes(chaiscript::ModulePtr &module,
                                 const std::string &/* filepath */) {
-  REGISTER_TYPE(Type);
-  REGISTER_TYPE(Alphabet);
-  REGISTER_TYPE(Alphabets);
-  REGISTER_TYPE(Size);
-  REGISTER_TYPE(Probabilities);
-  REGISTER_TYPE(Domain);
-  REGISTER_TYPE(Domains);
-  REGISTER_TYPE(Duration);
-  REGISTER_TYPE(Model);
-  REGISTER_TYPE(Models);
-  REGISTER_TYPE(State);
-  REGISTER_TYPE(States);
-  REGISTER_TYPE(DependencyTree);
-  REGISTER_TYPE(DependencyTrees);
-  REGISTER_TYPE(FeatureFunctions);
-  REGISTER_TYPE(FeatureFunctionLibraries);
+  // Ordinary types
+  REGISTER_COMMON_TYPE(Size);
+  REGISTER_COMMON_TYPE(Type);
+  REGISTER_COMMON_TYPE(Domain);
+  REGISTER_COMMON_TYPE(Domains);
+  REGISTER_COMMON_TYPE(Alphabet);
+  REGISTER_COMMON_TYPE(Alphabets);
+  REGISTER_COMMON_TYPE(Probability);
+  REGISTER_COMMON_TYPE(Probabilities);
+  REGISTER_COMMON_TYPE(FeatureFunction);
+  REGISTER_COMMON_TYPE(FeatureFunctions);
 
-  REGISTER_VECTOR(Alphabet);
-  REGISTER_VECTOR(Alphabets);
-  REGISTER_VECTOR(Domains);
-  REGISTER_VECTOR(Models);
-  REGISTER_VECTOR(DependencyTrees);
-  REGISTER_VECTOR(FeatureFunctionLibraries);
+  REGISTER_COMMON_VECTOR(Domains);
+  REGISTER_COMMON_VECTOR(Alphabet);
+  REGISTER_COMMON_VECTOR(Alphabets);
 
-  REGISTER_MAP(Probabilities);
-  REGISTER_MAP(States);
+  REGISTER_COMMON_MAP(Probabilities);
+  REGISTER_COMMON_MAP(FeatureFunctions);
+
+  // Definitions
+  REGISTER_DEFINITION_TYPE(Model);
+  REGISTER_DEFINITION_TYPE(Models);
+  REGISTER_DEFINITION_TYPE(State);
+  REGISTER_DEFINITION_TYPE(States);
+  REGISTER_DEFINITION_TYPE(Duration);
+  REGISTER_DEFINITION_TYPE(DependencyTree);
+  REGISTER_DEFINITION_TYPE(DependencyTrees);
+  REGISTER_DEFINITION_TYPE(FeatureFunctionLibraries);
+
+  REGISTER_DEFINITION_VECTOR(Models);
+  REGISTER_DEFINITION_VECTOR(DependencyTrees);
+  REGISTER_DEFINITION_VECTOR(FeatureFunctionLibraries);
+
+  REGISTER_DEFINITION_MAP(States);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -308,14 +331,14 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
 
   module->add(fun([this, filepath]() {
     auto duration = GeometricDurationConfig::make(filepath, "geometric");
-    return cdo::Duration(duration);
+    return cod::Duration(duration);
   }), "geometric");
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("model"_t)>(*duration.get())
       = this->makeModelConfig(extractDir(filepath) + file);
-    return cdo::Duration(duration);
+    return cod::Duration(duration);
   }), "explicit");
 
   module->add(fun([this, filepath] (const std::string &file,
@@ -324,27 +347,27 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
     std::get<decltype("max_size"_t)>(*duration.get()) = size;
     std::get<decltype("model"_t)>(*duration.get())
       = this->makeModelConfig(extractDir(filepath) + file);
-    return cdo::Duration(duration);
+    return cod::Duration(duration);
   }), "explicit");
 
-  module->add(fun([this, filepath] (cdo::Model model,
+  module->add(fun([this, filepath] (cod::Model model,
                                     unsigned int size) {
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("max_size"_t)>(*duration.get()) = size;
     std::get<decltype("model"_t)>(*duration.get()) = model;
-    return cdo::Duration(duration);
+    return cod::Duration(duration);
   }), "explicit");
 
   module->add(fun([this, filepath] (unsigned int size) {
     auto duration = FixedDurationConfig::make(filepath, "fixed");
     std::get<decltype("size"_t)>(*duration.get()) = size;
-    return cdo::Duration(duration);
+    return cod::Duration(duration);
   }), "fixed");
 
   module->add(fun([this, filepath] (unsigned int size) {
     auto duration = MaxLengthDurationConfig::make(filepath, "max_length");
     std::get<decltype("size"_t)>(*duration.get()) = size;
-    return cdo::Duration(duration);
+    return cod::Duration(duration);
   }), "max_length");
 
   module->add(fun([this, filepath] (const std::string &file) {
@@ -367,13 +390,13 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
     return parser.parse();
   }), "tree");
 
-  module->add(fun([this] (const cdo::Alphabet &alphabet) {
+  module->add(fun([this] (const co::Alphabet &alphabet) {
     return std::make_shared<config::Domain>(
         typename config::Domain::discrete_domain{}, alphabet);
   }), "discrete_domain");
 
-  module->add(fun([this] (const cdo::OutToInSymbolFunction &o2i,
-                          const cdo::InToOutSymbolFunction &i2o) {
+  module->add(fun([this] (const co::OutToInSymbolFunction &o2i,
+                          const co::InToOutSymbolFunction &i2o) {
     return std::make_shared<config::Domain>(
         typename config::Domain::custom_domain{}, o2i, i2o);
   }), "custom_domain");
@@ -401,36 +424,36 @@ void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
   using Map = std::map<std::string, Boxed_Value>;
 
   module->add(fun([] (config::Domain &conv, const Vector &orig) {
-    cdo::Alphabet alphabet;
+    co::Alphabet alphabet;
     for (auto &element : orig)
-      alphabet.push_back(boxed_cast<cdo::Symbol>(element));
+      alphabet.push_back(boxed_cast<co::Symbol>(element));
 
     conv = config::Domain(typename config::Domain::discrete_domain{}, alphabet);
   }), "=");
 
-  module->add(fun([] (cdo::Alphabets &conv, const Vector &orig) {
+  module->add(fun([] (co::Alphabets &conv, const Vector &orig) {
     for (auto &element : orig) {
       auto inner_orig = boxed_cast<Vector &>(element);
-      cdo::Alphabet inner_conv;
+      co::Alphabet inner_conv;
 
       for (auto &inner_element : inner_orig)
-        inner_conv.push_back(boxed_cast<cdo::Symbol>(inner_element));
+        inner_conv.push_back(boxed_cast<co::Symbol>(inner_element));
 
       conv.push_back(inner_conv);
     }
   }), "=");
 
-  module->add(fun([filepath] (cdo::States &conv, const Map &orig) {
+  module->add(fun([filepath] (cod::States &conv, const Map &orig) {
     for (auto &pair : orig) {
       auto inner_orig = boxed_cast<Map &>(pair.second);
 
       conv[pair.first] = config::definition::StateConfig::make(filepath);
 
       std::get<decltype("duration"_t)>(*conv[pair.first])
-        = boxed_cast<cdo::Duration>(inner_orig["duration"]);
+        = boxed_cast<cod::Duration>(inner_orig["duration"]);
 
       std::get<decltype("emission"_t)>(*conv[pair.first])
-        = boxed_cast<cdo::Model>(inner_orig["emission"]);
+        = boxed_cast<cod::Model>(inner_orig["emission"]);
     }
   }), "=");
 }

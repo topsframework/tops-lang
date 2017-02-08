@@ -25,14 +25,15 @@
 #include <vector>
 
 // Internal headers
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/DependencyTreeConfig.hpp"
 
 namespace lang {
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 // Forward declarations
 class Interpreter;
@@ -50,13 +51,13 @@ class DependencyTreeParser {
                        std::vector<std::string> content);
 
   // Concrete methods
-  cdo::DependencyTree parse();
+  cod::DependencyTree parse();
 
  private:
   // Concrete methods
   void parseNode(std::string line);
 
-  cdo::Model makeModelConfig(std::string filepath);
+  cod::Model makeModelConfig(std::string filepath);
 
   void resetEdgeIndex();
   unsigned int nextEdgeIndex();
@@ -87,7 +88,7 @@ class DependencyTreeParser {
 
   std::vector<unsigned int> edges_;
   std::vector<bool> leaves_;
-  std::vector<cdo::DependencyTree> nodes_;
+  std::vector<cod::DependencyTree> nodes_;
 
   unsigned int line_;
   unsigned int column_;

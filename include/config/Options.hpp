@@ -32,12 +32,12 @@
 namespace config {
 namespace option {
 
+using Size = unsigned int;
+
 using Type = std::string;
 using Symbol = std::string;
 using Pattern = std::string;
 using Sequence = std::string;
-
-using Size = unsigned int;
 
 using Alphabet = std::vector<Symbol>;
 using Alphabets = std::vector<Alphabet>;

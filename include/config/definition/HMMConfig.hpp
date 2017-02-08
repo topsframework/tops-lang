@@ -26,7 +26,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/DecodableModelConfig.hpp"
 
 namespace config {

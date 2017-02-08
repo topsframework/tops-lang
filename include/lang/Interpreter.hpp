@@ -34,7 +34,8 @@
 #include "chaiscript/dispatchkit/dispatchkit.hpp"
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -45,7 +46,7 @@ namespace lang {
 class Interpreter {
  public:
   // Concrete methods
-  cdo::Model evalModel(const std::string &filepath);
+  cod::Model evalModel(const std::string &filepath);
 
  private:
   // Enums
@@ -58,7 +59,7 @@ class Interpreter {
 
   // Concrete methods
   void checkExtension(const std::string &filepath);
-  cdo::Model makeModelConfig(const std::string &filepath);
+  cod::Model makeModelConfig(const std::string &filepath);
 
   ModelType findModelType(const std::string &filepath);
   bool missingObjectException(const std::exception &e);

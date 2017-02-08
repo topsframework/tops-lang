@@ -29,7 +29,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
 
@@ -42,8 +42,8 @@ namespace definition {
  */
 using StateConfig
   = config_with_options<
-      option::Duration(decltype("duration"_t)),
-      option::Model(decltype("emission"_t))
+      option::definition::Duration(decltype("duration"_t)),
+      option::definition::Model(decltype("emission"_t))
     >::type;
 
 /**
@@ -56,14 +56,14 @@ using StateConfigPtr = std::shared_ptr<StateConfig>;
 }  // namespace config
 
 namespace config {
-namespace definition {
 namespace option {
+namespace definition {
 
-using State = StateConfigPtr;
+using State = config::definition::StateConfigPtr;
 using States = std::map<std::string, State>;
 
-}  // namespace option
 }  // namespace definition
+}  // namespace option
 }  // namespace config
 
 #endif  // CONFIG_DEFINITION_STATE_CONFIG_

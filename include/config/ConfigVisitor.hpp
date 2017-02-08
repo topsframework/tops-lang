@@ -25,7 +25,7 @@
 #include <string>
 #include <type_traits>
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -75,28 +75,28 @@ class ConfigVisitor {
   virtual void visitLabel(const std::string &) = 0;
   virtual void visitPath(const std::string &) = 0;
 
-  virtual void visitOption(definition::option::Model &) = 0;
-  virtual void visitOption(definition::option::State &) = 0;
-  virtual void visitOption(definition::option::Duration &) = 0;
-  virtual void visitOption(definition::option::FeatureFunctionLibrary &) = 0;
+  virtual void visitOption(option::definition::Model &) = 0;
+  virtual void visitOption(option::definition::State &) = 0;
+  virtual void visitOption(option::definition::Duration &) = 0;
+  virtual void visitOption(option::definition::DependencyTree &) = 0;
+  virtual void visitOption(option::definition::FeatureFunctionLibrary &) = 0;
+                                               
+  virtual void visitOption(option::definition::Models &) = 0;
+  virtual void visitOption(option::definition::States &) = 0;
+  virtual void visitOption(option::definition::DependencyTrees &) = 0;
+  virtual void visitOption(option::definition::FeatureFunctionLibraries &) = 0;
 
-  virtual void visitOption(definition::option::Models &) = 0;
-  virtual void visitOption(definition::option::States &) = 0;
-  virtual void visitOption(definition::option::DependencyTrees &) = 0;
-  virtual void visitOption(definition::option::FeatureFunctionLibraries &) = 0;
-
-  virtual void visitOption(definition::option::Type &) = 0;
-  virtual void visitOption(definition::option::Size &) = 0;
-  virtual void visitOption(definition::option::Domain &) = 0;
-  virtual void visitOption(definition::option::Domains &) = 0;
-  virtual void visitOption(definition::option::Alphabet &) = 0;
-  virtual void visitOption(definition::option::Alphabets &) = 0;
-  virtual void visitOption(definition::option::Probability &) = 0;
-  virtual void visitOption(definition::option::Probabilities &) = 0;
-  virtual void visitOption(definition::option::DependencyTree &) = 0;
-  virtual void visitOption(definition::option::FeatureFunctions &) = 0;
-  virtual void visitOption(definition::option::OutToInSymbolFunction &) = 0;
-  virtual void visitOption(definition::option::InToOutSymbolFunction &) = 0;
+  virtual void visitOption(option::Type &) = 0;
+  virtual void visitOption(option::Size &) = 0;
+  virtual void visitOption(option::Domain &) = 0;
+  virtual void visitOption(option::Domains &) = 0;
+  virtual void visitOption(option::Alphabet &) = 0;
+  virtual void visitOption(option::Alphabets &) = 0;
+  virtual void visitOption(option::Probability &) = 0;
+  virtual void visitOption(option::Probabilities &) = 0;
+  virtual void visitOption(option::FeatureFunctions &) = 0;
+  virtual void visitOption(option::OutToInSymbolFunction &) = 0;
+  virtual void visitOption(option::InToOutSymbolFunction &) = 0;
 };
 
 }  // namespace config

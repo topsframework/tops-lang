@@ -27,7 +27,8 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Domain.hpp"
+#include "config/Options.hpp"
 
 namespace config {
 namespace definition {
@@ -52,14 +53,14 @@ using ModelConfigPtr = std::shared_ptr<ModelConfig>;
 }  // namespace config
 
 namespace config {
-namespace definition {
 namespace option {
+namespace definition {
 
-using Model = ModelConfigPtr;
-using Models = std::vector<ModelConfigPtr>;
+using Model = config::definition::ModelConfigPtr;
+using Models = std::vector<Model>;
 
-}  // namespace option
 }  // namespace definition
+}  // namespace option
 }  // namespace config
 
 #endif  // CONFIG_DEFINITION_MODEL_CONFIG_

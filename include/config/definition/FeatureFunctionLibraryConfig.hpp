@@ -27,7 +27,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 
 namespace config {
 namespace definition {
@@ -54,14 +54,16 @@ using FeatureFunctionLibraryConfigPtr
 }  // namespace config
 
 namespace config {
-namespace definition {
 namespace option {
+namespace definition {
 
-using FeatureFunctionLibrary = FeatureFunctionLibraryConfigPtr;
-using FeatureFunctionLibraries = std::vector<FeatureFunctionLibrary>;
+using FeatureFunctionLibrary
+  = config::definition::FeatureFunctionLibraryConfigPtr;
+using FeatureFunctionLibraries
+  = std::vector<FeatureFunctionLibrary>;
 
-}  // namespace option
 }  // namespace definition
+}  // namespace option
 }  // namespace config
 
 #endif  // CONFIG_DEFINITION_FEATURE_FUNCTION_LIBRARY_CONFIG_

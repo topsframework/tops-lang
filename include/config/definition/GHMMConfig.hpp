@@ -26,7 +26,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DecodableModelConfig.hpp"
 
@@ -41,7 +41,7 @@ using GHMMConfig
   = config_with_options<
       option::Probabilities(decltype("initial_probabilities"_t)),
       option::Probabilities(decltype("transition_probabilities"_t)),
-      option::States(decltype("states"_t))
+      option::definition::States(decltype("states"_t))
     >::extending<DecodableModelConfig>::type;
 
 /**

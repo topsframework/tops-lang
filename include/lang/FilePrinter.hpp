@@ -33,7 +33,7 @@
 
 #include "config/BasicConfig.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -43,7 +43,8 @@
 namespace lang {
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 /**
  * @class FilePrinter
@@ -61,13 +62,13 @@ class FilePrinter {
   };
 
   // Purely virtual methods
-  virtual void print(cdo::Model model) = 0;
-  virtual void print(cdo::State state) = 0;
-  virtual void print(cdo::Duration duration) = 0;
-  virtual void print(cdo::FeatureFunctionLibrary library) = 0;
-  virtual void print(cdo::DependencyTree tree) = 0;
+  virtual void print(cod::Model model) = 0;
+  virtual void print(cod::State state) = 0;
+  virtual void print(cod::Duration duration) = 0;
+  virtual void print(cod::FeatureFunctionLibrary library) = 0;
+  virtual void print(cod::DependencyTree tree) = 0;
 
-  virtual void print(cdo::Domain domain) = 0;
+  virtual void print(co::Domain domain) = 0;
 
   // Virtual methods
   virtual void changeOstream(const std::string &/* path */);

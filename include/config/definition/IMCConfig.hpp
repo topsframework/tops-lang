@@ -37,7 +37,7 @@ namespace definition {
  */
 using IMCConfig
   = config_with_options<
-      option::Models(decltype("position_specific_distributions"_t))
+      option::definition::Models(decltype("position_specific_distributions"_t))
     >::extending<ModelConfig>::type;
 
 /**

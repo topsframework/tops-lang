@@ -27,7 +27,7 @@
 // Internal headers
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 
 namespace config {
@@ -40,7 +40,7 @@ namespace definition {
 using DependencyTreeConfig
   = config_with_options<
       option::Pattern(decltype("position"_t)),
-      option::Model(decltype("configuration"_t))
+      option::definition::Model(decltype("configuration"_t))
     >::type;
 
 /**
@@ -53,14 +53,14 @@ using DependencyTreeConfigPtr = std::shared_ptr<DependencyTreeConfig>;
 }  // namespace config
 
 namespace config {
-namespace definition {
 namespace option {
+namespace definition {
 
-using DependencyTree = DependencyTreeConfigPtr;
-using DependencyTrees = std::vector<DependencyTreeConfigPtr>;
+using DependencyTree = config::definition::DependencyTreeConfigPtr;
+using DependencyTrees = std::vector<DependencyTree>;
 
-}  // namespace option
 }  // namespace definition
+}  // namespace option
 }  // namespace config
 
 #endif  // CONFIG_DEFINITION_DEPENDENCY_TREE_CONFIG_

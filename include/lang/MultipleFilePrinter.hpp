@@ -27,7 +27,7 @@
 // Internal headers
 #include "lang/FilePrinter.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -35,7 +35,8 @@
 #include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -62,13 +63,13 @@ class MultipleFilePrinter : public FilePrinter {
   void startPrinting() override;
   void endPrinting() override;
 
-  void print(cdo::Model model) override;
-  void print(cdo::State state) override;
-  void print(cdo::Duration duration) override;
-  void print(cdo::FeatureFunctionLibrary library) override;
-  void print(cdo::DependencyTree tree) override;
+  void print(cod::Model model) override;
+  void print(cod::State state) override;
+  void print(cod::Duration duration) override;
+  void print(cod::FeatureFunctionLibrary library) override;
+  void print(cod::DependencyTree tree) override;
 
-  void print(cdo::Domain domain) override;
+  void print(co::Domain domain) override;
 
  protected:
   // Instance variables
@@ -77,9 +78,9 @@ class MultipleFilePrinter : public FilePrinter {
   std::string root_dir_;
   std::string working_dir_;
 
-  std::list<cdo::Model> submodels_;
-  std::list<cdo::FeatureFunctionLibrary> libraries_;
-  std::list<cdo::DependencyTree> trees_;
+  std::list<cod::Model> submodels_;
+  std::list<cod::FeatureFunctionLibrary> libraries_;
+  std::list<cod::DependencyTree> trees_;
 
   // Constructors
   template<typename... Args>
@@ -91,9 +92,9 @@ class MultipleFilePrinter : public FilePrinter {
   // Concrete methods
   std::string pathForHelperCall(const std::string &path);
 
-  void printSubmodel(cdo::Model submodel);
-  void printLibrary(cdo::FeatureFunctionLibrary library);
-  void printTree(cdo::DependencyTree tree);
+  void printSubmodel(cod::Model submodel);
+  void printLibrary(cod::FeatureFunctionLibrary library);
+  void printTree(cod::DependencyTree tree);
 };
 
 }  // namespace lang

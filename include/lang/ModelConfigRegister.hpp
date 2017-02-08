@@ -25,9 +25,9 @@
 #include <cstddef>
 
 // Internal headers
-#include "config/definition/DefinitionConfigVisitor.hpp"
+#include "config/ConfigVisitor.hpp"
 
-#include "config/definition/Options.hpp"
+#include "config/Options.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -38,17 +38,18 @@
 #include "chaiscript/chaiscript.hpp"
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 namespace lang {
 
 /**
  * @class ModelConfigRegister
- * Implementation of config::definition::DefinitionConfigVisitor
+ * Implementation of config::ConfigVisitor
  * to register models in ChaiScript.
  */
 class ModelConfigRegister
-    : public config::definition::DefinitionConfigVisitor {
+    : public config::ConfigVisitor {
  public:
   // Constructors
   explicit ModelConfigRegister(chaiscript::ChaiScript &chai);
@@ -58,28 +59,28 @@ class ModelConfigRegister
   void startVisit() override;
   void endVisit() override;
 
-  void visitOption(cdo::Model &visited) override;
-  void visitOption(cdo::State &visited) override;
-  void visitOption(cdo::Duration &visited) override;
-  void visitOption(cdo::DependencyTree &visited) override;
-  void visitOption(cdo::FeatureFunctionLibrary &visited) override;
+  void visitOption(cod::Model &visited) override;
+  void visitOption(cod::State &visited) override;
+  void visitOption(cod::Duration &visited) override;
+  void visitOption(cod::DependencyTree &visited) override;
+  void visitOption(cod::FeatureFunctionLibrary &visited) override;
 
-  void visitOption(cdo::Models &visited) override;
-  void visitOption(cdo::States &visited) override;
-  void visitOption(cdo::DependencyTrees &visited) override;
-  void visitOption(cdo::FeatureFunctionLibraries &visited) override;
+  void visitOption(cod::Models &visited) override;
+  void visitOption(cod::States &visited) override;
+  void visitOption(cod::DependencyTrees &visited) override;
+  void visitOption(cod::FeatureFunctionLibraries &visited) override;
 
-  void visitOption(cdo::Type &visited) override;
-  void visitOption(cdo::Size &visited) override;
-  void visitOption(cdo::Domain &visited) override;
-  void visitOption(cdo::Domains &visited) override;
-  void visitOption(cdo::Alphabet &visited) override;
-  void visitOption(cdo::Alphabets &visited) override;
-  void visitOption(cdo::Probability &visited) override;
-  void visitOption(cdo::Probabilities &visited) override;
-  void visitOption(cdo::FeatureFunctions &visited) override;
-  void visitOption(cdo::OutToInSymbolFunction &visited) override;
-  void visitOption(cdo::InToOutSymbolFunction &visited) override;
+  void visitOption(co::Type &visited) override;
+  void visitOption(co::Size &visited) override;
+  void visitOption(co::Domain &visited) override;
+  void visitOption(co::Domains &visited) override;
+  void visitOption(co::Alphabet &visited) override;
+  void visitOption(co::Alphabets &visited) override;
+  void visitOption(co::Probability &visited) override;
+  void visitOption(co::Probabilities &visited) override;
+  void visitOption(co::FeatureFunctions &visited) override;
+  void visitOption(co::OutToInSymbolFunction &visited) override;
+  void visitOption(co::InToOutSymbolFunction &visited) override;
 
   void visitTag(const std::string &tag, std::size_t /* count */,
                                         std::size_t /* max */) override;

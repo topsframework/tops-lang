@@ -30,7 +30,8 @@
 #include "config/BasicConfig.hpp"
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -46,7 +47,7 @@ SingleFilePrinter::SingleFilePrinter(std::shared_ptr<std::ostream> os)
 /*                             OVERRIDEN METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cdo::Model config) {
+void SingleFilePrinter::print(cod::Model config) {
   openSection('{');
   config->accept(ModelConfigSerializer(Self::make(os_, depth_)));
   closeSection('}');
@@ -54,7 +55,7 @@ void SingleFilePrinter::print(cdo::Model config) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cdo::State state) {
+void SingleFilePrinter::print(cod::State state) {
   openSection('[');
   state->accept(ModelConfigSerializer(
         Self::make(os_, depth_, ": ", ",\n")));
@@ -63,7 +64,7 @@ void SingleFilePrinter::print(cdo::State state) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cdo::Duration duration) {
+void SingleFilePrinter::print(cod::Duration duration) {
   openFunction(duration->label());
   duration->accept(ModelConfigSerializer(
         Self::make(os_, depth_, "", ", ", "")));
@@ -72,7 +73,7 @@ void SingleFilePrinter::print(cdo::Duration duration) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cdo::FeatureFunctionLibrary library) {
+void SingleFilePrinter::print(cod::FeatureFunctionLibrary library) {
   openSection('{');
   copy(library, os_);
   closeSection('}');
@@ -80,7 +81,7 @@ void SingleFilePrinter::print(cdo::FeatureFunctionLibrary library) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cdo::DependencyTree tree) {
+void SingleFilePrinter::print(cod::DependencyTree tree) {
   thread_local unsigned int depth_tree = 0;
 
   if (depth_tree == 0)
@@ -104,7 +105,7 @@ void SingleFilePrinter::print(cdo::DependencyTree tree) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cdo::Domain domain) {
+void SingleFilePrinter::print(co::Domain domain) {
   openFunction(domain->data()->label());
   domain->data()->accept(ModelConfigSerializer(
         Self::make(os_, depth_, "", ", ", "")));

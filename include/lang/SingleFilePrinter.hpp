@@ -32,7 +32,8 @@
 #include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -54,13 +55,13 @@ class SingleFilePrinter : public FilePrinter {
   static decltype(auto) make(Args&&... args);
 
   // Overriden methods
-  void print(cdo::Model config) override;
-  void print(cdo::State state) override;
-  void print(cdo::Duration duration) override;
-  void print(cdo::FeatureFunctionLibrary library) override;
-  void print(cdo::DependencyTree tree) override;
+  void print(cod::Model config) override;
+  void print(cod::State state) override;
+  void print(cod::Duration duration) override;
+  void print(cod::FeatureFunctionLibrary library) override;
+  void print(cod::DependencyTree tree) override;
 
-  void print(cdo::Domain domain) override;
+  void print(co::Domain domain) override;
 
  protected:
   // Hidden constructor inheritance

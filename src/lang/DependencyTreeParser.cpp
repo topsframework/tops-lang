@@ -36,7 +36,8 @@
 #include "config/StringLiteralSuffix.hpp"
 
 // Namespace aliases
-namespace { namespace cdo = config::definition::option; }
+namespace { namespace co = config::option; }
+namespace { namespace cod = co::definition; }
 
 // Using declarations
 using config::operator ""_t;
@@ -62,7 +63,7 @@ DependencyTreeParser::DependencyTreeParser(Interpreter* interpreter,
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-cdo::DependencyTree DependencyTreeParser::parse() {
+cod::DependencyTree DependencyTreeParser::parse() {
   for (auto line : content_) {
     line_++;
     column_ = 1;
@@ -72,7 +73,7 @@ cdo::DependencyTree DependencyTreeParser::parse() {
   edges_.insert(edges_.begin(), 0);
 
   std::stack<unsigned int> stack_edges;
-  std::stack<cdo::DependencyTree> stack_nodes;
+  std::stack<cod::DependencyTree> stack_nodes;
   for (unsigned int i = 0; i < edges_.size(); i++) {
     if (stack_edges.empty()) {
       stack_edges.push(edges_[i]);
@@ -142,7 +143,7 @@ void DependencyTreeParser::parseNode(std::string line) {
 
 /*----------------------------------------------------------------------------*/
 
-cdo::Model DependencyTreeParser::makeModelConfig(std::string filepath) {
+cod::Model DependencyTreeParser::makeModelConfig(std::string filepath) {
   return interpreter_->evalModel(filepath);
 }
 
