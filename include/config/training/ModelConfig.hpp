@@ -17,46 +17,52 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_OPTION_
-#define CONFIG_OPTION_
+#ifndef CONFIG_TRAINING_MODEL_CONFIG_
+#define CONFIG_TRAINING_MODEL_CONFIG_
 
 // Standard headers
-#include <map>
-#include <string>
+#include <memory>
 #include <vector>
-#include <functional>
 
 // Internal headers
-#include "model/Symbol.hpp"
+#include "config/ConfigWithOptions.hpp"
+
+#include "config/Domain.hpp"
+#include "config/Options.hpp"
+
+namespace config {
+namespace training {
+
+/**
+ * @typedef ModelConfig
+ * @brief Alias to IR of a model::ProbabilisticModel
+ */
+using ModelConfig
+  = config_with_options<
+      option::Type(decltype("model_type"_t)),
+      option::Domain(decltype("observations"_t)),
+      option::Dataset(decltype("training_set"_t)),
+      option::Algorithm(decltype("training_algorithm"_t))
+    >::type;
+
+/**
+ * @typedef ModelConfigPtr
+ * @brief Alias of pointer to ModelConfig
+ */
+using ModelConfigPtr = std::shared_ptr<ModelConfig>;
+
+}  // namespace training
+}  // namespace config
 
 namespace config {
 namespace option {
+namespace training {
 
-using Size = unsigned int;
+using Model = config::training::ModelConfigPtr;
+using Models = std::vector<Model>;
 
-using Type = std::string;
-using Symbol = std::string;
-using Dataset = std::string;
-using Pattern = std::string;
-using Sequence = std::string;
-using Algorithm = std::string;
-
-using Alphabet = std::vector<Symbol>;
-using Alphabets = std::vector<Alphabet>;
-
-using Probability = double;
-using Probabilities = std::map<std::string, Probability>;
-
-using FeatureFunction = std::function<
-  double(unsigned int, unsigned int, std::vector<unsigned int>, unsigned int)>;
-using FeatureFunctions = std::map<std::string, FeatureFunction>;
-
-using OutToInSymbolFunction
-  = std::function<model::Symbol(const option::Symbol&)>;
-using InToOutSymbolFunction
-  = std::function<option::Symbol(const model::Symbol&)>;
-
+}  // namespace training
 }  // namespace option
 }  // namespace config
 
-#endif  // CONFIG_OPTION_
+#endif  // CONFIG_TRAINING_MODEL_CONFIG_
