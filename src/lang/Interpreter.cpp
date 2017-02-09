@@ -43,6 +43,7 @@
 #include "config/Options.hpp"
 
 #include "config/training/ModelConfig.hpp"
+#include "config/training/HMMConfig.hpp"
 
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/HMMConfig.hpp"
@@ -193,7 +194,11 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
   auto training_algorithm = getConfigOption<
     ct::ModelConfig, decltype("training_algorithm"_t)>(filepath);
 
-  if (model_type == "") {
+  if (model_type == "HMM" && training_algorithm == "MaximumLikehood") {
+    return fillConfig<ct::HMM::MaximumLikehoodConfig>(filepath);
+  } else if (model_type == "HMM" && training_algorithm == "BaumWelch") {
+    return fillConfig<ct::HMM::BaumWelchConfig>(filepath);
+  } else if (model_type == "") {
     throw std::logic_error(
       filepath + ": Model type not specified!");
   } else if (training_algorithm == "") {

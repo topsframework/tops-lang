@@ -33,6 +33,7 @@ namespace config {
 namespace option {
 
 using Size = unsigned int;
+using Iterations = unsigned int;
 
 using Type = std::string;
 using Symbol = std::string;
@@ -41,8 +42,14 @@ using Pattern = std::string;
 using Sequence = std::string;
 using Algorithm = std::string;
 
+using Label = std::string;
+using Labels = std::vector<Label>;
+
 using Alphabet = std::vector<Symbol>;
 using Alphabets = std::vector<Alphabet>;
+
+using Counter = double;
+using Threshold = double;
 
 using Probability = double;
 using Probabilities = std::map<std::string, Probability>;
