@@ -26,11 +26,14 @@
 #include <type_traits>
 
 #include "config/Options.hpp"
+
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
 #include "config/definition/DependencyTreeConfig.hpp"
 #include "config/definition/FeatureFunctionLibraryConfig.hpp"
+
+#include "config/training/ModelConfig.hpp"
 
 namespace config {
 
@@ -75,17 +78,6 @@ class ConfigVisitor {
   virtual void visitLabel(const std::string &) = 0;
   virtual void visitPath(const std::string &) = 0;
 
-  virtual void visitOption(option::definition::Model &) = 0;
-  virtual void visitOption(option::definition::State &) = 0;
-  virtual void visitOption(option::definition::Duration &) = 0;
-  virtual void visitOption(option::definition::DependencyTree &) = 0;
-  virtual void visitOption(option::definition::FeatureFunctionLibrary &) = 0;
-                                               
-  virtual void visitOption(option::definition::Models &) = 0;
-  virtual void visitOption(option::definition::States &) = 0;
-  virtual void visitOption(option::definition::DependencyTrees &) = 0;
-  virtual void visitOption(option::definition::FeatureFunctionLibraries &) = 0;
-
   virtual void visitOption(option::Type &) = 0;
   virtual void visitOption(option::Size &) = 0;
   virtual void visitOption(option::Domain &) = 0;
@@ -97,6 +89,18 @@ class ConfigVisitor {
   virtual void visitOption(option::FeatureFunctions &) = 0;
   virtual void visitOption(option::OutToInSymbolFunction &) = 0;
   virtual void visitOption(option::InToOutSymbolFunction &) = 0;
+
+  virtual void visitOption(option::training::Model &) = 0;
+
+  virtual void visitOption(option::definition::Model &) = 0;
+  virtual void visitOption(option::definition::Models &) = 0;
+  virtual void visitOption(option::definition::State &) = 0;
+  virtual void visitOption(option::definition::States &) = 0;
+  virtual void visitOption(option::definition::Duration &) = 0;
+  virtual void visitOption(option::definition::DependencyTree &) = 0;
+  virtual void visitOption(option::definition::DependencyTrees &) = 0;
+  virtual void visitOption(option::definition::FeatureFunctionLibrary &) = 0;
+  virtual void visitOption(option::definition::FeatureFunctionLibraries &) = 0;
 };
 
 }  // namespace config
