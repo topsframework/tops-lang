@@ -159,7 +159,7 @@ using get_inner_t = typename get_inner<T>::type;
 
 cod::Model Interpreter::evalModelDefinition(const std::string &filepath) {
   checkExtension(filepath);
-  return makeModelConfig(filepath);
+  return makeModelDefinitionConfig(filepath);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -176,7 +176,7 @@ void Interpreter::checkExtension(const std::string &filepath) {
 
 /*----------------------------------------------------------------------------*/
 
-cod::Model Interpreter::makeModelConfig(const std::string &filepath) {
+cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath) {
   auto model_type = findModelType(filepath);
 
   if (model_type == "GHMM") {
@@ -312,7 +312,7 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto root_dir = extractDir(filepath);
-    return this->makeModelConfig(root_dir + file);
+    return this->makeModelDefinitionConfig(root_dir + file);
   }), "model");
 
   module->add(fun([this, filepath]() {
@@ -323,7 +323,7 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
   module->add(fun([this, filepath] (const std::string &file) {
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelConfig(extractDir(filepath) + file);
+      = this->makeModelDefinitionConfig(extractDir(filepath) + file);
     return cod::Duration(duration);
   }), "explicit");
 
@@ -332,7 +332,7 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("max_size"_t)>(*duration.get()) = size;
     std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelConfig(extractDir(filepath) + file);
+      = this->makeModelDefinitionConfig(extractDir(filepath) + file);
     return cod::Duration(duration);
   }), "explicit");
 

@@ -50,7 +50,7 @@ class Interpreter {
  private:
   // Concrete methods
   void checkExtension(const std::string &filepath);
-  cod::Model makeModelConfig(const std::string &filepath);
+  cod::Model makeModelDefinitionConfig(const std::string &filepath);
 
   std::string findModelType(const std::string &filepath);
 
