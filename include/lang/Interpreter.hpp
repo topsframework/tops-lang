@@ -45,7 +45,7 @@ namespace lang {
 class Interpreter {
  public:
   // Concrete methods
-  cod::Model evalModel(const std::string &filepath);
+  cod::Model evalModelDefinition(const std::string &filepath);
 
  private:
   // Concrete methods

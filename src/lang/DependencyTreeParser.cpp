@@ -144,7 +144,7 @@ void DependencyTreeParser::parseNode(std::string line) {
 /*----------------------------------------------------------------------------*/
 
 cod::Model DependencyTreeParser::makeModelConfig(std::string filepath) {
-  return interpreter_->evalModel(filepath);
+  return interpreter_->evalModelDefinition(filepath);
 }
 
 /*----------------------------------------------------------------------------*/

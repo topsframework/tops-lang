@@ -157,7 +157,7 @@ using get_inner_t = typename get_inner<T>::type;
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-cod::Model Interpreter::evalModel(const std::string &filepath) {
+cod::Model Interpreter::evalModelDefinition(const std::string &filepath) {
   checkExtension(filepath);
   return makeModelConfig(filepath);
 }

@@ -60,7 +60,7 @@ int main(int argc, char **argv) try {
   }
 
   lang::Interpreter interpreter;
-  auto model_cfg = interpreter.evalModel(argv[1]);
+  auto model_cfg = interpreter.evalModelDefinition(argv[1]);
 
   /*--------------------------------------------------------------------------*/
   /*                                CONVERTER                                 */
