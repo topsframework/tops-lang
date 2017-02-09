@@ -29,6 +29,7 @@
 #include "config/BasicConfig.hpp"
 
 #include "config/Options.hpp"
+#include "config/training/ModelConfig.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -43,6 +44,7 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
 // Remove!
@@ -68,59 +70,6 @@ void ModelConfigRegister::startVisit() {
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigRegister::endVisit() {
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::Model &visited) {
-  visited = std::make_shared<typename cod::Model::element_type>();
-  chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::State &visited) {
-  visited = std::make_shared<typename cod::State::element_type>();
-  chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::Duration &visited) {
-  visited = std::make_shared<typename cod::Duration::element_type>();
-  chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::FeatureFunctionLibrary &visited) {
-  visited
-    = std::make_shared<typename cod::FeatureFunctionLibrary::element_type>();
-  chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::Models &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::States &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::DependencyTrees &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::FeatureFunctionLibraries &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -174,12 +123,6 @@ void ModelConfigRegister::visitOption(co::Probabilities &visited) {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cod::DependencyTree &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
 void ModelConfigRegister::visitOption(co::FeatureFunctions &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
   chai_.add(chaiscript::fun([&visited] (
@@ -199,6 +142,73 @@ void ModelConfigRegister::visitOption(co::OutToInSymbolFunction &visited) {
 void ModelConfigRegister::visitOption(co::InToOutSymbolFunction &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cot::Model &visited) {
+  visited = std::make_shared<typename cot::Model::element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::Model &visited) {
+  visited = std::make_shared<typename cod::Model::element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::Models &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::State &visited) {
+  visited = std::make_shared<typename cod::State::element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::States &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::Duration &visited) {
+  visited = std::make_shared<typename cod::Duration::element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::DependencyTree &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::DependencyTrees &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::FeatureFunctionLibrary &visited) {
+  visited
+    = std::make_shared<typename cod::FeatureFunctionLibrary::element_type>();
+  chai_.add(chaiscript::var(visited), tag_);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigRegister::visitOption(cod::FeatureFunctionLibraries &visited) {
+  chai_.add(chaiscript::var(&visited), tag_);
+}
+
 
 /*----------------------------------------------------------------------------*/
 
