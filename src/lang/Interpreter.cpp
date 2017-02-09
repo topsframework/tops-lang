@@ -82,6 +82,7 @@ using config::operator ""_t;
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace cd = config::definition; }
 namespace { namespace cod = co::definition; }
 
 namespace lang {
@@ -180,25 +181,25 @@ cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath) {
   auto model_type = findModelType(filepath);
 
   if (model_type == "GHMM") {
-    return fillConfig<config::definition::GHMMConfig>(filepath);
+    return fillConfig<cd::GHMMConfig>(filepath);
   } else if (model_type == "HMM") {
-    return fillConfig<config::definition::HMMConfig>(filepath);
+    return fillConfig<cd::HMMConfig>(filepath);
   } else if (model_type == "LCCRF") {
-    return fillConfig<config::definition::LCCRFConfig>(filepath);
+    return fillConfig<cd::LCCRFConfig>(filepath);
   } else if (model_type == "IID") {
-    return fillConfig<config::definition::IIDConfig>(filepath);
+    return fillConfig<cd::IIDConfig>(filepath);
   } else if (model_type == "VLMC") {
-    return fillConfig<config::definition::VLMCConfig>(filepath);
+    return fillConfig<cd::VLMCConfig>(filepath);
   } else if (model_type == "IMC") {
-    return fillConfig<config::definition::IMCConfig>(filepath);
+    return fillConfig<cd::IMCConfig>(filepath);
   } else if (model_type == "PeriodicIMC") {
-    return fillConfig<config::definition::PeriodicIMCConfig>(filepath);
+    return fillConfig<cd::PeriodicIMCConfig>(filepath);
   } else if (model_type == "SBSW") {
-    return fillConfig<config::definition::SBSWConfig>(filepath);
+    return fillConfig<cd::SBSWConfig>(filepath);
   } else if (model_type == "MSM") {
-    return fillConfig<config::definition::MSMConfig>(filepath);
+    return fillConfig<cd::MSMConfig>(filepath);
   } else if (model_type == "MDD") {
-    return fillConfig<config::definition::MDDConfig>(filepath);
+    return fillConfig<cd::MDDConfig>(filepath);
   } else if (model_type == "") {
     throw std::logic_error(
       filepath + ": Model type not specified!");
@@ -303,12 +304,12 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
                                   const std::string &filepath) {
   using chaiscript::fun;
 
-  using config::definition::FixedDurationConfig;
-  using config::definition::ExplicitDurationConfig;
-  using config::definition::GeometricDurationConfig;
-  using config::definition::MaxLengthDurationConfig;
-  using config::definition::FeatureFunctionLibraryConfig;
-  using config::definition::DependencyTreeConfig;
+  using cd::FixedDurationConfig;
+  using cd::ExplicitDurationConfig;
+  using cd::GeometricDurationConfig;
+  using cd::MaxLengthDurationConfig;
+  using cd::FeatureFunctionLibraryConfig;
+  using cd::DependencyTreeConfig;
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto root_dir = extractDir(filepath);
@@ -433,7 +434,7 @@ void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
     for (auto &pair : orig) {
       auto inner_orig = boxed_cast<Map &>(pair.second);
 
-      conv[pair.first] = config::definition::StateConfig::make(filepath);
+      conv[pair.first] = cd::StateConfig::make(filepath);
 
       std::get<decltype("duration"_t)>(*conv[pair.first])
         = boxed_cast<cod::Duration>(inner_orig["duration"]);
