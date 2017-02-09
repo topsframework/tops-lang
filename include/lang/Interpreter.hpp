@@ -27,6 +27,7 @@
 
 // Internal headers
 #include "config/Converter.hpp"
+#include "config/training/ModelConfig.hpp"
 #include "config/definition/ModelConfig.hpp"
 
 // External headers
@@ -34,6 +35,7 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
 namespace lang {
@@ -45,13 +47,15 @@ namespace lang {
 class Interpreter {
  public:
   // Concrete methods
+  cot::Model evalModelTraining(const std::string &filepath);
   cod::Model evalModelDefinition(const std::string &filepath);
 
  private:
   // Concrete methods
   void checkExtension(const std::string &filepath);
-  cod::Model makeModelDefinitionConfig(const std::string &filepath);
 
+  cot::Model makeModelTrainingConfig(const std::string &filepath);
+  cod::Model makeModelDefinitionConfig(const std::string &filepath);
 
   bool missingObjectException(const std::exception &e);
 

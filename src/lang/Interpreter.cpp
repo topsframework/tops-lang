@@ -42,6 +42,8 @@
 
 #include "config/Options.hpp"
 
+#include "config/training/ModelConfig.hpp"
+
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/HMMConfig.hpp"
 #include "config/definition/IIDConfig.hpp"
@@ -81,7 +83,9 @@ using config::operator ""_t;
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace ct = config::training; }
 namespace { namespace cd = config::definition; }
+namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
 namespace lang {
@@ -157,6 +161,13 @@ using get_inner_t = typename get_inner<T>::type;
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
+cot::Model Interpreter::evalModelTraining(const std::string &filepath) {
+  checkExtension(filepath);
+  return makeModelTrainingConfig(filepath);
+}
+
+/*----------------------------------------------------------------------------*/
+
 cod::Model Interpreter::evalModelDefinition(const std::string &filepath) {
   checkExtension(filepath);
   return makeModelDefinitionConfig(filepath);
@@ -171,6 +182,26 @@ void Interpreter::checkExtension(const std::string &filepath) {
     std::ostringstream error_message;
     error_message << "Unknown extension ." << suffix;
     throw std::invalid_argument(error_message.str());
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
+  auto model_type = getConfigOption<
+    ct::ModelConfig, decltype("model_type"_t)>(filepath);
+  auto training_algorithm = getConfigOption<
+    ct::ModelConfig, decltype("training_algorithm"_t)>(filepath);
+
+  if (model_type == "") {
+    throw std::logic_error(
+      filepath + ": Model type not specified!");
+  } else if (training_algorithm == "") {
+    throw std::logic_error(
+      filepath + ": Training algorithm not specified!");
+  } else {
+    throw std::logic_error(
+      filepath + ": Unknown model type \"" + model_type + "\"");
   }
 }
 
