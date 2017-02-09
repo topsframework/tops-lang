@@ -52,9 +52,11 @@ class Interpreter {
   void checkExtension(const std::string &filepath);
   cod::Model makeModelDefinitionConfig(const std::string &filepath);
 
-  std::string findModelType(const std::string &filepath);
 
   bool missingObjectException(const std::exception &e);
+
+  template<typename Config, typename Option>
+  decltype(auto) getConfigOption(const std::string &filepath);
 
   template<typename Config>
   std::shared_ptr<Config> fillConfig(const std::string &filepath);

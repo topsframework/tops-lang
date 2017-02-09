@@ -38,7 +38,6 @@
 #include "lang/DependencyTreeParser.hpp"
 
 #include "config/Domain.hpp"
-#include "config/BasicConfig.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
 #include "config/Options.hpp"
@@ -178,7 +177,8 @@ void Interpreter::checkExtension(const std::string &filepath) {
 /*----------------------------------------------------------------------------*/
 
 cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath) {
-  auto model_type = findModelType(filepath);
+  auto model_type = getConfigOption<
+    cd::ModelConfig, decltype("model_type"_t)>(filepath);
 
   if (model_type == "GHMM") {
     return fillConfig<cd::GHMMConfig>(filepath);
@@ -207,29 +207,6 @@ cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath) {
     throw std::logic_error(
       filepath + ": Unknown model type \"" + model_type + "\"");
   }
-}
-
-/*----------------------------------------------------------------------------*/
-
-std::string Interpreter::findModelType(const std::string &filepath) {
-  auto root_dir = extractDir(filepath);
-
-  std::vector<std::string> modulepaths;
-  std::vector<std::string> usepaths { root_dir };
-
-  chaiscript::ChaiScript chai(modulepaths, usepaths);
-  chai.add(makeInterpreterLibrary(filepath));
-
-  auto cfg = config::definition::ModelConfig::make(filepath);
-  cfg->accept(ModelConfigRegister(chai));
-
-  try { chai.eval_file(filepath); }
-  catch (const std::exception &e) {
-    // Explicitly ignore missing object exceptions
-    if (!missingObjectException(e)) throw;
-  }
-
-  return std::get<decltype("model_type"_t)>(*cfg.get());
 }
 
 /*----------------------------------------------------------------------------*/

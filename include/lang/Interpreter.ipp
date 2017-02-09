@@ -26,10 +26,36 @@
 #include "lang/Util.hpp"
 #include "lang/ModelConfigRegister.hpp"
 
+#include "config/BasicConfig.hpp"
+
 namespace lang {
 
 /*----------------------------------------------------------------------------*/
 /*                              CONCRETE METHODS                              */
+/*----------------------------------------------------------------------------*/
+
+template<typename Config, typename Option>
+decltype(auto) Interpreter::getConfigOption(const std::string &filepath) {
+  auto root_dir = extractDir(filepath);
+
+  std::vector<std::string> modulepaths;
+  std::vector<std::string> usepaths { root_dir };
+
+  chaiscript::ChaiScript chai(modulepaths, usepaths);
+  chai.add(makeInterpreterLibrary(filepath));
+
+  auto cfg = Config::make(filepath);
+  cfg->accept(ModelConfigRegister(chai));
+
+  try { chai.eval_file(filepath); }
+  catch (const std::exception &e) {
+    // Explicitly ignore missing object exceptions
+    if (!missingObjectException(e)) throw;
+  }
+
+  return std::get<Option>(*cfg.get());
+}
+
 /*----------------------------------------------------------------------------*/
 
 template<typename Config>
