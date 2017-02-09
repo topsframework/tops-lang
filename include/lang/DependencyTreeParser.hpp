@@ -57,8 +57,6 @@ class DependencyTreeParser {
   // Concrete methods
   void parseNode(std::string line);
 
-  cod::Model makeModelDefinitionConfig(std::string filepath);
-
   void resetEdgeIndex();
   unsigned int nextEdgeIndex();
 
