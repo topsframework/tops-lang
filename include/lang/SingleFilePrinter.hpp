@@ -26,13 +26,17 @@
 // Internal headers
 #include "lang/FilePrinter.hpp"
 
+#include "config/Domain.hpp"
+#include "config/training/ModelConfig.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
+#include "config/definition/DurationConfig.hpp"
 #include "config/definition/DependencyTreeConfig.hpp"
 #include "config/definition/FeatureFunctionLibraryConfig.hpp"
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
 namespace lang {
@@ -55,13 +59,15 @@ class SingleFilePrinter : public FilePrinter {
   static decltype(auto) make(Args&&... args);
 
   // Overriden methods
-  void print(cod::Model config) override;
+  void print(co::Domain domain) override;
+
+  void print(cot::Model model) override;
+
+  void print(cod::Model model) override;
   void print(cod::State state) override;
   void print(cod::Duration duration) override;
-  void print(cod::FeatureFunctionLibrary library) override;
   void print(cod::DependencyTree tree) override;
-
-  void print(co::Domain domain) override;
+  void print(cod::FeatureFunctionLibrary library) override;
 
  protected:
   // Hidden constructor inheritance

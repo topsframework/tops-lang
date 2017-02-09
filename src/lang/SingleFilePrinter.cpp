@@ -31,6 +31,7 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
 namespace lang {
@@ -47,9 +48,26 @@ SingleFilePrinter::SingleFilePrinter(std::shared_ptr<std::ostream> os)
 /*                             OVERRIDEN METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cod::Model config) {
+void SingleFilePrinter::print(co::Domain domain) {
+  openFunction(domain->data()->label());
+  domain->data()->accept(ModelConfigSerializer(
+        Self::make(os_, depth_, "", ", ", "")));
+  closeFunction();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void SingleFilePrinter::print(cot::Model model) {
   openSection('{');
-  config->accept(ModelConfigSerializer(Self::make(os_, depth_)));
+  model->accept(ModelConfigSerializer(Self::make(os_, depth_)));
+  closeSection('}');
+}
+
+/*----------------------------------------------------------------------------*/
+
+void SingleFilePrinter::print(cod::Model model) {
+  openSection('{');
+  model->accept(ModelConfigSerializer(Self::make(os_, depth_)));
   closeSection('}');
 }
 
@@ -69,14 +87,6 @@ void SingleFilePrinter::print(cod::Duration duration) {
   duration->accept(ModelConfigSerializer(
         Self::make(os_, depth_, "", ", ", "")));
   closeFunction();
-}
-
-/*----------------------------------------------------------------------------*/
-
-void SingleFilePrinter::print(cod::FeatureFunctionLibrary library) {
-  openSection('{');
-  copy(library, os_);
-  closeSection('}');
 }
 
 /*----------------------------------------------------------------------------*/
@@ -105,11 +115,10 @@ void SingleFilePrinter::print(cod::DependencyTree tree) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(co::Domain domain) {
-  openFunction(domain->data()->label());
-  domain->data()->accept(ModelConfigSerializer(
-        Self::make(os_, depth_, "", ", ", "")));
-  closeFunction();
+void SingleFilePrinter::print(cod::FeatureFunctionLibrary library) {
+  openSection('{');
+  copy(library, os_);
+  closeSection('}');
 }
 
 /*----------------------------------------------------------------------------*/
