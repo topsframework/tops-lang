@@ -29,6 +29,7 @@
 #include "config/ConfigVisitor.hpp"
 
 #include "config/Options.hpp"
+#include "config/training/ModelConfig.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -37,6 +38,7 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
 namespace lang {
@@ -62,17 +64,6 @@ class ModelConfigSerializer
   void startVisit() override;
   void endVisit() override;
 
-  void visitOption(cod::Model &visited) override;
-  void visitOption(cod::State &visited) override;
-  void visitOption(cod::Duration &visited) override;
-  void visitOption(cod::DependencyTree &visited) override;
-  void visitOption(cod::FeatureFunctionLibrary &visited) override;
-
-  void visitOption(cod::Models &visited) override;
-  void visitOption(cod::States &visited) override;
-  void visitOption(cod::DependencyTrees &visited) override;
-  void visitOption(cod::FeatureFunctionLibraries &visited) override;
-
   void visitOption(co::Size &visited) override;
   void visitOption(co::Type &visited) override;
   void visitOption(co::Domain &visited) override;
@@ -84,6 +75,18 @@ class ModelConfigSerializer
   void visitOption(co::FeatureFunctions &visited) override;
   void visitOption(co::OutToInSymbolFunction &visited) override;
   void visitOption(co::InToOutSymbolFunction &visited) override;
+
+  void visitOption(cot::Model &visited) override;
+
+  void visitOption(cod::Model &visited) override;
+  void visitOption(cod::Models &visited) override;
+  void visitOption(cod::State &visited) override;
+  void visitOption(cod::States &visited) override;
+  void visitOption(cod::Duration &visited) override;
+  void visitOption(cod::DependencyTree &visited) override;
+  void visitOption(cod::DependencyTrees &visited) override;
+  void visitOption(cod::FeatureFunctionLibrary &visited) override;
+  void visitOption(cod::FeatureFunctionLibraries &visited) override;
 
   void visitTag(const std::string &tag, std::size_t count,
                                         std::size_t max) override;
