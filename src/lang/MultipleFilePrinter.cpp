@@ -90,9 +90,25 @@ void MultipleFilePrinter::endPrinting() {
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(cod::Model config) {
-  callFunction("model", pathForHelperCall(config->path()));
-  submodels_.push_back(config);
+void MultipleFilePrinter::print(co::Domain domain) {
+  openFunction(domain->data()->label());
+  domain->data()->accept(ModelConfigSerializer(
+        Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
+  closeFunction();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MultipleFilePrinter::print(cot::Model model) {
+  callFunction("training", pathForHelperCall(model->path()));
+  subtrainings_.push_back(model);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MultipleFilePrinter::print(cod::Model model) {
+  callFunction("model", pathForHelperCall(model->path()));
+  submodels_.push_back(model);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -115,16 +131,16 @@ void MultipleFilePrinter::print(cod::Duration duration) {
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(cod::FeatureFunctionLibrary library) {
-  callFunction("lib", pathForHelperCall(library->path()));
-  libraries_.push_back(library);
+void MultipleFilePrinter::print(cod::DependencyTree tree) {
+  callFunction("tree", pathForHelperCall(tree->path()));
+  trees_.push_back(tree);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(cod::DependencyTree tree) {
-  callFunction("tree", pathForHelperCall(tree->path()));
-  trees_.push_back(tree);
+void MultipleFilePrinter::print(cod::FeatureFunctionLibrary library) {
+  callFunction("lib", pathForHelperCall(library->path()));
+  libraries_.push_back(library);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -137,16 +153,16 @@ std::string MultipleFilePrinter::pathForHelperCall(const std::string &path) {
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::printSubmodel(cod::Model submodel) {
-  submodel->accept(ModelConfigSerializer(
+void MultipleFilePrinter::printSubtraining(cot::Model subtraining) {
+  subtraining->accept(ModelConfigSerializer(
         Self::make(true, root_dir_, os_, 0)));
 }
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::printLibrary(cod::FeatureFunctionLibrary library) {
-  copy(library, std::make_shared<std::ofstream>(
-        root_dir_ + extractCorename(library->path())));
+void MultipleFilePrinter::printSubmodel(cod::Model submodel) {
+  submodel->accept(ModelConfigSerializer(
+        Self::make(true, root_dir_, os_, 0)));
 }
 
 /*----------------------------------------------------------------------------*/
@@ -197,11 +213,9 @@ void MultipleFilePrinter::printTree(cod::DependencyTree tree) {
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::print(co::Domain domain) {
-  openFunction(domain->data()->label());
-  domain->data()->accept(ModelConfigSerializer(
-        Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
-  closeFunction();
+void MultipleFilePrinter::printLibrary(cod::FeatureFunctionLibrary library) {
+  copy(library, std::make_shared<std::ofstream>(
+        root_dir_ + extractCorename(library->path())));
 }
 
 /*----------------------------------------------------------------------------*/

@@ -27,7 +27,8 @@
 // Internal headers
 #include "lang/FilePrinter.hpp"
 
-#include "config/Options.hpp"
+#include "config/Domain.hpp"
+#include "config/training/ModelConfig.hpp"
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -36,6 +37,7 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
 namespace lang {
@@ -63,13 +65,15 @@ class MultipleFilePrinter : public FilePrinter {
   void startPrinting() override;
   void endPrinting() override;
 
+  void print(co::Domain domain) override;
+
+  void print(cot::Model model) override;
+
   void print(cod::Model model) override;
   void print(cod::State state) override;
   void print(cod::Duration duration) override;
-  void print(cod::FeatureFunctionLibrary library) override;
   void print(cod::DependencyTree tree) override;
-
-  void print(co::Domain domain) override;
+  void print(cod::FeatureFunctionLibrary library) override;
 
  protected:
   // Instance variables
@@ -78,9 +82,11 @@ class MultipleFilePrinter : public FilePrinter {
   std::string root_dir_;
   std::string working_dir_;
 
+  std::list<cot::Model> subtrainings_;
+
   std::list<cod::Model> submodels_;
-  std::list<cod::FeatureFunctionLibrary> libraries_;
   std::list<cod::DependencyTree> trees_;
+  std::list<cod::FeatureFunctionLibrary> libraries_;
 
   // Constructors
   template<typename... Args>
@@ -92,9 +98,11 @@ class MultipleFilePrinter : public FilePrinter {
   // Concrete methods
   std::string pathForHelperCall(const std::string &path);
 
+  void printSubtraining(cot::Model subtraining);
+
   void printSubmodel(cod::Model submodel);
-  void printLibrary(cod::FeatureFunctionLibrary library);
   void printTree(cod::DependencyTree tree);
+  void printLibrary(cod::FeatureFunctionLibrary library);
 };
 
 }  // namespace lang
