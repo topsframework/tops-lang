@@ -24,7 +24,6 @@
 #include <string>
 #include <memory>
 #include <exception>
-#include <unordered_map>
 
 // Internal headers
 #include "config/Converter.hpp"
@@ -49,19 +48,12 @@ class Interpreter {
   cod::Model evalModel(const std::string &filepath);
 
  private:
-  // Enums
-  enum class ModelType {
-    GHMM, HMM, LCCRF, IID, VLMC, IMC, PeriodicIMC, SBSW, MSM, MDD
-  };
-
-  // Static variables
-  static const std::unordered_map<std::string, ModelType> model_type_map;
-
   // Concrete methods
   void checkExtension(const std::string &filepath);
   cod::Model makeModelConfig(const std::string &filepath);
 
-  ModelType findModelType(const std::string &filepath);
+  std::string findModelType(const std::string &filepath);
+
   bool missingObjectException(const std::exception &e);
 
   template<typename Config>
