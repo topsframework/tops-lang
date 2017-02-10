@@ -57,6 +57,9 @@ class Interpreter {
   cot::Model makeModelTrainingConfig(const std::string &filepath);
   cod::Model makeModelDefinitionConfig(const std::string &filepath);
 
+  void handleWrongStringOption(const std::string &filepath,
+                               const std::string& option_name,
+                               const std::string& option_value);
   bool missingObjectException(const std::exception &e);
 
   template<typename Config, typename Option>

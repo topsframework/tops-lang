@@ -198,16 +198,14 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
     return fillConfig<ct::HMM::MaximumLikehoodConfig>(filepath);
   } else if (model_type == "HMM" && training_algorithm == "BaumWelch") {
     return fillConfig<ct::HMM::BaumWelchConfig>(filepath);
-  } else if (model_type == "") {
-    throw std::logic_error(
-      filepath + ": Model type not specified!");
   } else if (training_algorithm == "") {
     throw std::logic_error(
       filepath + ": Training algorithm not specified!");
   } else {
-    throw std::logic_error(
-      filepath + ": Unknown model type \"" + model_type + "\"");
+    handleWrongStringOption(filepath, "model_type", model_type);
   }
+
+  return nullptr;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -236,12 +234,23 @@ cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath) {
     return fillConfig<cd::MSMConfig>(filepath);
   } else if (model_type == "MDD") {
     return fillConfig<cd::MDDConfig>(filepath);
-  } else if (model_type == "") {
-    throw std::logic_error(
-      filepath + ": Model type not specified!");
+  } else {
+    handleWrongStringOption(filepath, "model_type", model_type);
+  }
+
+  return nullptr;
+}
+
+/*----------------------------------------------------------------------------*/
+
+void Interpreter::handleWrongStringOption(const std::string &filepath,
+                                          const std::string& option_name,
+                                          const std::string& option_value) {
+  if (option_value == "") {
+    throw std::logic_error(filepath + ": " + option_name + " not specified!");
   } else {
     throw std::logic_error(
-      filepath + ": Unknown model type \"" + model_type + "\"");
+      filepath + ": unknown " + option_name + " \"" + option_value + "\"");
   }
 }
 
