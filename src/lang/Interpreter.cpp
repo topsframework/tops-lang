@@ -194,13 +194,15 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
   auto training_algorithm = getConfigOption<
     ct::ModelConfig, decltype("training_algorithm"_t)>(filepath);
 
-  if (model_type == "HMM" && training_algorithm == "MaximumLikehood") {
-    return fillConfig<ct::HMM::MaximumLikehoodConfig>(filepath);
-  } else if (model_type == "HMM" && training_algorithm == "BaumWelch") {
-    return fillConfig<ct::HMM::BaumWelchConfig>(filepath);
-  } else if (training_algorithm == "") {
-    throw std::logic_error(
-      filepath + ": Training algorithm not specified!");
+  if (model_type == "HMM") {
+    if (training_algorithm == "MaximumLikehood") {
+      return fillConfig<ct::HMM::MaximumLikehoodConfig>(filepath);
+    } else if (training_algorithm == "BaumWelch") {
+      return fillConfig<ct::HMM::BaumWelchConfig>(filepath);
+    } else {
+      handleWrongStringOption(filepath, "training_algorithm",
+                                         training_algorithm);
+    }
   } else {
     handleWrongStringOption(filepath, "model_type", model_type);
   }
