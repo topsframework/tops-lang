@@ -44,6 +44,7 @@
 
 #include "config/training/ModelConfig.hpp"
 #include "config/training/HMMConfig.hpp"
+#include "config/training/IIDConfig.hpp"
 
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/HMMConfig.hpp"
@@ -199,6 +200,17 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
       return fillConfig<ct::HMM::MaximumLikehoodConfig>(filepath);
     } else if (training_algorithm == "BaumWelch") {
       return fillConfig<ct::HMM::BaumWelchConfig>(filepath);
+    } else {
+      handleWrongStringOption(filepath, "training_algorithm",
+                                         training_algorithm);
+    }
+  } else if (model_type == "IID") {
+    if (training_algorithm == "MaximumLikehood") {
+      return fillConfig<ct::IID::MaximumLikehoodConfig>(filepath);
+    } else if (training_algorithm == "SmoothedHistogramBurge") {
+      return fillConfig<ct::IID::SmoothedHistogramBurgeConfig>(filepath);
+    } else if (training_algorithm == "SmoothedHistogramStanke") {
+      return fillConfig<ct::IID::SmoothedHistogramStankeConfig>(filepath);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);

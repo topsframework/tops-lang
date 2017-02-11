@@ -33,6 +33,7 @@ namespace config {
 namespace option {
 
 using Size = unsigned int;
+using Length = unsigned int;
 using Iterations = unsigned int;
 
 using Type = std::string;
