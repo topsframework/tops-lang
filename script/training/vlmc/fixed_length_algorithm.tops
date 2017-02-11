@@ -9,7 +9,7 @@ training_algorithm = "FixedLength"
 
 training_set = dataset("data/cassino-coin.tsv")
 
-initial_model = model("vlmc.tops")
+initial_model = load_trained("vlmc.tops")
 
 weights = weights("data/cassino-coin.weights")
 

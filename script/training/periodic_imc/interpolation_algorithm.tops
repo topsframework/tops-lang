@@ -9,7 +9,7 @@ training_algorithm = "Interpolation"
 
 training_set = dataset("data/cassino-coin.tsv")
 
-initial_model = model("periodic_imc.tops")
+initial_model = load_trained("periodic_imc.tops")
 
 weights = weights("data/cassino-coin.weights")
 
