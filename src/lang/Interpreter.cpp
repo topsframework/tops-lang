@@ -45,6 +45,7 @@
 #include "config/training/ModelConfig.hpp"
 #include "config/training/HMMConfig.hpp"
 #include "config/training/IIDConfig.hpp"
+#include "config/training/MDDConfig.hpp"
 
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/HMMConfig.hpp"
@@ -211,6 +212,13 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
       return fillConfig<ct::IID::SmoothedHistogramBurgeConfig>(filepath);
     } else if (training_algorithm == "SmoothedHistogramStanke") {
       return fillConfig<ct::IID::SmoothedHistogramStankeConfig>(filepath);
+    } else {
+      handleWrongStringOption(filepath, "training_algorithm",
+                                         training_algorithm);
+    }
+  } else if (model_type == "MDD") {
+    if (training_algorithm == "Standard") {
+      return fillConfig<ct::MDD::StandardConfig>(filepath);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
