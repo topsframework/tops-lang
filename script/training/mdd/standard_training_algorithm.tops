@@ -11,6 +11,6 @@ training_set = dataset("data/dna.tsv")
 
 consensus = "[AC]C[GA]TTA"
 
-consensus_model = load_trained("consensus_model.tops")
+consensus_model = pretrained_model("consensus_model.tops")
 
 minimum_subset = 42
