@@ -11,7 +11,7 @@ training_set = dataset("data/cassino-coin.tsv")
 
 initial_model = pretrained_model("periodic_imc.tops")
 
-weights = weights("data/cassino-coin.weights")
+weights = dataset("data/cassino-coin-weights.tsv")
 
 order = 3
 
