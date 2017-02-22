@@ -43,6 +43,7 @@
 #include "config/Options.hpp"
 
 #include "config/training/ModelConfig.hpp"
+#include "config/training/UntrainedModelConfig.hpp"
 #include "config/training/HMMConfig.hpp"
 #include "config/training/IIDConfig.hpp"
 #include "config/training/MDDConfig.hpp"
@@ -194,9 +195,9 @@ void Interpreter::checkExtension(const std::string &filepath) {
 
 cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
   auto model_type = getConfigOption<
-    ct::ModelConfig, decltype("model_type"_t)>(filepath);
+    ct::UntrainedModelConfig, decltype("model_type"_t)>(filepath);
   auto training_algorithm = getConfigOption<
-    ct::ModelConfig, decltype("training_algorithm"_t)>(filepath);
+    ct::UntrainedModelConfig, decltype("training_algorithm"_t)>(filepath);
 
   if (model_type == "HMM") {
     if (training_algorithm == "MaximumLikehood") {

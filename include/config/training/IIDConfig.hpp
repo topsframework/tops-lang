@@ -27,7 +27,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/training/ModelConfig.hpp"
+#include "config/training/UntrainedModelConfig.hpp"
 #include "config/definition/ModelConfig.hpp"
 
 namespace config {
@@ -39,7 +39,7 @@ namespace training {
  * used to train a model::DiscreteIIDModel
  */
 using IIDConfig
-  = config_with_options<>::extending<ModelConfig>::type;
+  = config_with_options<>::extending<UntrainedModelConfig>::type;
 
 /**
  * @typedef IIDConfigPtr

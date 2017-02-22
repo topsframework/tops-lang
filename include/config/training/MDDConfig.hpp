@@ -27,7 +27,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/training/ModelConfig.hpp"
+#include "config/training/UntrainedModelConfig.hpp"
 #include "config/definition/ModelConfig.hpp"
 
 namespace config {
@@ -36,10 +36,10 @@ namespace training {
 /**
  * @typedef MDDConfig
  * Alias to IR of the parameters of the algorithms
- * used to train a model::HiddenMarkovModel
+ * used to train a model::MaximalDependenceDecomposition
  */
 using MDDConfig
-  = config_with_options<>::extending<ModelConfig>::type;
+  = config_with_options<>::extending<UntrainedModelConfig>::type;
 
 /**
  * @typedef MDDConfigPtr
