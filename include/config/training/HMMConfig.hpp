@@ -27,7 +27,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/training/ModelConfig.hpp"
+#include "config/training/DecodableModelConfig.hpp"
 #include "config/definition/ModelConfig.hpp"
 
 namespace config {
@@ -39,7 +39,7 @@ namespace training {
  * used to train a model::HiddenMarkovModel
  */
 using HMMConfig
-  = config_with_options<>::extending<ModelConfig>::type;
+  = config_with_options<>::extending<DecodableModelConfig>::type;
 
 /**
  * @typedef HMMConfigPtr
@@ -61,7 +61,6 @@ namespace HMM {
  */
 using MaximumLikehoodConfig
   = config_with_options<
-      option::Labels(decltype("labels"_t)),
       option::Counter(decltype("pseudo_counter"_t))
     >::extending<HMMConfig>::type;
 
