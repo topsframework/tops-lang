@@ -46,6 +46,7 @@
 #include "config/training/HMMConfig.hpp"
 #include "config/training/IIDConfig.hpp"
 #include "config/training/MDDConfig.hpp"
+#include "config/training/VLMCConfig.hpp"
 #include "config/training/PeriodicIMCConfig.hpp"
 
 #include "config/definition/ModelConfig.hpp"
@@ -227,6 +228,17 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
   } else if (model_type == "PeriodicIMC") {
     if (training_algorithm == "Interpolation") {
       return fillConfig<ct::PeriodicIMC::InterpolationConfig>(filepath);
+    } else {
+      handleWrongStringOption(filepath, "training_algorithm",
+                                         training_algorithm);
+    }
+  } else if (model_type == "VLMC") {
+    if (training_algorithm == "Context") {
+      return fillConfig<ct::VLMC::ContextConfig>(filepath);
+    } else if (training_algorithm == "FixedLength") {
+      return fillConfig<ct::VLMC::FixedLengthConfig>(filepath);
+    } else if (training_algorithm == "Interpolation") {
+      return fillConfig<ct::VLMC::InterpolationConfig>(filepath);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
