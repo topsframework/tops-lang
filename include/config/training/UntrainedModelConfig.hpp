@@ -17,34 +17,41 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_TRAINING_MODEL_CONFIG_
-#define CONFIG_TRAINING_MODEL_CONFIG_
+#ifndef CONFIG_TRAINING_UNTRAINED_MODEL_CONFIG_
+#define CONFIG_TRAINING_UNTRAINED_MODEL_CONFIG_
 
 // Standard headers
 #include <memory>
 #include <vector>
 
 // Internal headers
-#include "config/Options.hpp"
 #include "config/ConfigWithOptions.hpp"
+
+#include "config/Domain.hpp"
+#include "config/Options.hpp"
+#include "config/training/ModelConfig.hpp"
 
 namespace config {
 namespace training {
 
 /**
- * @typedef ModelConfig
- * @brief Alias to IR of a model::ProbabilisticModel
+ * @typedef UntrainedModelConfig
+ * @brief Alias to IR of a untrained model::ProbabilisticModel
  */
-using ModelConfig
+using UntrainedModelConfig
   = config_with_options<
-      option::Type(decltype("category"_t))
-    >::type;
+      option::Type(decltype("model_type"_t)),
+      option::Domain(decltype("observations"_t)),
+      option::Dataset(decltype("training_set"_t)),
+      option::Algorithm(decltype("training_algorithm"_t))
+    >::extending<ModelConfig>::type;
 
 /**
- * @typedef ModelConfigPtr
- * @brief Alias of pointer to ModelConfig
+ * @typedef UntrainedModelConfigPtr
+ * @brief Alias of pointer to UntrainedModelConfig
  */
-using ModelConfigPtr = std::shared_ptr<ModelConfig>;
+using UntrainedModelConfigPtr
+  = std::shared_ptr<UntrainedModelConfig>;
 
 }  // namespace training
 }  // namespace config
@@ -53,11 +60,11 @@ namespace config {
 namespace option {
 namespace training {
 
-using Model = config::training::ModelConfigPtr;
-using Models = std::vector<Model>;
+using UntrainedModel
+  = config::training::UntrainedModelConfigPtr;
 
 }  // namespace training
 }  // namespace option
 }  // namespace config
 
-#endif  // CONFIG_TRAINING_MODEL_CONFIG_
+#endif  // CONFIG_TRAINING_UNTRAINED_MODEL_CONFIG_
