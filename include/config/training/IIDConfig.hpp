@@ -28,7 +28,6 @@
 
 #include "config/Options.hpp"
 #include "config/training/UntrainedModelConfig.hpp"
-#include "config/definition/ModelConfig.hpp"
 
 namespace config {
 namespace training {

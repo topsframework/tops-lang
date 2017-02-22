@@ -28,7 +28,6 @@
 
 #include "config/Options.hpp"
 #include "config/training/UntrainedModelConfig.hpp"
-#include "config/definition/ModelConfig.hpp"
 
 namespace config {
 namespace training {
@@ -62,7 +61,7 @@ namespace MDD {
 using StandardConfig
   = config_with_options<
       option::Pattern(decltype("consensus"_t)),
-      option::definition::Model(decltype("consensus_model"_t)),
+      option::training::Model(decltype("consensus_model"_t)),
       option::Size(decltype("minimum_subset"_t))
     >::extending<MDDConfig>::type;
 

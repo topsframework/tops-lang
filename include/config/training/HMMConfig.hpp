@@ -28,7 +28,6 @@
 
 #include "config/Options.hpp"
 #include "config/training/DecodableModelConfig.hpp"
-#include "config/definition/ModelConfig.hpp"
 
 namespace config {
 namespace training {
@@ -78,7 +77,7 @@ using MaximumLikehoodConfigPtr
  */
 using BaumWelchConfig
   = config_with_options<
-      option::definition::Model(decltype("initial_model"_t)),
+      option::training::Model(decltype("initial_model"_t)),
       option::Iterations(decltype("maximum_iterations"_t)),
       option::Threshold(decltype("diff_threshold"_t))
     >::extending<HMMConfig>::type;

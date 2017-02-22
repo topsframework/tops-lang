@@ -28,7 +28,6 @@
 
 #include "config/Options.hpp"
 #include "config/training/UntrainedModelConfig.hpp"
-#include "config/definition/ModelConfig.hpp"
 
 namespace config {
 namespace training {
@@ -61,7 +60,7 @@ namespace PeriodicIMC {
  */
 using InterpolationConfig
   = config_with_options<
-      option::definition::Model(decltype("initial_model"_t)),
+      option::training::Model(decltype("initial_model"_t)),
       option::Dataset(decltype("weights"_t)),
       option::Order(decltype("order"_t)),
       option::Order(decltype("number_of_phases"_t)),

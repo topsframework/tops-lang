@@ -44,6 +44,7 @@
 
 #include "config/training/ModelConfig.hpp"
 #include "config/training/UntrainedModelConfig.hpp"
+#include "config/training/PretrainedModelConfig.hpp"
 #include "config/training/HMMConfig.hpp"
 #include "config/training/IIDConfig.hpp"
 #include "config/training/MDDConfig.hpp"
@@ -194,6 +195,12 @@ void Interpreter::checkExtension(const std::string &filepath) {
 /*----------------------------------------------------------------------------*/
 
 cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
+  auto category = getConfigOption<
+    ct::ModelConfig, decltype("category"_t)>(filepath);
+
+  if (category == "PretrainedModel")
+    return fillConfig<ct::PretrainedModelConfig>(filepath);
+
   auto model_type = getConfigOption<
     ct::UntrainedModelConfig, decltype("model_type"_t)>(filepath);
   auto training_algorithm = getConfigOption<
