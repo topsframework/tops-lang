@@ -63,10 +63,12 @@ class Interpreter {
   bool missingObjectException(const std::exception &e);
 
   template<typename Config, typename Option>
-  decltype(auto) getConfigOption(const std::string &filepath);
+  decltype(auto) getConfigOption(const std::string &filepath,
+                                 const std::string &label = "");
 
   template<typename Config>
-  std::shared_ptr<Config> fillConfig(const std::string &filepath);
+  std::shared_ptr<Config> fillConfig(const std::string &filepath,
+                                     const std::string &label = "");
 
   chaiscript::ModulePtr makeInterpreterLibrary(const std::string &filepath);
 

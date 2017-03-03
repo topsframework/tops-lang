@@ -35,7 +35,8 @@ namespace lang {
 /*----------------------------------------------------------------------------*/
 
 template<typename Config, typename Option>
-decltype(auto) Interpreter::getConfigOption(const std::string &filepath) {
+decltype(auto) Interpreter::getConfigOption(const std::string &filepath,
+                                            const std::string &label) {
   auto root_dir = extractDir(filepath);
 
   std::vector<std::string> modulepaths;
@@ -59,7 +60,8 @@ decltype(auto) Interpreter::getConfigOption(const std::string &filepath) {
 /*----------------------------------------------------------------------------*/
 
 template<typename Config>
-std::shared_ptr<Config> Interpreter::fillConfig(const std::string &filepath) {
+std::shared_ptr<Config> Interpreter::fillConfig(const std::string &filepath,
+                                                const std::string &label) {
   auto root_dir = extractDir(filepath);
 
   std::vector<std::string> modulepaths;
@@ -68,7 +70,7 @@ std::shared_ptr<Config> Interpreter::fillConfig(const std::string &filepath) {
   chaiscript::ChaiScript chai(modulepaths, usepaths);
   chai.add(makeInterpreterLibrary(filepath));
 
-  auto cfg = std::make_shared<Config>(filepath);
+  auto cfg = Config::make(filepath, label);
   cfg->accept(ModelConfigRegister(chai));
 
   chai.eval_file(filepath);
