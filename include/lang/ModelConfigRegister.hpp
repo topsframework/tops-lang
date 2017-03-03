@@ -28,7 +28,11 @@
 #include "config/ConfigVisitor.hpp"
 
 #include "config/Options.hpp"
+
 #include "config/training/ModelConfig.hpp"
+#include "config/training/StateConfig.hpp"
+#include "config/training/DurationConfig.hpp"
+
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -74,6 +78,10 @@ class ModelConfigRegister
   void visitOption(co::InToOutSymbolFunction &visited) override;
 
   void visitOption(cot::Model &visited) override;
+  void visitOption(cot::Models &visited) override;
+  void visitOption(cot::State &visited) override;
+  void visitOption(cot::States &visited) override;
+  void visitOption(cot::Duration &visited) override;
 
   void visitOption(cod::Model &visited) override;
   void visitOption(cod::Models &visited) override;

@@ -37,6 +37,7 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
 namespace lang {
@@ -102,6 +103,24 @@ void MultipleFilePrinter::print(co::Domain domain) {
 void MultipleFilePrinter::print(cot::Model model) {
   callFunction("training", pathForHelperCall(model->path()));
   subtrainings_.push_back(model);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MultipleFilePrinter::print(cot::State state) {
+  openSection('[');
+  state->accept(ModelConfigSerializer(
+        Self::make(false, root_dir_, os_, depth_, ": ", ",\n")));
+  closeSection(']');
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MultipleFilePrinter::print(cot::Duration duration) {
+  openFunction(duration->label());
+  duration->accept(ModelConfigSerializer(
+        Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
+  closeFunction();
 }
 
 /*----------------------------------------------------------------------------*/

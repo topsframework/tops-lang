@@ -28,7 +28,11 @@
 #include "lang/FilePrinter.hpp"
 
 #include "config/Domain.hpp"
+
 #include "config/training/ModelConfig.hpp"
+#include "config/training/StateConfig.hpp"
+#include "config/training/DurationConfig.hpp"
+
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -68,6 +72,8 @@ class MultipleFilePrinter : public FilePrinter {
   void print(co::Domain domain) override;
 
   void print(cot::Model model) override;
+  void print(cot::State state) override;
+  void print(cot::Duration duration) override;
 
   void print(cod::Model model) override;
   void print(cod::State state) override;

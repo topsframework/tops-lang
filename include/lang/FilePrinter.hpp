@@ -31,10 +31,13 @@
 // Internal headers
 #include "lang/Util.hpp"
 
+#include "config/Domain.hpp"
 #include "config/BasicConfig.hpp"
 
-#include "config/Domain.hpp"
 #include "config/training/ModelConfig.hpp"
+#include "config/training/StateConfig.hpp"
+#include "config/training/DurationConfig.hpp"
+
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
@@ -67,12 +70,14 @@ class FilePrinter {
   virtual void print(co::Domain domain) = 0;
 
   virtual void print(cot::Model model) = 0;
+  virtual void print(cot::State state) = 0;
+  virtual void print(cot::Duration duration) = 0;
 
   virtual void print(cod::Model model) = 0;
   virtual void print(cod::State state) = 0;
   virtual void print(cod::Duration duration) = 0;
-  virtual void print(cod::FeatureFunctionLibrary library) = 0;
   virtual void print(cod::DependencyTree tree) = 0;
+  virtual void print(cod::FeatureFunctionLibrary library) = 0;
 
   // Virtual methods
   virtual void changeOstream(const std::string &/* path */);

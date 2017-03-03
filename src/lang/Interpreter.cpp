@@ -48,6 +48,7 @@
 #include "config/training/HMMConfig.hpp"
 #include "config/training/IIDConfig.hpp"
 #include "config/training/MDDConfig.hpp"
+#include "config/training/GHMMConfig.hpp"
 #include "config/training/VLMCConfig.hpp"
 #include "config/training/PeriodicIMCConfig.hpp"
 
@@ -206,7 +207,14 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
   auto training_algorithm = getConfigOption<
     ct::UntrainedModelConfig, decltype("training_algorithm"_t)>(filepath);
 
-  if (model_type == "HMM") {
+  if (model_type == "GHMM") {
+    if (training_algorithm == "MaximumLikehood") {
+      return fillConfig<ct::GHMM::MaximumLikehoodConfig>(filepath);
+    } else {
+      handleWrongStringOption(filepath, "training_algorithm",
+                                         training_algorithm);
+    }
+  } else if (model_type == "HMM") {
     if (training_algorithm == "MaximumLikehood") {
       return fillConfig<ct::HMM::MaximumLikehoodConfig>(filepath);
     } else if (training_algorithm == "BaumWelch") {

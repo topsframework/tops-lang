@@ -27,13 +27,15 @@
 
 #include "config/Options.hpp"
 
+#include "config/training/ModelConfig.hpp"
+#include "config/training/StateConfig.hpp"
+#include "config/training/DurationConfig.hpp"
+
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
 #include "config/definition/DependencyTreeConfig.hpp"
 #include "config/definition/FeatureFunctionLibraryConfig.hpp"
-
-#include "config/training/ModelConfig.hpp"
 
 namespace config {
 
@@ -91,6 +93,10 @@ class ConfigVisitor {
   virtual void visitOption(option::InToOutSymbolFunction &) = 0;
 
   virtual void visitOption(option::training::Model &) = 0;
+  virtual void visitOption(option::training::Models &) = 0;
+  virtual void visitOption(option::training::State &) = 0;
+  virtual void visitOption(option::training::States &) = 0;
+  virtual void visitOption(option::training::Duration &) = 0;
 
   virtual void visitOption(option::definition::Model &) = 0;
   virtual void visitOption(option::definition::Models &) = 0;

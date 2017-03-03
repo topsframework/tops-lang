@@ -158,6 +158,31 @@ void ModelConfigSerializer::visitOption(cot::Model &visited) {
 
 /*----------------------------------------------------------------------------*/
 
+void ModelConfigSerializer::visitOption(cot::Models &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cot::State &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cot::States &visited) {
+  printer_->print(visited);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void ModelConfigSerializer::visitOption(cot::Duration &visited) {
+  printer_->print(visited);
+}
+
+
+/*----------------------------------------------------------------------------*/
+
 void ModelConfigSerializer::visitOption(cod::Model &visited) {
   printer_->print(visited);
 }
