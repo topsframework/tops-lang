@@ -38,7 +38,7 @@ namespace training {
 using ModelConfig
   = config_with_options<
       option::Type(decltype("category"_t))
-    >::type;
+    >::type<class ModelConfigID>;;
 
 /**
  * @typedef ModelConfigPtr

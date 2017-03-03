@@ -38,7 +38,8 @@ namespace training {
  * used to train a model::HiddenMarkovModel
  */
 using HMMConfig
-  = config_with_options<>::extending<DecodableModelConfig>::type;
+  = config_with_options<>::extending<DecodableModelConfig>
+                         ::type<class HMMConfigID>;
 
 /**
  * @typedef HMMConfigPtr
@@ -61,7 +62,7 @@ namespace HMM {
 using MaximumLikehoodConfig
   = config_with_options<
       option::Counter(decltype("pseudo_counter"_t))
-    >::extending<HMMConfig>::type;
+    >::extending<HMMConfig>::type<class MaximumLikehoodConfigID>;
 
 /**
  * @typedef MaximumLikehoodConfigPtr
@@ -80,7 +81,7 @@ using BaumWelchConfig
       option::training::Model(decltype("initial_model"_t)),
       option::Iterations(decltype("maximum_iterations"_t)),
       option::Threshold(decltype("diff_threshold"_t))
-    >::extending<HMMConfig>::type;
+    >::extending<HMMConfig>::type<class BaumWelchConfigID>;
 
 /**
  * @typedef BaumWelchConfigPtr

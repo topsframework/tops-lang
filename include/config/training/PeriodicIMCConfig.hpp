@@ -38,7 +38,8 @@ namespace training {
  * used to train a model::PeriodicInhomogeneousMarkovChain
  */
 using PeriodicIMCConfig
-  = config_with_options<>::extending<UntrainedModelConfig>::type;
+  = config_with_options<>::extending<UntrainedModelConfig>
+                         ::type<class PeriodicIMCConfigID>;
 
 /**
  * @typedef PeriodicIMCConfigPtr
@@ -65,7 +66,7 @@ using InterpolationConfig
       option::Order(decltype("order"_t)),
       option::Order(decltype("number_of_phases"_t)),
       option::Counter(decltype("pseudo_counter"_t))
-    >::extending<PeriodicIMCConfig>::type;
+    >::extending<PeriodicIMCConfig>::type<class InterpolationConfigID>;
 
 /**
  * @typedef InterpolationConfigPtr

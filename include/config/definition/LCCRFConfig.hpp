@@ -41,7 +41,7 @@ using LCCRFConfig
   = config_with_options<
       option::Probabilities(decltype("feature_parameters"_t)),
       option::definition::FeatureFunctionLibraries(decltype("feature_function_libraries"_t))
-    >::extending<DecodableModelConfig>::type;
+    >::extending<DecodableModelConfig>::type<class LCCRFConfigID>;
 
 /**
  * @typedef LCCRFConfigPtr

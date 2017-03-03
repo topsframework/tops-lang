@@ -39,7 +39,7 @@ namespace definition {
 using IIDConfig
   = config_with_options<
       option::Probabilities(decltype("emission_probabilities"_t))
-    >::extending<ModelConfig>::type;
+    >::extending<ModelConfig>::type<class IIDConfigID>;
 
 /**
  * @typedef IIDConfigPtr

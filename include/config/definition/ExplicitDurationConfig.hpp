@@ -41,7 +41,7 @@ using ExplicitDurationConfig
   = config_with_options<
       option::definition::Model(decltype("model"_t)),
       option::Size(decltype("max_size"_t))
-    >::extending<DurationConfig>::type;
+    >::extending<DurationConfig>::type<class ExplicitDurationConfigID>;
 
 /**
  * @typedef ExplicitDurationConfigPtr

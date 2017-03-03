@@ -47,8 +47,8 @@ class Config;
 class ConfigVisitor {
  public:
   // Concrete methods
-  template<typename Base, typename... Options>
-  void visit(std::shared_ptr<BasicConfig<Base, Options...>> config) {
+  template<typename ID, typename Base, typename... Options>
+  void visit(std::shared_ptr<BasicConfig<ID, Base, Options...>> config) {
     std::size_t count = 0;
     std::size_t max = config->number_of_options();
 

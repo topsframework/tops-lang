@@ -41,7 +41,7 @@ using MDDConfig
   = config_with_options<
       option::Pattern(decltype("consensus"_t)),
       option::definition::DependencyTrees(decltype("dependencies"_t))
-    >::extending<ModelConfig>::type;
+    >::extending<ModelConfig>::type<class MDDConfigID>;
 
 /**
  * @typedef MDDConfigPtr

@@ -39,7 +39,7 @@ namespace definition {
 using VLMCConfig
   = config_with_options<
       option::Probabilities(decltype("context_probabilities"_t))
-    >::extending<ModelConfig>::type;
+    >::extending<ModelConfig>::type<class VLMCConfigID>;
 
 /**
  * @typedef VLMCConfigPtr

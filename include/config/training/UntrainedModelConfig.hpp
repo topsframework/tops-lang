@@ -44,7 +44,7 @@ using UntrainedModelConfig
       option::Domain(decltype("observations"_t)),
       option::Dataset(decltype("training_set"_t)),
       option::Algorithm(decltype("training_algorithm"_t))
-    >::extending<ModelConfig>::type;
+    >::extending<ModelConfig>::type<class UntrainedModelConfigID>;
 
 /**
  * @typedef UntrainedModelConfigPtr

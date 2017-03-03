@@ -43,7 +43,7 @@ using SBSWConfig
       option::Size(decltype("skip_offset"_t)),
       option::Size(decltype("skip_length"_t)),
       option::Sequence(decltype("skip_sequence"_t))
-    >::extending<ModelConfig>::type;
+    >::extending<ModelConfig>::type<class SBSWConfigID>;
 
 /**
  * @typedef SBSWConfigPtr

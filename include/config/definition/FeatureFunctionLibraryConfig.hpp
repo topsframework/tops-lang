@@ -41,7 +41,7 @@ using FeatureFunctionLibraryConfig
       option::Alphabet(decltype("observations"_t)),
       option::Alphabet(decltype("labels"_t)),
       option::FeatureFunctions(decltype("feature_functions"_t))
-    >::type;
+    >::type<class FeatureFunctionLibraryConfigID>;
 
 /**
  * @typedef FeatureFunctionLibraryConfigPtr

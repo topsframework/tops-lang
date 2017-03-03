@@ -32,9 +32,9 @@ namespace config {
 /*                                CONSTRUCTORS                                */
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
-BasicConfig<Base, Options...>::BasicConfig(const std::string &path,
-                                           const std::string &label)
+template<typename ID, typename Base, typename... Options>
+BasicConfig<ID, Base, Options...>::BasicConfig(const std::string &path,
+                                               const std::string &label)
     : Base(path, label) {
 }
 
@@ -42,10 +42,10 @@ BasicConfig<Base, Options...>::BasicConfig(const std::string &path,
 /*                              STATIC VARIABLES                              */
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<typename... Params>
-std::shared_ptr<BasicConfig<Base, Options...>>
-BasicConfig<Base, Options...>::make(Params&&... params) {
+std::shared_ptr<BasicConfig<ID, Base, Options...>>
+BasicConfig<ID, Base, Options...>::make(Params&&... params) {
   return std::make_shared<Self>(std::forward<Params>(params)...);
 }
 
@@ -53,8 +53,8 @@ BasicConfig<Base, Options...>::make(Params&&... params) {
 /*                             OVERRIDEN METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
-void BasicConfig<Base, Options...>::accept(ConfigVisitor &visitor) const {
+template<typename ID, typename Base, typename... Options>
+void BasicConfig<ID, Base, Options...>::accept(ConfigVisitor &visitor) const {
   auto ptr = std::static_pointer_cast<Self>(
     const_cast<Self*>(this)->shared_from_this());
   visitor.visit(ptr);
@@ -62,8 +62,8 @@ void BasicConfig<Base, Options...>::accept(ConfigVisitor &visitor) const {
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
-void BasicConfig<Base, Options...>::accept(ConfigVisitor &&visitor) const {
+template<typename ID, typename Base, typename... Options>
+void BasicConfig<ID, Base, Options...>::accept(ConfigVisitor &&visitor) const {
   auto ptr = std::static_pointer_cast<Self>(
     const_cast<Self*>(this)->shared_from_this());
   visitor.visit(ptr);
@@ -71,8 +71,8 @@ void BasicConfig<Base, Options...>::accept(ConfigVisitor &&visitor) const {
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
-std::size_t BasicConfig<Base, Options...>::number_of_options() const {
+template<typename ID, typename Base, typename... Options>
+std::size_t BasicConfig<ID, Base, Options...>::number_of_options() const {
   return this->Base::number_of_options()
     + std::tuple_size<decltype(
         named_types::forward_as_concatenated_tuple(attrs_))>::value;
@@ -82,18 +82,18 @@ std::size_t BasicConfig<Base, Options...>::number_of_options() const {
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<typename Func>
-void BasicConfig<Base, Options...>::for_each(Func&& func) const {
+void BasicConfig<ID, Base, Options...>::for_each(Func&& func) const {
   this->Base::for_each(func);
   named_types::for_each(func, attrs_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<typename... Args>
-void BasicConfig<Base, Options...>::initialize(Args&&... args) {
+void BasicConfig<ID, Base, Options...>::initialize(Args&&... args) {
   static_assert(sizeof...(Args) >= sizeof...(Options),
     "Must have least as many arguments as options in `initialize`");
 
@@ -103,79 +103,79 @@ void BasicConfig<Base, Options...>::initialize(Args&&... args) {
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<class Tag>
-inline constexpr decltype(auto) BasicConfig<Base, Options...>::get(
+inline constexpr decltype(auto) BasicConfig<ID, Base, Options...>::get(
     std::enable_if_t<!has_tag<Tag, Options...>()>*) const & {
   return this->Base::template get<Tag>();
 };
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<class Tag>
-inline constexpr decltype(auto) BasicConfig<Base, Options...>::get(
+inline constexpr decltype(auto) BasicConfig<ID, Base, Options...>::get(
     std::enable_if_t<has_tag<Tag, Options...>()>*) const & {
   return std::get<Tag>(attrs_);
 };
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<class Tag>
-inline decltype(auto) BasicConfig<Base, Options...>::get(
+inline decltype(auto) BasicConfig<ID, Base, Options...>::get(
     std::enable_if_t<!has_tag<Tag, Options...>()>*) & {
   return this->Base::template get<Tag>();
 };
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<class Tag>
-inline decltype(auto) BasicConfig<Base, Options...>::get(
+inline decltype(auto) BasicConfig<ID, Base, Options...>::get(
     std::enable_if_t<has_tag<Tag, Options...>()>*) & {
   return std::get<Tag>(attrs_);
 };
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<class Tag>
-inline decltype(auto) BasicConfig<Base, Options...>::get(
+inline decltype(auto) BasicConfig<ID, Base, Options...>::get(
     std::enable_if_t<!has_tag<Tag, Options...>()>*) && {
   return this->Base::template get<Tag>();
 };
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<class Tag>
-inline decltype(auto) BasicConfig<Base, Options...>::get(
+inline decltype(auto) BasicConfig<ID, Base, Options...>::get(
     std::enable_if_t<has_tag<Tag, Options...>()>*) && {
   return std::get<Tag>(std::move(attrs_));
 };
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
-std::vector<std::shared_ptr<BasicConfig<Base, Options...>>>&
-BasicConfig<Base, Options...>::children() {
+template<typename ID, typename Base, typename... Options>
+std::vector<std::shared_ptr<BasicConfig<ID, Base, Options...>>>&
+BasicConfig<ID, Base, Options...>::children() {
   return children_;
 }
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
-const std::vector<std::shared_ptr<BasicConfig<Base, Options...>>>&
-BasicConfig<Base, Options...>::children() const {
+template<typename ID, typename Base, typename... Options>
+const std::vector<std::shared_ptr<BasicConfig<ID, Base, Options...>>>&
+BasicConfig<ID, Base, Options...>::children() const {
   return children_;
 }
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<typename... Args>
-void BasicConfig<Base, Options...>::initialize_base(Args&&... args) {
+void BasicConfig<ID, Base, Options...>::initialize_base(Args&&... args) {
   forward_subpack(
     [this](auto&&... types) {
       this->Base::initialize(std::forward<decltype(types)>(types)...); },
@@ -185,9 +185,9 @@ void BasicConfig<Base, Options...>::initialize_base(Args&&... args) {
 
 /*----------------------------------------------------------------------------*/
 
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 template<typename... Args>
-void BasicConfig<Base, Options...>::initialize_tuple(Args&&... args) {
+void BasicConfig<ID, Base, Options...>::initialize_tuple(Args&&... args) {
   forward_subpack(
     [this](auto&&... types) {
       attrs_ = Tuple(std::forward<decltype(types)>(types)...); },

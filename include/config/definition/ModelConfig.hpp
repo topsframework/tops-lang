@@ -41,7 +41,7 @@ using ModelConfig
   = config_with_options<
       option::Type(decltype("model_type"_t)),
       option::Domain(decltype("observations"_t))
-    >::type;
+    >::type<class ModelConfigID>;
 
 /**
  * @typedef ModelConfigPtr

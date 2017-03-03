@@ -46,17 +46,18 @@ class ConfigVisitor;
 /**
  * @class BasicConfig
  * @brief General class to create an intermediate representations (IR)
- * @tparam Base Base class for the config IR
+ * @tparam Base    Base class for the config IR
+ * @tparam ID      Unique identifier to differentiate configs
  * @tparam Options List of Type(decltype("name"_t)) to be stored in config IR
  */
-template<typename Base, typename... Options>
+template<typename ID, typename Base, typename... Options>
 class BasicConfig : public Base {
  public:
   // Alias
-  using Self = BasicConfig<Base, Options...>;
+  using Self = BasicConfig<ID, Base, Options...>;
   using Tuple = named_types::named_tuple<Options...>;
 
-  using SelfPtr = std::shared_ptr<BasicConfig<Base, Options...>>;
+  using SelfPtr = std::shared_ptr<BasicConfig<ID, Base, Options...>>;
 
   // Constructors
   explicit BasicConfig(const std::string &path = {},
@@ -127,11 +128,12 @@ namespace std {
  * @fn get
  * @brief Function overload to get option stored in config::BasicConfig
  * @tparam Tag String literal to be looked up in list of Options
+ * @tparam ID Unique identified of the IR
  * @tparam Base Base class for the config IR
  * @tparam Options List of Type(decltype("name"_t)) to be stored in config IR
  */
-template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(config::BasicConfig<Base, Options...> const &input) {
+template<typename Tag, typename ID, typename Base, typename... Options>
+decltype(auto) get(config::BasicConfig<ID, Base, Options...> const &input) {
   return input.template get<Tag>();
 }
 
@@ -139,11 +141,12 @@ decltype(auto) get(config::BasicConfig<Base, Options...> const &input) {
  * @fn get
  * @brief Function overload to get option stored in config::BasicConfig
  * @tparam Tag String literal to be looked up in list of Options
+ * @tparam ID Unique identified of the IR
  * @tparam Base Base class for the config IR
  * @tparam Options List of Type(decltype("name"_t)) to be stored in config IR
  */
-template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(config::BasicConfig<Base, Options...> &input) {
+template<typename Tag, typename ID, typename Base, typename... Options>
+decltype(auto) get(config::BasicConfig<ID, Base, Options...> &input) {
   return input.template get<Tag>();
 }
 
@@ -151,11 +154,12 @@ decltype(auto) get(config::BasicConfig<Base, Options...> &input) {
  * @fn get
  * @brief Function overload to get option stored in config::BasicConfig
  * @tparam Tag String literal to be looked up in list of Options
+ * @tparam ID Unique identified of the IR
  * @tparam Base Base class for the config IR
  * @tparam Options List of Type(decltype("name"_t)) to be stored in config IR
  */
-template<typename Tag, typename Base, typename... Options>
-decltype(auto) get(config::BasicConfig<Base, Options...> &&input) {
+template<typename Tag, typename ID, typename Base, typename... Options>
+decltype(auto) get(config::BasicConfig<ID, Base, Options...> &&input) {
   return move(input).template get<Tag>();
 }
 

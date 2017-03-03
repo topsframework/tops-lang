@@ -44,7 +44,7 @@ using StateConfig
   = config_with_options<
       option::definition::Duration(decltype("duration"_t)),
       option::definition::Model(decltype("emission"_t))
-    >::type;
+    >::type<class StateConfigID>;
 
 /**
  * @typedef StateConfigPtr

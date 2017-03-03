@@ -39,7 +39,7 @@ namespace definition {
 using FixedDurationConfig
   = config_with_options<
       option::Size(decltype("size"_t))
-    >::extending<DurationConfig>::type;
+    >::extending<DurationConfig>::type<class FixedDurationConfigID>;
 
 /**
  * @typedef FixedDurationConfigPtr

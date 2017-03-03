@@ -42,7 +42,7 @@ using GHMMConfig
       option::Probabilities(decltype("initial_probabilities"_t)),
       option::Probabilities(decltype("transition_probabilities"_t)),
       option::definition::States(decltype("states"_t))
-    >::extending<DecodableModelConfig>::type;
+    >::extending<DecodableModelConfig>::type<class GHMMConfigID>;
 
 /**
  * @typedef GHMMConfigPtr

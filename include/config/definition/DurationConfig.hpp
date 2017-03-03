@@ -34,7 +34,7 @@ namespace definition {
  * @brief Alias to intermediate representation of a model::Duration
  */
 using DurationConfig
-  = config_with_options<>::type;
+  = config_with_options<>::type<class DurationConfigID>;
 
 /**
  * @typedef DurationConfigPtr

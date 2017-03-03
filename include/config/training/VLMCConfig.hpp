@@ -38,7 +38,8 @@ namespace training {
  * used to train a model::VariableLengthMarkovChain
  */
 using VLMCConfig
-  = config_with_options<>::extending<UntrainedModelConfig>::type;
+  = config_with_options<>::extending<UntrainedModelConfig>
+                         ::type<class VLMCConfigID>;
 
 /**
  * @typedef VLMCConfigPtr
@@ -61,7 +62,7 @@ namespace VLMC {
 using ContextConfig
   = config_with_options<
       option::Counter(decltype("delta"_t))
-    >::extending<VLMCConfig>::type;
+    >::extending<VLMCConfig>::type<class ContextConfigID>;
 
 /**
  * @typedef ContextConfigPtr
@@ -81,7 +82,7 @@ using FixedLengthConfig
       option::Dataset(decltype("weights"_t)),
       option::Order(decltype("order"_t)),
       option::Counter(decltype("pseudo_counter"_t))
-    >::extending<VLMCConfig>::type;
+    >::extending<VLMCConfig>::type<class FixedLengthConfigID>;
 
 /**
  * @typedef FixedLengthConfigPtr
@@ -101,7 +102,7 @@ using InterpolationConfig
       option::Dataset(decltype("weights"_t)),
       option::Order(decltype("order"_t)),
       option::Counter(decltype("pseudo_counter"_t))
-    >::extending<VLMCConfig>::type;
+    >::extending<VLMCConfig>::type<class InterpolationConfigID>;
 
 /**
  * @typedef InterpolationConfigPtr

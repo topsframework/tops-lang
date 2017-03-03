@@ -41,7 +41,7 @@ using DependencyTreeConfig
   = config_with_options<
       option::Pattern(decltype("position"_t)),
       option::definition::Model(decltype("configuration"_t))
-    >::type;
+    >::type<class DependencyTreeConfigID>;
 
 /**
  * @typedef DependencyTreeConfigPtr

@@ -38,7 +38,8 @@ namespace training {
  * used to train a model::DiscreteIIDModel
  */
 using IIDConfig
-  = config_with_options<>::extending<UntrainedModelConfig>::type;
+  = config_with_options<>::extending<UntrainedModelConfig>
+                         ::type<class IIDConfigID>;
 
 /**
  * @typedef IIDConfigPtr
@@ -59,7 +60,8 @@ namespace IID {
  * used to train a model::DiscreteIIDModel
  */
 using MaximumLikehoodConfig
-  = config_with_options<>::extending<IIDConfig>::type;
+  = config_with_options<>::extending<IIDConfig>
+                         ::type<class MaximumLikehoodConfigID>;
 
 /**
  * @typedef MaximumLikehoodConfigPtr
@@ -77,7 +79,7 @@ using SmoothedHistogramBurgeConfig
   = config_with_options<
       option::Counter(decltype("c"_t)),
       option::Length(decltype("maximum_length"_t))
-    >::extending<IIDConfig>::type;
+    >::extending<IIDConfig>::type<class SmoothedHistogramBurgeConfigID>;
 
 /**
  * @typedef SmoothedHistogramBurgeConfigPtr
@@ -97,7 +99,7 @@ using SmoothedHistogramStankeConfig
       option::Length(decltype("maximum_length"_t)),
       option::Length(decltype("m"_t)),
       option::Counter(decltype("slope"_t))
-    >::extending<IIDConfig>::type;
+    >::extending<IIDConfig>::type<class SmoothedHistogramStankeConfigID>;
 
 /**
  * @typedef SmoothedHistogramStankeConfigPtr

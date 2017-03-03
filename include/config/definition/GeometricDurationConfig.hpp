@@ -36,7 +36,8 @@ namespace definition {
  * @brief Alias to intermediate representation of a model::GeometricDuration
  */
 using GeometricDurationConfig
-  = config_with_options<>::extending<DurationConfig>::type;
+  = config_with_options<>::extending<DurationConfig>
+                         ::type<class GeometricDurationConfigID>;
 
 /**
  * @typedef GeometricDurationConfigPtr

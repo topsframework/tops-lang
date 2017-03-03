@@ -52,7 +52,7 @@ class Domain {
   class custom_domain {};
 
   // Alias
-  using Data = config_with_options<>::type;
+  using Data = config_with_options<>::type<class DataID>;
   using DataPtr = std::shared_ptr<Data>;
 
   // Constructors
@@ -74,12 +74,12 @@ class Domain {
   // Aliases
   using DiscreteDomainData = config_with_options<
     option::Alphabet(decltype("alphabet"_t))
-  >::extending<Data>::type;
+  >::extending<Data>::type<class DiscreteDomainDataID>;
 
   using CustomDomainData = config_with_options<
     option::OutToInSymbolFunction(decltype("out_to_in"_t)),
     option::InToOutSymbolFunction(decltype("in_to_out"_t))
-  >::extending<Data>::type;
+  >::extending<Data>::type<class CustomDomainDataID>;
 
   // Instance variables
   ConverterPtr converter_;

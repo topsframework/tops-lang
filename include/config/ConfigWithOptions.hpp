@@ -28,7 +28,7 @@ namespace config {
 
 // Forward declaration
 class Config;
-template<typename Base, typename... Options> class BasicConfig;
+template<typename ID, typename Base, typename... Options> class BasicConfig;
 
 /**
  * @brief Metafunction to create BasicConfig
@@ -36,16 +36,20 @@ template<typename Base, typename... Options> class BasicConfig;
  */
 template<typename... Options>
 struct config_with_options {
-  using type = BasicConfig<Config, Options...>;
+  template<typename ID>
+  using type = BasicConfig<ID, Config, Options...>;
 
   template<typename T>
   struct extending {
     static_assert(delayed_false<T>::value, "Is not a configuration");
   };
 
-  template<typename BaseBase, typename... BaseOptions>
-  struct extending<BasicConfig<BaseBase, BaseOptions...>> {
-    using type = BasicConfig<BasicConfig<BaseBase, BaseOptions...>, Options...>;
+  template<typename BaseID, typename BaseBase, typename... BaseOptions>
+  struct extending<BasicConfig<BaseID, BaseBase, BaseOptions...>> {
+    using Base = BasicConfig<BaseID, BaseBase, BaseOptions...>;
+
+    template<typename ID>
+    using type = BasicConfig<ID, Base, Options...>;
   };
 };
 

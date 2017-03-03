@@ -41,7 +41,7 @@ namespace training {
 using PretrainedModelConfig
   = config_with_options<
       option::definition::Model(decltype("pretrained_model"_t))
-    >::extending<ModelConfig>::type;
+    >::extending<ModelConfig>::type<class PretrainedModelConfigID>;
 
 /**
  * @typedef PretrainedModelConfigPtr
