@@ -196,11 +196,14 @@ void Interpreter::checkExtension(const std::string &filepath) {
 /*----------------------------------------------------------------------------*/
 
 cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
+  const std::string untrained_model = "untrained_model";
+  const std::string pretrained_model = "pretrained_model";
+
   auto category = getConfigOption<
     ct::ModelConfig, decltype("category"_t)>(filepath);
 
   if (category == "PretrainedModel")
-    return fillConfig<ct::PretrainedModelConfig>(filepath);
+    return fillConfig<ct::PretrainedModelConfig>(filepath, pretrained_model);
 
   auto model_type = getConfigOption<
     ct::UntrainedModelConfig, decltype("model_type"_t)>(filepath);
@@ -209,52 +212,63 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
 
   if (model_type == "GHMM") {
     if (training_algorithm == "MaximumLikehood") {
-      return fillConfig<ct::GHMM::MaximumLikehoodConfig>(filepath);
+      return fillConfig<ct::GHMM::MaximumLikehoodConfig>(
+          filepath, untrained_model);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "HMM") {
     if (training_algorithm == "MaximumLikehood") {
-      return fillConfig<ct::HMM::MaximumLikehoodConfig>(filepath);
+      return fillConfig<ct::HMM::MaximumLikehoodConfig>(
+          filepath, untrained_model);
     } else if (training_algorithm == "BaumWelch") {
-      return fillConfig<ct::HMM::BaumWelchConfig>(filepath);
+      return fillConfig<ct::HMM::BaumWelchConfig>(
+          filepath, untrained_model);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "IID") {
     if (training_algorithm == "MaximumLikehood") {
-      return fillConfig<ct::IID::MaximumLikehoodConfig>(filepath);
+      return fillConfig<ct::IID::MaximumLikehoodConfig>(
+          filepath, untrained_model);
     } else if (training_algorithm == "SmoothedHistogramBurge") {
-      return fillConfig<ct::IID::SmoothedHistogramBurgeConfig>(filepath);
+      return fillConfig<ct::IID::SmoothedHistogramBurgeConfig>(
+          filepath, untrained_model);
     } else if (training_algorithm == "SmoothedHistogramStanke") {
-      return fillConfig<ct::IID::SmoothedHistogramStankeConfig>(filepath);
+      return fillConfig<ct::IID::SmoothedHistogramStankeConfig>(
+          filepath, untrained_model);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "MDD") {
     if (training_algorithm == "Standard") {
-      return fillConfig<ct::MDD::StandardConfig>(filepath);
+      return fillConfig<ct::MDD::StandardConfig>(
+          filepath, untrained_model);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "PeriodicIMC") {
     if (training_algorithm == "Interpolation") {
-      return fillConfig<ct::PeriodicIMC::InterpolationConfig>(filepath);
+      return fillConfig<ct::PeriodicIMC::InterpolationConfig>(
+          filepath, untrained_model);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "VLMC") {
     if (training_algorithm == "Context") {
-      return fillConfig<ct::VLMC::ContextConfig>(filepath);
+      return fillConfig<ct::VLMC::ContextConfig>(
+          filepath, untrained_model);
     } else if (training_algorithm == "FixedLength") {
-      return fillConfig<ct::VLMC::FixedLengthConfig>(filepath);
+      return fillConfig<ct::VLMC::FixedLengthConfig>(
+          filepath, untrained_model);
     } else if (training_algorithm == "Interpolation") {
-      return fillConfig<ct::VLMC::InterpolationConfig>(filepath);
+      return fillConfig<ct::VLMC::InterpolationConfig>(
+          filepath, untrained_model);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
