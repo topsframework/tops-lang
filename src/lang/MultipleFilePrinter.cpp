@@ -101,7 +101,7 @@ void MultipleFilePrinter::print(co::Domain domain) {
 /*----------------------------------------------------------------------------*/
 
 void MultipleFilePrinter::print(cot::Model model) {
-  callFunction("training", pathForHelperCall(model->path()));
+  callFunction(model->label(), pathForHelperCall(model->path()));
   subtrainings_.push_back(model);
 }
 
@@ -126,7 +126,7 @@ void MultipleFilePrinter::print(cot::Duration duration) {
 /*----------------------------------------------------------------------------*/
 
 void MultipleFilePrinter::print(cod::Model model) {
-  callFunction("model", pathForHelperCall(model->path()));
+  callFunction(model->label(), pathForHelperCall(model->path()));
   submodels_.push_back(model);
 }
 

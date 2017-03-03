@@ -283,29 +283,31 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
 /*----------------------------------------------------------------------------*/
 
 cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath) {
+  const std::string model = "model";
+
   auto model_type = getConfigOption<
     cd::ModelConfig, decltype("model_type"_t)>(filepath);
 
   if (model_type == "GHMM") {
-    return fillConfig<cd::GHMMConfig>(filepath);
+    return fillConfig<cd::GHMMConfig>(filepath, model);
   } else if (model_type == "HMM") {
-    return fillConfig<cd::HMMConfig>(filepath);
+    return fillConfig<cd::HMMConfig>(filepath, model);
   } else if (model_type == "LCCRF") {
-    return fillConfig<cd::LCCRFConfig>(filepath);
+    return fillConfig<cd::LCCRFConfig>(filepath, model);
   } else if (model_type == "IID") {
-    return fillConfig<cd::IIDConfig>(filepath);
+    return fillConfig<cd::IIDConfig>(filepath, model);
   } else if (model_type == "VLMC") {
-    return fillConfig<cd::VLMCConfig>(filepath);
+    return fillConfig<cd::VLMCConfig>(filepath, model);
   } else if (model_type == "IMC") {
-    return fillConfig<cd::IMCConfig>(filepath);
+    return fillConfig<cd::IMCConfig>(filepath, model);
   } else if (model_type == "PeriodicIMC") {
-    return fillConfig<cd::PeriodicIMCConfig>(filepath);
+    return fillConfig<cd::PeriodicIMCConfig>(filepath, model);
   } else if (model_type == "SBSW") {
-    return fillConfig<cd::SBSWConfig>(filepath);
+    return fillConfig<cd::SBSWConfig>(filepath, model);
   } else if (model_type == "MSM") {
-    return fillConfig<cd::MSMConfig>(filepath);
+    return fillConfig<cd::MSMConfig>(filepath, model);
   } else if (model_type == "MDD") {
-    return fillConfig<cd::MDDConfig>(filepath);
+    return fillConfig<cd::MDDConfig>(filepath, model);
   } else {
     handleWrongStringOption(filepath, "model_type", model_type);
   }
