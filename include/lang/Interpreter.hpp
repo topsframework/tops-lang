@@ -70,18 +70,24 @@ class Interpreter {
   std::shared_ptr<Config> fillConfig(const std::string &filepath,
                                      const std::string &label = "");
 
-  chaiscript::ModulePtr makeInterpreterLibrary(const std::string &filepath);
+  chaiscript::ModulePtr
+  makeDefinitionInterpreterLibrary(const std::string &filepath);
 
-  void registerTypes(chaiscript::ModulePtr &module,
-                     const std::string &filepath);
-  void registerHelpers(chaiscript::ModulePtr &module,
-                       const std::string &filepath);
-  void registerConstants(chaiscript::ModulePtr &module,
-                         const std::string &filepath);
-  void registerAttributions(chaiscript::ModulePtr &module,
-                            const std::string &filepath);
-  void registerConcatenations(chaiscript::ModulePtr &module,
-                              const std::string &filepath);
+  void registerCommonTypes(chaiscript::ModulePtr &module,
+                           const std::string &filepath);
+  void registerCommonConstants(chaiscript::ModulePtr &module,
+                               const std::string &filepath);
+  void registerCommonAttributions(chaiscript::ModulePtr &module,
+                                  const std::string &filepath);
+  void registerCommonConcatenations(chaiscript::ModulePtr &module,
+                                    const std::string &filepath);
+
+  void registerDefinitionTypes(chaiscript::ModulePtr &module,
+                               const std::string &filepath);
+  void registerDefinitionHelpers(chaiscript::ModulePtr &module,
+                                 const std::string &filepath);
+  void registerDefinitionAttributions(chaiscript::ModulePtr &module,
+                                      const std::string &filepath);
 };
 
 }  // namespace lang

@@ -43,7 +43,7 @@ decltype(auto) Interpreter::getConfigOption(const std::string &filepath,
   std::vector<std::string> usepaths { root_dir };
 
   chaiscript::ChaiScript chai(modulepaths, usepaths);
-  chai.add(makeInterpreterLibrary(filepath));
+  chai.add(makeDefinitionInterpreterLibrary(filepath));
 
   auto cfg = Config::make(filepath);
   cfg->accept(ModelConfigRegister(chai));
@@ -68,7 +68,7 @@ std::shared_ptr<Config> Interpreter::fillConfig(const std::string &filepath,
   std::vector<std::string> usepaths { root_dir };
 
   chaiscript::ChaiScript chai(modulepaths, usepaths);
-  chai.add(makeInterpreterLibrary(filepath));
+  chai.add(makeDefinitionInterpreterLibrary(filepath));
 
   auto cfg = Config::make(filepath, label);
   cfg->accept(ModelConfigRegister(chai));

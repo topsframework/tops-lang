@@ -338,16 +338,20 @@ bool Interpreter::missingObjectException(const std::exception &e) {
 /*----------------------------------------------------------------------------*/
 
 chaiscript::ModulePtr
-Interpreter::makeInterpreterLibrary(const std::string &filepath) {
+Interpreter::makeDefinitionInterpreterLibrary(const std::string &filepath) {
   static auto interpreter_library = std::make_shared<chaiscript::Module>();
   static bool initialized = false;
 
   if (!initialized) {
-    registerTypes(interpreter_library, filepath);
-    registerHelpers(interpreter_library, filepath);
-    registerConstants(interpreter_library, filepath);
-    registerAttributions(interpreter_library, filepath);
-    registerConcatenations(interpreter_library, filepath);
+    registerCommonTypes(interpreter_library, filepath);
+    registerCommonConstants(interpreter_library, filepath);
+    registerCommonAttributions(interpreter_library, filepath);
+    registerCommonConcatenations(interpreter_library, filepath);
+
+    registerDefinitionTypes(interpreter_library, filepath);
+    registerDefinitionHelpers(interpreter_library, filepath);
+    registerDefinitionAttributions(interpreter_library, filepath);
+
     initialized = true;
   }
 
@@ -356,8 +360,8 @@ Interpreter::makeInterpreterLibrary(const std::string &filepath) {
 
 /*----------------------------------------------------------------------------*/
 
-void Interpreter::registerTypes(chaiscript::ModulePtr &module,
-                                const std::string &/* filepath */) {
+void Interpreter::registerCommonTypes(chaiscript::ModulePtr &module,
+                                      const std::string &/* filepath */) {
   // Ordinary types
   REGISTER_COMMON_TYPE(Size);
   REGISTER_COMMON_TYPE(Type);
@@ -376,7 +380,69 @@ void Interpreter::registerTypes(chaiscript::ModulePtr &module,
 
   REGISTER_COMMON_MAP(Probabilities);
   REGISTER_COMMON_MAP(FeatureFunctions);
+}
 
+/*----------------------------------------------------------------------------*/
+
+void Interpreter::registerCommonConstants(chaiscript::ModulePtr &module,
+                                          const std::string &/* filepath */) {
+  using chaiscript::const_var;
+
+  module->add_global_const(const_var(std::string("emission")), "emission");
+  module->add_global_const(const_var(std::string("duration")), "duration");
+}
+
+/*----------------------------------------------------------------------------*/
+
+void Interpreter::registerCommonAttributions(chaiscript::ModulePtr &module,
+                                             const std::string &filepath) {
+  using chaiscript::fun;
+  using chaiscript::boxed_cast;
+
+  using chaiscript::Boxed_Value;
+  using Vector = std::vector<Boxed_Value>;
+  using Map = std::map<std::string, Boxed_Value>;
+
+  module->add(fun([] (config::Domain &conv, const Vector &orig) {
+    co::Alphabet alphabet;
+    for (auto &element : orig)
+      alphabet.push_back(boxed_cast<co::Symbol>(element));
+
+    conv = config::Domain(typename config::Domain::discrete_domain{}, alphabet);
+  }), "=");
+
+  module->add(fun([] (co::Alphabets &conv, const Vector &orig) {
+    for (auto &element : orig) {
+      auto inner_orig = boxed_cast<Vector &>(element);
+      co::Alphabet inner_conv;
+
+      for (auto &inner_element : inner_orig)
+        inner_conv.push_back(boxed_cast<co::Symbol>(inner_element));
+
+      conv.push_back(inner_conv);
+    }
+  }), "=");
+}
+
+/*----------------------------------------------------------------------------*/
+
+void Interpreter::registerCommonConcatenations(
+    chaiscript::ModulePtr &module, const std::string &/* filepath */) {
+  using chaiscript::fun;
+
+  module->add(fun([] (const std::string &lhs, const std::string &rhs) {
+    return lhs + " | " + rhs;
+  }), "|");
+
+  module->add(fun([] (const std::string &lhs, const std::string &rhs) {
+    return rhs + " | " + lhs;
+  }), "->");
+}
+
+/*----------------------------------------------------------------------------*/
+
+void Interpreter::registerDefinitionTypes(chaiscript::ModulePtr &module,
+                                          const std::string &/* filepath */) {
   // Definitions
   REGISTER_DEFINITION_TYPE(Model);
   REGISTER_DEFINITION_TYPE(Models);
@@ -396,8 +462,8 @@ void Interpreter::registerTypes(chaiscript::ModulePtr &module,
 
 /*----------------------------------------------------------------------------*/
 
-void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
-                                  const std::string &filepath) {
+void Interpreter::registerDefinitionHelpers(chaiscript::ModulePtr &module,
+                                            const std::string &filepath) {
   using chaiscript::fun;
 
   using cd::FixedDurationConfig;
@@ -487,44 +553,13 @@ void Interpreter::registerHelpers(chaiscript::ModulePtr &module,
 
 /*----------------------------------------------------------------------------*/
 
-void Interpreter::registerConstants(chaiscript::ModulePtr &module,
-                                    const std::string &/* filepath */) {
-  using chaiscript::const_var;
-
-  module->add_global_const(const_var(std::string("emission")), "emission");
-  module->add_global_const(const_var(std::string("duration")), "duration");
-}
-
-/*----------------------------------------------------------------------------*/
-
-void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
-                                       const std::string &filepath) {
+void Interpreter::registerDefinitionAttributions(chaiscript::ModulePtr &module,
+                                                 const std::string &filepath) {
   using chaiscript::fun;
   using chaiscript::boxed_cast;
 
   using chaiscript::Boxed_Value;
-  using Vector = std::vector<Boxed_Value>;
   using Map = std::map<std::string, Boxed_Value>;
-
-  module->add(fun([] (config::Domain &conv, const Vector &orig) {
-    co::Alphabet alphabet;
-    for (auto &element : orig)
-      alphabet.push_back(boxed_cast<co::Symbol>(element));
-
-    conv = config::Domain(typename config::Domain::discrete_domain{}, alphabet);
-  }), "=");
-
-  module->add(fun([] (co::Alphabets &conv, const Vector &orig) {
-    for (auto &element : orig) {
-      auto inner_orig = boxed_cast<Vector &>(element);
-      co::Alphabet inner_conv;
-
-      for (auto &inner_element : inner_orig)
-        inner_conv.push_back(boxed_cast<co::Symbol>(inner_element));
-
-      conv.push_back(inner_conv);
-    }
-  }), "=");
 
   module->add(fun([filepath] (cod::States &conv, const Map &orig) {
     for (auto &pair : orig) {
@@ -539,21 +574,6 @@ void Interpreter::registerAttributions(chaiscript::ModulePtr &module,
         = boxed_cast<cod::Model>(inner_orig["emission"]);
     }
   }), "=");
-}
-
-/*----------------------------------------------------------------------------*/
-
-void Interpreter::registerConcatenations(chaiscript::ModulePtr &module,
-                                         const std::string &/* filepath */) {
-  using chaiscript::fun;
-
-  module->add(fun([] (const std::string &lhs, const std::string &rhs) {
-    return lhs + " | " + rhs;
-  }), "|");
-
-  module->add(fun([] (const std::string &lhs, const std::string &rhs) {
-    return rhs + " | " + lhs;
-  }), "->");
 }
 
 /*----------------------------------------------------------------------------*/
