@@ -43,7 +43,7 @@ namespace training {
 using StateConfig
   = config_with_options<
       option::training::Duration(decltype("duration"_t)),
-      option::training::Model(decltype("emission"_t))
+      option::Model(decltype("emission"_t))
     >::type<class StateConfigID>;
 
 /**

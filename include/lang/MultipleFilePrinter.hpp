@@ -69,13 +69,12 @@ class MultipleFilePrinter : public FilePrinter {
   void startPrinting() override;
   void endPrinting() override;
 
+  void print(co::Model model) override;
   void print(co::Domain domain) override;
 
-  void print(cot::Model model) override;
   void print(cot::State state) override;
   void print(cot::Duration duration) override;
 
-  void print(cod::Model model) override;
   void print(cod::State state) override;
   void print(cod::Duration duration) override;
   void print(cod::DependencyTree tree) override;
@@ -88,9 +87,7 @@ class MultipleFilePrinter : public FilePrinter {
   std::string root_dir_;
   std::string working_dir_;
 
-  std::list<cot::Model> subtrainings_;
-
-  std::list<cod::Model> submodels_;
+  std::list<co::Model> submodels_;
   std::list<cod::DependencyTree> trees_;
   std::list<cod::FeatureFunctionLibrary> libraries_;
 
@@ -104,9 +101,7 @@ class MultipleFilePrinter : public FilePrinter {
   // Concrete methods
   std::string pathForHelperCall(const std::string &path);
 
-  void printSubtraining(cot::Model subtraining);
-
-  void printSubmodel(cod::Model submodel);
+  void printSubmodel(co::Model submodel);
   void printTree(cod::DependencyTree tree);
   void printLibrary(cod::FeatureFunctionLibrary library);
 };

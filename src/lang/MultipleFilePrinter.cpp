@@ -91,18 +91,18 @@ void MultipleFilePrinter::endPrinting() {
 
 /*----------------------------------------------------------------------------*/
 
+void MultipleFilePrinter::print(co::Model model) {
+  callFunction(model->label(), pathForHelperCall(model->path()));
+  submodels_.push_back(model);
+}
+
+/*----------------------------------------------------------------------------*/
+
 void MultipleFilePrinter::print(co::Domain domain) {
   openFunction(domain->data()->label());
   domain->data()->accept(ModelConfigSerializer(
         Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
   closeFunction();
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MultipleFilePrinter::print(cot::Model model) {
-  callFunction(model->label(), pathForHelperCall(model->path()));
-  subtrainings_.push_back(model);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -121,13 +121,6 @@ void MultipleFilePrinter::print(cot::Duration duration) {
   duration->accept(ModelConfigSerializer(
         Self::make(false, root_dir_, os_, depth_, "", ", ", "")));
   closeFunction();
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MultipleFilePrinter::print(cod::Model model) {
-  callFunction(model->label(), pathForHelperCall(model->path()));
-  submodels_.push_back(model);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -172,14 +165,7 @@ std::string MultipleFilePrinter::pathForHelperCall(const std::string &path) {
 
 /*----------------------------------------------------------------------------*/
 
-void MultipleFilePrinter::printSubtraining(cot::Model subtraining) {
-  subtraining->accept(ModelConfigSerializer(
-        Self::make(true, root_dir_, os_, 0)));
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MultipleFilePrinter::printSubmodel(cod::Model submodel) {
+void MultipleFilePrinter::printSubmodel(co::Model submodel) {
   submodel->accept(ModelConfigSerializer(
         Self::make(true, root_dir_, os_, 0)));
 }

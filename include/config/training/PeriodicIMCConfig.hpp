@@ -27,19 +27,19 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/training/UntrainedModelConfig.hpp"
+#include "config/training/ModelConfig.hpp"
 
 namespace config {
 namespace training {
 
 /**
  * @typedef PeriodicIMCConfig
- * Alias to IR of the parameters of the algorithms 
+ * Alias to IR of the parameters of the algorithms
  * used to train a model::PeriodicInhomogeneousMarkovChain
  */
 using PeriodicIMCConfig
-  = config_with_options<>::extending<UntrainedModelConfig>
-                         ::type<class PeriodicIMCConfigID>;
+  = config_with_options<
+    >::extending<ModelConfig>::type<class PeriodicIMCConfigID>;
 
 /**
  * @typedef PeriodicIMCConfigPtr
@@ -61,7 +61,7 @@ namespace PeriodicIMC {
  */
 using InterpolationConfig
   = config_with_options<
-      option::training::Model(decltype("initial_model"_t)),
+      option::Model(decltype("initial_model"_t)),
       option::Dataset(decltype("weights"_t)),
       option::Order(decltype("order"_t)),
       option::Order(decltype("number_of_phases"_t)),

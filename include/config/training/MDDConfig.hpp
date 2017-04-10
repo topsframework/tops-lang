@@ -27,7 +27,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/training/UntrainedModelConfig.hpp"
+#include "config/training/ModelConfig.hpp"
 
 namespace config {
 namespace training {
@@ -38,8 +38,7 @@ namespace training {
  * used to train a model::MaximalDependenceDecomposition
  */
 using MDDConfig
-  = config_with_options<>::extending<UntrainedModelConfig>
-                         ::type<class MDDConfigID>;
+  = config_with_options<>::extending<ModelConfig>::type<class MDDConfigID>;
 
 /**
  * @typedef MDDConfigPtr
@@ -62,7 +61,7 @@ namespace MDD {
 using StandardConfig
   = config_with_options<
       option::Pattern(decltype("consensus"_t)),
-      option::training::Model(decltype("consensus_model"_t)),
+      option::Model(decltype("consensus_model"_t)),
       option::Size(decltype("minimum_subset"_t))
     >::extending<MDDConfig>::type<class StandardConfigID>;
 

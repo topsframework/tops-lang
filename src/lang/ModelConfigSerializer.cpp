@@ -34,8 +34,11 @@
 #include "lang/MultipleFilePrinter.hpp"
 
 #include "config/Options.hpp"
-#include "config/training/ModelConfig.hpp"
-#include "config/definition/ModelConfig.hpp"
+#include "config/ModelConfig.hpp"
+
+#include "config/training/StateConfig.hpp"
+#include "config/training/DurationConfig.hpp"
+
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
 #include "config/definition/DependencyTreeConfig.hpp"
@@ -152,13 +155,13 @@ void ModelConfigSerializer::visitOption(co::InToOutSymbolFunction &visited) {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cot::Model &visited) {
+void ModelConfigSerializer::visitOption(co::Model &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cot::Models &visited) {
+void ModelConfigSerializer::visitOption(co::Models &visited) {
   printer_->print(visited);
 }
 
@@ -177,19 +180,6 @@ void ModelConfigSerializer::visitOption(cot::States &visited) {
 /*----------------------------------------------------------------------------*/
 
 void ModelConfigSerializer::visitOption(cot::Duration &visited) {
-  printer_->print(visited);
-}
-
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(cod::Model &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(cod::Models &visited) {
   printer_->print(visited);
 }
 

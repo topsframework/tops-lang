@@ -29,12 +29,11 @@
 #include "config/BasicConfig.hpp"
 
 #include "config/Options.hpp"
+#include "config/ModelConfig.hpp"
 
-#include "config/training/ModelConfig.hpp"
 #include "config/training/StateConfig.hpp"
 #include "config/training/DurationConfig.hpp"
 
-#include "config/definition/ModelConfig.hpp"
 #include "config/definition/StateConfig.hpp"
 #include "config/definition/DurationConfig.hpp"
 #include "config/definition/DependencyTreeConfig.hpp"
@@ -149,14 +148,14 @@ void ModelConfigRegister::visitOption(co::InToOutSymbolFunction &visited) {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cot::Model &visited) {
-  visited = std::make_shared<typename cot::Model::element_type>();
+void ModelConfigRegister::visitOption(co::Model &visited) {
+  visited = std::make_shared<typename co::Model::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cot::Models &visited) {
+void ModelConfigRegister::visitOption(co::Models &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
@@ -178,19 +177,6 @@ void ModelConfigRegister::visitOption(cot::States &visited) {
 void ModelConfigRegister::visitOption(cot::Duration &visited) {
   visited = std::make_shared<typename cot::Duration::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::Model &visited) {
-  visited = std::make_shared<typename cod::Model::element_type>();
-  chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::Models &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/

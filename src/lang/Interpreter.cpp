@@ -38,13 +38,12 @@
 #include "lang/DependencyTreeParser.hpp"
 
 #include "config/Domain.hpp"
+#include "config/ModelConfig.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
 #include "config/Options.hpp"
 
 #include "config/training/ModelConfig.hpp"
-#include "config/training/UntrainedModelConfig.hpp"
-#include "config/training/PretrainedModelConfig.hpp"
 #include "config/training/HMMConfig.hpp"
 #include "config/training/IIDConfig.hpp"
 #include "config/training/MDDConfig.hpp"
@@ -210,19 +209,12 @@ void Interpreter::checkExtension(const std::string &filepath) {
 /*----------------------------------------------------------------------------*/
 
 cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
-  const std::string untrained_model = "untrained_model";
-  const std::string pretrained_model = "pretrained_model";
-
-  bool is_pretrained = hasConfigOption<
-    ct::PretrainedModelConfig, decltype("pretrained_model"_t)>(filepath);
-
-  if (is_pretrained)
-    return fillConfig<ct::PretrainedModelConfig>(filepath, pretrained_model);
+  std::string untrained_model = "untrained_model";
 
   auto model_type = getConfigOption<
-    ct::UntrainedModelConfig, decltype("model_type"_t)>(filepath);
+    ct::ModelConfig, decltype("model_type"_t)>(filepath);
   auto training_algorithm = getConfigOption<
-    ct::UntrainedModelConfig, decltype("training_algorithm"_t)>(filepath);
+    ct::ModelConfig, decltype("training_algorithm"_t)>(filepath);
 
   if (model_type == "GHMM") {
     if (training_algorithm == "MaximumLikehood") {
@@ -463,7 +455,6 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
                                           const std::string &filepath) {
   using chaiscript::fun;
 
-  using ct::PretrainedModelConfig;
   using ct::FixedDurationConfig;
   using ct::ExplicitDurationConfig;
   using ct::GeometricDurationConfig;
@@ -472,15 +463,13 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
   module->add(fun([this, filepath] (const std::string &file) {
     auto untrained_model
       = this->makeModelTrainingConfig(extractDir(filepath) + file);
-    return cot::Model(untrained_model);
+    return co::Model(untrained_model);
   }), "untrained_model");
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto pretrained_model
-      = PretrainedModelConfig::make(filepath, "pretrained_model");
-    std::get<decltype("pretrained_model"_t)>(*pretrained_model.get())
       = this->makeModelDefinitionConfig(extractDir(filepath) + file);
-    return cot::Model(pretrained_model);
+    return co::Model(pretrained_model);
   }), "pretrained_model");
 
   module->add(fun([this, filepath]() {
@@ -549,7 +538,7 @@ void Interpreter::registerTrainingAttributions(chaiscript::ModulePtr &module,
         = boxed_cast<cot::Duration>(inner_orig["duration"]);
 
       std::get<decltype("emission"_t)>(*conv[pair.first])
-        = boxed_cast<cot::Model>(inner_orig["emission"]);
+        = boxed_cast<co::Model>(inner_orig["emission"]);
     }
   }), "=");
 }
@@ -586,7 +575,7 @@ void Interpreter::registerDefinitionHelpers(chaiscript::ModulePtr &module,
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto root_dir = extractDir(filepath);
-    return this->makeModelDefinitionConfig(root_dir + file);
+    return co::Model(this->makeModelDefinitionConfig(root_dir + file));
   }), "model");
 
   module->add(fun([this, filepath]() {
@@ -671,7 +660,7 @@ void Interpreter::registerDefinitionAttributions(chaiscript::ModulePtr &module,
         = boxed_cast<cod::Duration>(inner_orig["duration"]);
 
       std::get<decltype("emission"_t)>(*conv[pair.first])
-        = boxed_cast<cod::Model>(inner_orig["emission"]);
+        = boxed_cast<co::Model>(inner_orig["emission"]);
     }
   }), "=");
 }

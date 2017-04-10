@@ -39,7 +39,7 @@ namespace training {
  */
 using ExplicitDurationConfig
   = config_with_options<
-      option::training::Model(decltype("model"_t)),
+      option::Model(decltype("model"_t)),
       option::Size(decltype("max_size"_t))
     >::extending<DurationConfig>::type<class ExplicitDurationConfigID>;
 

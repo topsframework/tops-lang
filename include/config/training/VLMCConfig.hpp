@@ -27,7 +27,7 @@
 #include "config/ConfigWithOptions.hpp"
 
 #include "config/Options.hpp"
-#include "config/training/UntrainedModelConfig.hpp"
+#include "config/training/ModelConfig.hpp"
 
 namespace config {
 namespace training {
@@ -38,8 +38,7 @@ namespace training {
  * used to train a model::VariableLengthMarkovChain
  */
 using VLMCConfig
-  = config_with_options<>::extending<UntrainedModelConfig>
-                         ::type<class VLMCConfigID>;
+  = config_with_options<>::extending<ModelConfig>::type<class VLMCConfigID>;
 
 /**
  * @typedef VLMCConfigPtr
@@ -78,7 +77,7 @@ using ContextConfigPtr
  */
 using FixedLengthConfig
   = config_with_options<
-      option::training::Model(decltype("initial_model"_t)),
+      option::Model(decltype("initial_model"_t)),
       option::Dataset(decltype("weights"_t)),
       option::Order(decltype("order"_t)),
       option::Counter(decltype("pseudo_counter"_t))
@@ -98,7 +97,7 @@ using FixedLengthConfigPtr
  */
 using InterpolationConfig
   = config_with_options<
-      option::training::Model(decltype("initial_model"_t)),
+      option::Model(decltype("initial_model"_t)),
       option::Dataset(decltype("weights"_t)),
       option::Order(decltype("order"_t)),
       option::Counter(decltype("pseudo_counter"_t))

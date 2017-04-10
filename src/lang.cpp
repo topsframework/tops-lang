@@ -30,7 +30,6 @@
 #include "config/StringLiteralSuffix.hpp"
 
 #include "config/training/ModelConfig.hpp"
-#include "config/training/UntrainedModelConfig.hpp"
 #include "config/training/DecodableModelConfig.hpp"
 
 #include "config/definition/ModelConfig.hpp"
@@ -121,7 +120,7 @@ int main(int argc, char **argv) try {
       converters = makeConverters<cd::ModelConfig,
                                   cd::DecodableModelConfig>(cfg);
     } else if (config_type == "-t") {
-      converters = makeConverters<ct::UntrainedModelConfig,
+      converters = makeConverters<ct::ModelConfig,
                                   ct::DecodableModelConfig>(cfg);
     }
 

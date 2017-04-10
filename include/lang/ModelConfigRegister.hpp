@@ -77,14 +77,13 @@ class ModelConfigRegister
   void visitOption(co::OutToInSymbolFunction &visited) override;
   void visitOption(co::InToOutSymbolFunction &visited) override;
 
-  void visitOption(cot::Model &visited) override;
-  void visitOption(cot::Models &visited) override;
+  void visitOption(co::Model &visited) override;
+  void visitOption(co::Models &visited) override;
+
   void visitOption(cot::State &visited) override;
   void visitOption(cot::States &visited) override;
   void visitOption(cot::Duration &visited) override;
 
-  void visitOption(cod::Model &visited) override;
-  void visitOption(cod::Models &visited) override;
   void visitOption(cod::State &visited) override;
   void visitOption(cod::States &visited) override;
   void visitOption(cod::Duration &visited) override;

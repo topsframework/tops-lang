@@ -17,51 +17,41 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef CONFIG_TRAINING_PRETRAINED_MODEL_CONFIG_
-#define CONFIG_TRAINING_PRETRAINED_MODEL_CONFIG_
+#ifndef CONFIG_MODEL_CONFIG_
+#define CONFIG_MODEL_CONFIG_
 
 // Standard headers
 #include <memory>
 #include <vector>
 
 // Internal headers
+#include "config/Options.hpp"
 #include "config/ConfigWithOptions.hpp"
 
-#include "config/Options.hpp"
-#include "config/training/ModelConfig.hpp"
-#include "config/definition/ModelConfig.hpp"
-
 namespace config {
-namespace training {
 
 /**
- * @typedef PretrainedModelConfig
- * @brief Alias to IR of a pretrained model::ProbabilisticModel
+ * @typedef ModelConfig
+ * @brief Alias to IR of a model::ProbabilisticModel
  */
-using PretrainedModelConfig
-  = config_with_options<
-      option::definition::Model(decltype("pretrained_model"_t))
-    >::extending<ModelConfig>::type<class PretrainedModelConfigID>;
+using ModelConfig
+  = config_with_options<>::type<class ModelConfigID>;;
 
 /**
- * @typedef PretrainedModelConfigPtr
- * @brief Alias of pointer to PretrainedModelConfig
+ * @typedef ModelConfigPtr
+ * @brief Alias of pointer to ModelConfig
  */
-using PretrainedModelConfigPtr
-  = std::shared_ptr<PretrainedModelConfig>;
+using ModelConfigPtr = std::shared_ptr<ModelConfig>;
 
-}  // namespace training
 }  // namespace config
 
 namespace config {
 namespace option {
-namespace training {
 
-using PretrainedModel
-  = config::training::PretrainedModelConfigPtr;
+using Model = config::ModelConfigPtr;
+using Models = std::vector<Model>;
 
-}  // namespace training
 }  // namespace option
 }  // namespace config
 
-#endif  // CONFIG_TRAINING_PRETRAINED_MODEL_CONFIG_
+#endif  // CONFIG_MODEL_CONFIG_

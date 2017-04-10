@@ -39,7 +39,7 @@ namespace definition {
  */
 using ExplicitDurationConfig
   = config_with_options<
-      option::definition::Model(decltype("model"_t)),
+      option::Model(decltype("model"_t)),
       option::Size(decltype("max_size"_t))
     >::extending<DurationConfig>::type<class ExplicitDurationConfigID>;
 

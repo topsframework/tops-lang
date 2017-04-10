@@ -92,14 +92,13 @@ class ConfigVisitor {
   virtual void visitOption(option::OutToInSymbolFunction &) = 0;
   virtual void visitOption(option::InToOutSymbolFunction &) = 0;
 
-  virtual void visitOption(option::training::Model &) = 0;
-  virtual void visitOption(option::training::Models &) = 0;
+  virtual void visitOption(option::Model &) = 0;
+  virtual void visitOption(option::Models &) = 0;
+
   virtual void visitOption(option::training::State &) = 0;
   virtual void visitOption(option::training::States &) = 0;
   virtual void visitOption(option::training::Duration &) = 0;
 
-  virtual void visitOption(option::definition::Model &) = 0;
-  virtual void visitOption(option::definition::Models &) = 0;
   virtual void visitOption(option::definition::State &) = 0;
   virtual void visitOption(option::definition::States &) = 0;
   virtual void visitOption(option::definition::Duration &) = 0;

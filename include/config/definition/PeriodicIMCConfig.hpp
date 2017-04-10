@@ -38,7 +38,7 @@ namespace definition {
  */
 using PeriodicIMCConfig
   = config_with_options<
-      option::definition::Models(decltype("position_specific_distributions"_t))
+      option::Models(decltype("position_specific_distributions"_t))
     >::extending<ModelConfig>::type<class PeriodicIMCConfigID>;
 
 /**

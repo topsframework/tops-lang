@@ -67,13 +67,12 @@ class FilePrinter {
   };
 
   // Purely virtual methods
+  virtual void print(co::Model model) = 0;
   virtual void print(co::Domain domain) = 0;
 
-  virtual void print(cot::Model model) = 0;
   virtual void print(cot::State state) = 0;
   virtual void print(cot::Duration duration) = 0;
 
-  virtual void print(cod::Model model) = 0;
   virtual void print(cod::State state) = 0;
   virtual void print(cod::Duration duration) = 0;
   virtual void print(cod::DependencyTree tree) = 0;

@@ -48,19 +48,19 @@ SingleFilePrinter::SingleFilePrinter(std::shared_ptr<std::ostream> os)
 /*                             OVERRIDEN METHODS                              */
 /*----------------------------------------------------------------------------*/
 
+void SingleFilePrinter::print(co::Model model) {
+  openSection('{');
+  model->accept(ModelConfigSerializer(Self::make(os_, depth_)));
+  closeSection('}');
+}
+
+/*----------------------------------------------------------------------------*/
+
 void SingleFilePrinter::print(co::Domain domain) {
   openFunction(domain->data()->label());
   domain->data()->accept(ModelConfigSerializer(
         Self::make(os_, depth_, "", ", ", "")));
   closeFunction();
-}
-
-/*----------------------------------------------------------------------------*/
-
-void SingleFilePrinter::print(cot::Model model) {
-  openSection('{');
-  model->accept(ModelConfigSerializer(Self::make(os_, depth_)));
-  closeSection('}');
 }
 
 /*----------------------------------------------------------------------------*/
@@ -79,14 +79,6 @@ void SingleFilePrinter::print(cot::Duration duration) {
   duration->accept(ModelConfigSerializer(
         Self::make(os_, depth_, "", ", ", "")));
   closeFunction();
-}
-
-/*----------------------------------------------------------------------------*/
-
-void SingleFilePrinter::print(cod::Model model) {
-  openSection('{');
-  model->accept(ModelConfigSerializer(Self::make(os_, depth_)));
-  closeSection('}');
 }
 
 /*----------------------------------------------------------------------------*/

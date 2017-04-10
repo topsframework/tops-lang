@@ -25,18 +25,26 @@
 #include <vector>
 
 // Internal headers
-#include "config/Options.hpp"
 #include "config/ConfigWithOptions.hpp"
+
+#include "config/Domain.hpp"
+#include "config/Options.hpp"
+#include "config/ModelConfig.hpp"
 
 namespace config {
 namespace training {
 
 /**
  * @typedef ModelConfig
- * @brief Alias to IR of a model::ProbabilisticModel
+ * @brief Alias to IR of a training of model::ProbabilisticModel
  */
 using ModelConfig
-  = config_with_options<>::type<class ModelConfigID>;;
+  = config_with_options<
+      option::Type(decltype("model_type"_t)),
+      option::Domain(decltype("observations"_t)),
+      option::Dataset(decltype("training_set"_t)),
+      option::Algorithm(decltype("training_algorithm"_t))
+    >::extending<ModelConfig>::type<class ModelConfigID>;
 
 /**
  * @typedef ModelConfigPtr

@@ -29,7 +29,7 @@
 
 #include "config/Domain.hpp"
 #include "config/Options.hpp"
-#include "config/training/UntrainedModelConfig.hpp"
+#include "config/training/ModelConfig.hpp"
 
 namespace config {
 namespace training {
@@ -42,7 +42,7 @@ using DecodableModelConfig
   = config_with_options<
       option::Domains(decltype("other_observations"_t)),
       option::Domain(decltype("labels"_t))
-    >::extending<UntrainedModelConfig>::type<class DecodableModelConfigID>;
+    >::extending<ModelConfig>::type<class DecodableModelConfigID>;
 
 /**
  * @typedef DecodableModelConfigPtr

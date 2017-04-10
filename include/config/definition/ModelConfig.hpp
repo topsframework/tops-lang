@@ -29,19 +29,20 @@
 
 #include "config/Domain.hpp"
 #include "config/Options.hpp"
+#include "config/ModelConfig.hpp"
 
 namespace config {
 namespace definition {
 
 /**
  * @typedef ModelConfig
- * @brief Alias to IR of a model::ProbabilisticModel
+ * @brief Alias to IR of a definition of model::ProbabilisticModel
  */
 using ModelConfig
   = config_with_options<
       option::Type(decltype("model_type"_t)),
       option::Domain(decltype("observations"_t))
-    >::type<class ModelConfigID>;
+    >::extending<config::ModelConfig>::type<class ModelConfigID>;
 
 /**
  * @typedef ModelConfigPtr

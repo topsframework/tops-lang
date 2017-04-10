@@ -63,13 +63,12 @@ class SingleFilePrinter : public FilePrinter {
   static decltype(auto) make(Args&&... args);
 
   // Overriden methods
+  void print(co::Model model) override;
   void print(co::Domain domain) override;
 
-  void print(cot::Model model) override;
   void print(cot::State state) override;
   void print(cot::Duration duration) override;
 
-  void print(cod::Model model) override;
   void print(cod::State state) override;
   void print(cod::Duration duration) override;
   void print(cod::DependencyTree tree) override;

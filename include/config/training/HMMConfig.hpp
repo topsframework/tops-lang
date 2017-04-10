@@ -78,7 +78,7 @@ using MaximumLikehoodConfigPtr
  */
 using BaumWelchConfig
   = config_with_options<
-      option::training::Model(decltype("initial_model"_t)),
+      option::Model(decltype("initial_model"_t)),
       option::Iterations(decltype("maximum_iterations"_t)),
       option::Threshold(decltype("diff_threshold"_t))
     >::extending<HMMConfig>::type<class BaumWelchConfigID>;
