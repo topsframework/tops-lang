@@ -9,6 +9,8 @@ training_algorithm = "BaumWelch"
 
 training_set = dataset("data/cassino-dice.tsv")
 
+labels = [ "Loaded", "Fair" ]
+
 initial_model = pretrained_model("hmm.tops")
 
 maximum_iterations = 100

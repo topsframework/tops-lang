@@ -13,9 +13,9 @@ labels = [ "Fair", "Loaded" ]
 
 states = [
   "Fair"   : [ duration: geometric(),
-               emission: untrained_model("fair_dice.tops") ],
+               emission: pretrained_model("fair_dice.tops") ],
   "Loaded" : [ duration: fixed(7),
-               emission: pretrained_model("loaded_dice.tops") ]
+               emission: untrained_model("loaded_dice.tops") ]
 ]
 
 pseudo_counter = 1.23
