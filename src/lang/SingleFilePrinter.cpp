@@ -57,6 +57,14 @@ void SingleFilePrinter::print(co::Domain domain) {
 
 /*----------------------------------------------------------------------------*/
 
+void SingleFilePrinter::print(cot::Model model) {
+  openSection('{');
+  model->accept(ModelConfigSerializer(Self::make(os_, depth_)));
+  closeSection('}');
+}
+
+/*----------------------------------------------------------------------------*/
+
 void SingleFilePrinter::print(cot::State state) {
   openSection('[');
   state->accept(ModelConfigSerializer(
@@ -71,15 +79,6 @@ void SingleFilePrinter::print(cot::Duration duration) {
   duration->accept(ModelConfigSerializer(
         Self::make(os_, depth_, "", ", ", "")));
   closeFunction();
-}
-
-/*----------------------------------------------------------------------------*/
-
-
-void SingleFilePrinter::print(cot::Model model) {
-  openSection('{');
-  model->accept(ModelConfigSerializer(Self::make(os_, depth_)));
-  closeSection('}');
 }
 
 /*----------------------------------------------------------------------------*/
