@@ -29,6 +29,10 @@
 #include "config/DiscreteConverter.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
+#include "config/training/ModelConfig.hpp"
+#include "config/training/UntrainedModelConfig.hpp"
+#include "config/training/DecodableModelConfig.hpp"
+
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/DecodableModelConfig.hpp"
 
@@ -40,9 +44,46 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace ct = config::training; }
+namespace { namespace cd = config::definition; }
 
 // Using declarations
 using config::operator ""_t;
+
+int usage(const std::string &program_name) {
+  std::cerr << "USAGE: " << program_name
+            << " (-d|-t) model_config [dataset] [output_dir]" << std::endl;
+  return EXIT_FAILURE;
+}
+
+template<typename ModelConfig, typename DecodableModelConfig>
+decltype(auto) makeConverters(config::ConfigPtr cfg) {
+  std::vector<config::ConverterPtr> converters;
+
+  auto model_cfg
+    = std::dynamic_pointer_cast<ModelConfig>(cfg);
+
+  if (model_cfg) {
+    auto &domain = std::get<decltype("observations"_t)>(*model_cfg);
+    converters.push_back(domain->makeConverter());
+  }
+
+  auto decodable_model_cfg
+    = std::dynamic_pointer_cast<DecodableModelConfig>(model_cfg);
+
+  if (decodable_model_cfg) {
+    auto &domains
+      = std::get<decltype("other_observations"_t)>(*decodable_model_cfg);
+
+    for (auto &domain : domains)
+      converters.push_back(domain->makeConverter());
+
+    converters.push_back(
+      std::get<decltype("labels"_t)>(*decodable_model_cfg)->makeConverter());
+  }
+
+  return converters;
+}
 
 /*
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -53,35 +94,35 @@ using config::operator ""_t;
 */
 
 int main(int argc, char **argv) try {
-  if (argc <= 1 || argc >= 5) {
-    std::cerr << "USAGE: " << argv[0] << " model_config [dataset] [output_dir]"
-              << std::endl;
-    return EXIT_FAILURE;
-  }
+  if (argc <= 2 || argc >= 6)
+    return usage(argv[0]);
 
   lang::Interpreter interpreter;
-  auto model_cfg = interpreter.evalModelDefinition(argv[1]);
+
+  config::ConfigPtr cfg;
+  std::string config_type = argv[1];
+
+  if (config_type == "-d") {
+    cfg = interpreter.evalModelDefinition(argv[2]);
+  } else if (config_type == "-t") {
+    cfg = interpreter.evalModelTraining(argv[2]);
+  } else {
+    return usage(argv[0]);
+  }
 
   /*--------------------------------------------------------------------------*/
   /*                                CONVERTER                                 */
   /*--------------------------------------------------------------------------*/
 
-  if (argc >= 3) {
-    std::vector<config::ConverterPtr> converters {
-      std::get<decltype("observations"_t)>(*model_cfg)->makeConverter() };
+  if (argc >= 4) {
+    std::vector<config::ConverterPtr> converters;
 
-    auto decodable_model_cfg = std::dynamic_pointer_cast<
-      config::definition::DecodableModelConfig>(model_cfg);
-
-    if (decodable_model_cfg) {
-      auto &domains
-        = std::get<decltype("other_observations"_t)>(*decodable_model_cfg);
-
-      for (auto &domain : domains)
-        converters.push_back(domain->makeConverter());
-
-      converters.push_back(
-        std::get<decltype("labels"_t)>(*decodable_model_cfg)->makeConverter());
+    if (config_type == "-d") {
+      converters = makeConverters<cd::ModelConfig,
+                                  cd::DecodableModelConfig>(cfg);
+    } else if (config_type == "-t") {
+      converters = makeConverters<ct::UntrainedModelConfig,
+                                  ct::DecodableModelConfig>(cfg);
     }
 
     std::fstream dataset(argv[2]);
@@ -114,9 +155,9 @@ int main(int argc, char **argv) try {
   /*--------------------------------------------------------------------------*/
 
   switch (argc) {
-    case 2: /* fall through */
-    case 3: model_cfg->accept(lang::ModelConfigSerializer{}); break;
-    case 4: model_cfg->accept(lang::ModelConfigSerializer(argv[3])); break;
+    case 3: /* fall through */
+      case 4: cfg->accept(lang::ModelConfigSerializer(std::cerr)); break;
+    case 5: cfg->accept(lang::ModelConfigSerializer(argv[4])); break;
   }
 
   return EXIT_SUCCESS;
