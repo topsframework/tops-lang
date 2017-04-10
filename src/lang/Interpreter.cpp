@@ -213,10 +213,10 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
   const std::string untrained_model = "untrained_model";
   const std::string pretrained_model = "pretrained_model";
 
-  auto category = getConfigOption<
-    ct::ModelConfig, decltype("category"_t)>(filepath);
+  bool is_pretrained = hasConfigOption<
+    ct::PretrainedModelConfig, decltype("pretrained_model"_t)>(filepath);
 
-  if (category == "PretrainedModel")
+  if (is_pretrained)
     return fillConfig<ct::PretrainedModelConfig>(filepath, pretrained_model);
 
   auto model_type = getConfigOption<
@@ -472,16 +472,12 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
   module->add(fun([this, filepath] (const std::string &file) {
     auto untrained_model
       = this->makeModelTrainingConfig(extractDir(filepath) + file);
-    std::get<decltype("category"_t)>(*untrained_model.get())
-      = "untrained_model";
     return cot::Model(untrained_model);
   }), "untrained_model");
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto pretrained_model
       = PretrainedModelConfig::make(filepath, "pretrained_model");
-    std::get<decltype("category"_t)>(*pretrained_model.get())
-      = "pretrained_model";
     std::get<decltype("pretrained_model"_t)>(*pretrained_model.get())
       = this->makeModelDefinitionConfig(extractDir(filepath) + file);
     return cot::Model(pretrained_model);

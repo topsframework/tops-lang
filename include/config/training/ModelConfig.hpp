@@ -36,9 +36,7 @@ namespace training {
  * @brief Alias to IR of a model::ProbabilisticModel
  */
 using ModelConfig
-  = config_with_options<
-      option::Type(decltype("category"_t))
-    >::type<class ModelConfigID>;;
+  = config_with_options<>::type<class ModelConfigID>;;
 
 /**
  * @typedef ModelConfigPtr
