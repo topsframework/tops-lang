@@ -24,6 +24,7 @@
 #include <string>
 #include <memory>
 #include <exception>
+#include <type_traits>
 
 // Internal headers
 #include "config/Converter.hpp"
@@ -35,6 +36,8 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
+namespace { namespace ct = config::training; }
+namespace { namespace cd = config::definition; }
 namespace { namespace cot = co::training; }
 namespace { namespace cod = co::definition; }
 
@@ -70,16 +73,44 @@ class Interpreter {
   std::shared_ptr<Config> fillConfig(const std::string &filepath,
                                      const std::string &label = "");
 
-  chaiscript::ModulePtr
-  makeDefinitionInterpreterLibrary(const std::string &filepath);
+  template<typename Config>
+  chaiscript::ModulePtr makeInterpreterLibrary(
+      const std::string &filepath,
+      std::enable_if_t<
+        std::is_base_of<ct::ModelConfig, Config>::value
+      >* = nullptr);
+
+  template<typename Config>
+  chaiscript::ModulePtr makeInterpreterLibrary(
+      const std::string &filepath,
+      std::enable_if_t<
+        std::is_base_of<cd::ModelConfig, Config>::value
+      >* = nullptr);
+
+  template<typename Config>
+  chaiscript::ModulePtr makeInterpreterLibrary(
+      const std::string &filepath,
+      std::enable_if_t<
+        !std::is_base_of<cd::ModelConfig, Config>::value &&
+        !std::is_base_of<ct::ModelConfig, Config>::value
+      >* = nullptr);
 
   void registerCommonTypes(chaiscript::ModulePtr &module,
                            const std::string &filepath);
+  void registerCommonHelpers(chaiscript::ModulePtr &module,
+                             const std::string &filepath);
   void registerCommonConstants(chaiscript::ModulePtr &module,
                                const std::string &filepath);
   void registerCommonAttributions(chaiscript::ModulePtr &module,
                                   const std::string &filepath);
   void registerCommonConcatenations(chaiscript::ModulePtr &module,
+                                    const std::string &filepath);
+
+  void registerTrainingTypes(chaiscript::ModulePtr &module,
+                             const std::string &filepath);
+  void registerTrainingHelpers(chaiscript::ModulePtr &module,
+                               const std::string &filepath);
+  void registerTrainingAttributions(chaiscript::ModulePtr &module,
                                     const std::string &filepath);
 
   void registerDefinitionTypes(chaiscript::ModulePtr &module,

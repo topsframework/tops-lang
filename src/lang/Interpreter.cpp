@@ -52,6 +52,14 @@
 #include "config/training/VLMCConfig.hpp"
 #include "config/training/PeriodicIMCConfig.hpp"
 
+#include "config/training/StateConfig.hpp"
+
+#include "config/training/DurationConfig.hpp"
+#include "config/training/FixedDurationConfig.hpp"
+#include "config/training/ExplicitDurationConfig.hpp"
+#include "config/training/GeometricDurationConfig.hpp"
+#include "config/training/MaxLengthDurationConfig.hpp"
+
 #include "config/definition/ModelConfig.hpp"
 #include "config/definition/HMMConfig.hpp"
 #include "config/definition/IIDConfig.hpp"
@@ -127,7 +135,7 @@ using get_inner_t = typename get_inner<T>::type;
 #define REGISTER_TYPE(type, name) \
   do { \
     using chaiscript::bootstrap::standard_library::assignable_type; \
-    using registered_type = get_inner_t<co::type>; \
+    using registered_type = get_inner_t<type>; \
     module->add(chaiscript::user_type<registered_type>(), name); \
     assignable_type<registered_type>(name, module); \
   } while (false)
@@ -136,7 +144,7 @@ using get_inner_t = typename get_inner<T>::type;
   do { \
     using chaiscript::vector_conversion; \
     using chaiscript::bootstrap::standard_library::vector_type; \
-    using registered_type = get_inner_t<co::type>; \
+    using registered_type = get_inner_t<type>; \
     module->add(vector_type<registered_type>(name)); \
     module->add(vector_conversion<registered_type>()); \
   } while (false)
@@ -145,25 +153,31 @@ using get_inner_t = typename get_inner<T>::type;
   do { \
     using chaiscript::map_conversion; \
     using chaiscript::bootstrap::standard_library::map_type; \
-    using registered_type = get_inner_t<co::type>; \
+    using registered_type = get_inner_t<type>; \
     module->add(map_type<registered_type>(name)); \
     module->add(map_conversion<registered_type>()); \
   } while (false)
 
 #define REGISTER_COMMON_TYPE(type) \
-  REGISTER_TYPE(type, #type)
+  REGISTER_TYPE(co::type, #type)
+#define REGISTER_TRAINING_TYPE(type) \
+  REGISTER_TYPE(cot::type, #type "Training")
 #define REGISTER_DEFINITION_TYPE(type) \
-  REGISTER_TYPE(definition::type, #type "Definition")
+  REGISTER_TYPE(cod::type, #type "Definition")
 
 #define REGISTER_COMMON_VECTOR(type) \
-  REGISTER_VECTOR(type, #type)
+  REGISTER_COMMON_TYPE(type); REGISTER_VECTOR(co::type, #type)
+#define REGISTER_TRAINING_VECTOR(type) \
+  REGISTER_TRAINING_TYPE(type); REGISTER_VECTOR(cot::type, #type "Training")
 #define REGISTER_DEFINITION_VECTOR(type) \
-  REGISTER_VECTOR(definition::type, #type "Definition")
+  REGISTER_DEFINITION_TYPE(type); REGISTER_VECTOR(cod::type, #type "Definition")
 
 #define REGISTER_COMMON_MAP(type) \
-  REGISTER_MAP(type, #type)
+  REGISTER_COMMON_TYPE(type); REGISTER_MAP(co::type, #type)
+#define REGISTER_TRAINING_MAP(type) \
+  REGISTER_TRAINING_TYPE(type); REGISTER_MAP(cot::type, #type "Training")
 #define REGISTER_DEFINITION_MAP(type) \
-  REGISTER_MAP(definition::type, #type "Definition")
+  REGISTER_DEFINITION_TYPE(type); REGISTER_MAP(cod::type, #type "Definition")
 
 /*----------------------------------------------------------------------------*/
 /*                              CONCRETE METHODS                              */
@@ -337,49 +351,39 @@ bool Interpreter::missingObjectException(const std::exception &e) {
 
 /*----------------------------------------------------------------------------*/
 
-chaiscript::ModulePtr
-Interpreter::makeDefinitionInterpreterLibrary(const std::string &filepath) {
-  static auto interpreter_library = std::make_shared<chaiscript::Module>();
-  static bool initialized = false;
-
-  if (!initialized) {
-    registerCommonTypes(interpreter_library, filepath);
-    registerCommonConstants(interpreter_library, filepath);
-    registerCommonAttributions(interpreter_library, filepath);
-    registerCommonConcatenations(interpreter_library, filepath);
-
-    registerDefinitionTypes(interpreter_library, filepath);
-    registerDefinitionHelpers(interpreter_library, filepath);
-    registerDefinitionAttributions(interpreter_library, filepath);
-
-    initialized = true;
-  }
-
-  return interpreter_library;
-}
-
-/*----------------------------------------------------------------------------*/
-
 void Interpreter::registerCommonTypes(chaiscript::ModulePtr &module,
                                       const std::string &/* filepath */) {
   // Ordinary types
   REGISTER_COMMON_TYPE(Size);
   REGISTER_COMMON_TYPE(Type);
   REGISTER_COMMON_TYPE(Domain);
-  REGISTER_COMMON_TYPE(Domains);
-  REGISTER_COMMON_TYPE(Alphabet);
-  REGISTER_COMMON_TYPE(Alphabets);
   REGISTER_COMMON_TYPE(Probability);
-  REGISTER_COMMON_TYPE(Probabilities);
   REGISTER_COMMON_TYPE(FeatureFunction);
-  REGISTER_COMMON_TYPE(FeatureFunctions);
+
+  REGISTER_COMMON_MAP(Probabilities);
+  REGISTER_COMMON_MAP(FeatureFunctions);
 
   REGISTER_COMMON_VECTOR(Domains);
   REGISTER_COMMON_VECTOR(Alphabet);
   REGISTER_COMMON_VECTOR(Alphabets);
+}
 
-  REGISTER_COMMON_MAP(Probabilities);
-  REGISTER_COMMON_MAP(FeatureFunctions);
+/*----------------------------------------------------------------------------*/
+
+void Interpreter::registerCommonHelpers(chaiscript::ModulePtr &module,
+                                        const std::string &filepath) {
+  using chaiscript::fun;
+
+  module->add(fun([this] (const co::Alphabet &alphabet) {
+    return std::make_shared<config::Domain>(
+        typename config::Domain::discrete_domain{}, alphabet);
+  }), "discrete_domain");
+
+  module->add(fun([this] (const co::OutToInSymbolFunction &o2i,
+                          const co::InToOutSymbolFunction &i2o) {
+    return std::make_shared<config::Domain>(
+        typename config::Domain::custom_domain{}, o2i, i2o);
+  }), "custom_domain");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -441,23 +445,134 @@ void Interpreter::registerCommonConcatenations(
 
 /*----------------------------------------------------------------------------*/
 
+void Interpreter::registerTrainingTypes(chaiscript::ModulePtr &module,
+                                        const std::string &/* filepath */) {
+  // Definitions
+  REGISTER_TRAINING_TYPE(Model);
+  REGISTER_TRAINING_TYPE(State);
+  REGISTER_TRAINING_TYPE(Duration);
+
+  REGISTER_TRAINING_MAP(States);
+
+  REGISTER_TRAINING_VECTOR(Models);
+}
+
+/*----------------------------------------------------------------------------*/
+
+void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
+                                          const std::string &filepath) {
+  using chaiscript::fun;
+
+  using ct::PretrainedModelConfig;
+  using ct::FixedDurationConfig;
+  using ct::ExplicitDurationConfig;
+  using ct::GeometricDurationConfig;
+  using ct::MaxLengthDurationConfig;
+
+  module->add(fun([this, filepath] (const std::string &file) {
+    auto untrained_model
+      = this->makeModelTrainingConfig(extractDir(filepath) + file);
+    std::get<decltype("category"_t)>(*untrained_model.get())
+      = "untrained_model";
+    return cot::Model(untrained_model);
+  }), "untrained_model");
+
+  module->add(fun([this, filepath] (const std::string &file) {
+    auto pretrained_model
+      = PretrainedModelConfig::make(filepath, "pretrained_model");
+    std::get<decltype("category"_t)>(*pretrained_model.get())
+      = "pretrained_model";
+    std::get<decltype("pretrained_model"_t)>(*pretrained_model.get())
+      = this->makeModelDefinitionConfig(extractDir(filepath) + file);
+    return cot::Model(pretrained_model);
+  }), "pretrained_model");
+
+  module->add(fun([this, filepath]() {
+    auto duration = GeometricDurationConfig::make(filepath, "geometric");
+    return cot::Duration(duration);
+  }), "geometric");
+
+  module->add(fun([this, filepath] (const std::string &file) {
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("model"_t)>(*duration.get())
+      = this->makeModelTrainingConfig(extractDir(filepath) + file);
+    return cot::Duration(duration);
+  }), "explicit");
+
+  module->add(fun([this, filepath] (const std::string &file,
+                                    unsigned int size) {
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("max_size"_t)>(*duration.get()) = size;
+    std::get<decltype("model"_t)>(*duration.get())
+      = this->makeModelTrainingConfig(extractDir(filepath) + file);
+    return cot::Duration(duration);
+  }), "explicit");
+
+  module->add(fun([this, filepath] (cot::Model model,
+                                    unsigned int size) {
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("max_size"_t)>(*duration.get()) = size;
+    std::get<decltype("model"_t)>(*duration.get()) = model;
+    return cot::Duration(duration);
+  }), "explicit");
+
+  module->add(fun([this, filepath] (unsigned int size) {
+    auto duration = FixedDurationConfig::make(filepath, "fixed");
+    std::get<decltype("size"_t)>(*duration.get()) = size;
+    return cot::Duration(duration);
+  }), "fixed");
+
+  module->add(fun([this, filepath] (unsigned int size) {
+    auto duration = MaxLengthDurationConfig::make(filepath, "max_length");
+    std::get<decltype("size"_t)>(*duration.get()) = size;
+    return cot::Duration(duration);
+  }), "max_length");
+
+  module->add(fun([this, filepath] (const std::string &file) {
+    return extractDir(filepath) + file;
+  }), "dataset");
+}
+
+/*----------------------------------------------------------------------------*/
+
+void Interpreter::registerTrainingAttributions(chaiscript::ModulePtr &module,
+                                               const std::string &filepath) {
+  using chaiscript::fun;
+  using chaiscript::boxed_cast;
+
+  using chaiscript::Boxed_Value;
+  using Map = std::map<std::string, Boxed_Value>;
+
+  module->add(fun([filepath] (cot::States &conv, const Map &orig) {
+    for (auto &pair : orig) {
+      auto inner_orig = boxed_cast<Map &>(pair.second);
+
+      conv[pair.first] = ct::StateConfig::make(filepath);
+
+      std::get<decltype("duration"_t)>(*conv[pair.first])
+        = boxed_cast<cot::Duration>(inner_orig["duration"]);
+
+      std::get<decltype("emission"_t)>(*conv[pair.first])
+        = boxed_cast<cot::Model>(inner_orig["emission"]);
+    }
+  }), "=");
+}
+
+/*----------------------------------------------------------------------------*/
+
 void Interpreter::registerDefinitionTypes(chaiscript::ModulePtr &module,
                                           const std::string &/* filepath */) {
   // Definitions
   REGISTER_DEFINITION_TYPE(Model);
-  REGISTER_DEFINITION_TYPE(Models);
   REGISTER_DEFINITION_TYPE(State);
-  REGISTER_DEFINITION_TYPE(States);
   REGISTER_DEFINITION_TYPE(Duration);
   REGISTER_DEFINITION_TYPE(DependencyTree);
-  REGISTER_DEFINITION_TYPE(DependencyTrees);
-  REGISTER_DEFINITION_TYPE(FeatureFunctionLibraries);
+
+  REGISTER_DEFINITION_MAP(States);
 
   REGISTER_DEFINITION_VECTOR(Models);
   REGISTER_DEFINITION_VECTOR(DependencyTrees);
   REGISTER_DEFINITION_VECTOR(FeatureFunctionLibraries);
-
-  REGISTER_DEFINITION_MAP(States);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -538,17 +653,6 @@ void Interpreter::registerDefinitionHelpers(chaiscript::ModulePtr &module,
     DependencyTreeParser parser(this, root_dir, file, content);
     return parser.parse();
   }), "tree");
-
-  module->add(fun([this] (const co::Alphabet &alphabet) {
-    return std::make_shared<config::Domain>(
-        typename config::Domain::discrete_domain{}, alphabet);
-  }), "discrete_domain");
-
-  module->add(fun([this] (const co::OutToInSymbolFunction &o2i,
-                          const co::InToOutSymbolFunction &i2o) {
-    return std::make_shared<config::Domain>(
-        typename config::Domain::custom_domain{}, o2i, i2o);
-  }), "custom_domain");
 }
 
 /*----------------------------------------------------------------------------*/

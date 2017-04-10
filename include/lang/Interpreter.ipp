@@ -43,9 +43,9 @@ decltype(auto) Interpreter::getConfigOption(const std::string &filepath,
   std::vector<std::string> usepaths { root_dir };
 
   chaiscript::ChaiScript chai(modulepaths, usepaths);
-  chai.add(makeDefinitionInterpreterLibrary(filepath));
+  chai.add(makeInterpreterLibrary<Config>(filepath));
 
-  auto cfg = Config::make(filepath);
+  auto cfg = Config::make(filepath, label);
   cfg->accept(ModelConfigRegister(chai));
 
   try { chai.eval_file(filepath); }
@@ -68,7 +68,7 @@ std::shared_ptr<Config> Interpreter::fillConfig(const std::string &filepath,
   std::vector<std::string> usepaths { root_dir };
 
   chaiscript::ChaiScript chai(modulepaths, usepaths);
-  chai.add(makeDefinitionInterpreterLibrary(filepath));
+  chai.add(makeInterpreterLibrary<Config>(filepath));
 
   auto cfg = Config::make(filepath, label);
   cfg->accept(ModelConfigRegister(chai));
@@ -76,6 +76,82 @@ std::shared_ptr<Config> Interpreter::fillConfig(const std::string &filepath,
   chai.eval_file(filepath);
 
   return cfg;
+}
+
+/*----------------------------------------------------------------------------*/
+
+template<typename Config>
+chaiscript::ModulePtr Interpreter::makeInterpreterLibrary(
+    const std::string &filepath,
+    std::enable_if_t<std::is_base_of<ct::ModelConfig, Config>::value>*) {
+  static auto interpreter_library = std::make_shared<chaiscript::Module>();
+  static bool initialized = false;
+
+  if (!initialized) {
+    registerCommonTypes(interpreter_library, filepath);
+    registerCommonHelpers(interpreter_library, filepath);
+    registerCommonConstants(interpreter_library, filepath);
+    registerCommonAttributions(interpreter_library, filepath);
+    registerCommonConcatenations(interpreter_library, filepath);
+
+    registerTrainingTypes(interpreter_library, filepath);
+    registerTrainingHelpers(interpreter_library, filepath);
+    registerTrainingAttributions(interpreter_library, filepath);
+
+    initialized = true;
+  }
+
+  return interpreter_library;
+}
+
+/*----------------------------------------------------------------------------*/
+
+template<typename Config>
+chaiscript::ModulePtr Interpreter::makeInterpreterLibrary(
+    const std::string &filepath,
+    std::enable_if_t<std::is_base_of<cd::ModelConfig, Config>::value>*) {
+  static auto interpreter_library = std::make_shared<chaiscript::Module>();
+  static bool initialized = false;
+
+  if (!initialized) {
+    registerCommonTypes(interpreter_library, filepath);
+    registerCommonHelpers(interpreter_library, filepath);
+    registerCommonConstants(interpreter_library, filepath);
+    registerCommonAttributions(interpreter_library, filepath);
+    registerCommonConcatenations(interpreter_library, filepath);
+
+    registerDefinitionTypes(interpreter_library, filepath);
+    registerDefinitionHelpers(interpreter_library, filepath);
+    registerDefinitionAttributions(interpreter_library, filepath);
+
+    initialized = true;
+  }
+
+  return interpreter_library;
+}
+
+/*----------------------------------------------------------------------------*/
+
+template<typename Config>
+chaiscript::ModulePtr Interpreter::makeInterpreterLibrary(
+    const std::string &filepath,
+    std::enable_if_t<
+      !std::is_base_of<cd::ModelConfig, Config>::value &&
+      !std::is_base_of<ct::ModelConfig, Config>::value>*) {
+  static auto interpreter_library = std::make_shared<chaiscript::Module>();
+  static bool initialized = false;
+
+  if (!initialized) {
+    registerCommonTypes(interpreter_library, filepath);
+    registerCommonHelpers(interpreter_library, filepath);
+    registerCommonConstants(interpreter_library, filepath);
+    registerCommonAttributions(interpreter_library, filepath);
+    registerCommonConcatenations(interpreter_library, filepath);
+
+    initialized = true;
+  }
+
+  return interpreter_library;
 }
 
 /*----------------------------------------------------------------------------*/
