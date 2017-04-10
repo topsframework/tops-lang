@@ -35,6 +35,34 @@ namespace lang {
 /*----------------------------------------------------------------------------*/
 
 template<typename Config, typename Option>
+bool Interpreter::hasConfigOption(const std::string &filepath,
+                                  const std::string &label) {
+  auto root_dir = extractDir(filepath);
+
+  std::vector<std::string> modulepaths;
+  std::vector<std::string> usepaths { root_dir };
+
+  chaiscript::ChaiScript chai(modulepaths, usepaths);
+  chai.add(makeInterpreterLibrary<Config>(filepath));
+
+  auto cfg = Config::make(filepath, label);
+  cfg->accept(ModelConfigRegister(chai));
+
+  try { chai.eval_file(filepath); }
+  catch (const std::exception &e) {
+    // Explicitly ignore missing object exceptions
+    if (missingObjectException(e)) return false;
+
+    // Do not ignore any other exceptions
+    throw;
+  }
+
+  return true;
+}
+
+/*----------------------------------------------------------------------------*/
+
+template<typename Config, typename Option>
 decltype(auto) Interpreter::getConfigOption(const std::string &filepath,
                                             const std::string &label) {
   auto root_dir = extractDir(filepath);

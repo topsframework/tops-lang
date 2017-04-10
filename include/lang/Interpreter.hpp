@@ -66,6 +66,10 @@ class Interpreter {
   bool missingObjectException(const std::exception &e);
 
   template<typename Config, typename Option>
+  bool hasConfigOption(const std::string &filepath,
+                       const std::string &label = "");
+
+  template<typename Config, typename Option>
   decltype(auto) getConfigOption(const std::string &filepath,
                                  const std::string &label = "");
 
