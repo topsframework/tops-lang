@@ -25,17 +25,14 @@
 #include <string>
 #include <type_traits>
 
+#include "config/Domain.hpp"
 #include "config/Options.hpp"
 
-#include "config/training/ModelConfig.hpp"
-#include "config/training/StateConfig.hpp"
-#include "config/training/DurationConfig.hpp"
-
-#include "config/definition/ModelConfig.hpp"
-#include "config/definition/StateConfig.hpp"
-#include "config/definition/DurationConfig.hpp"
-#include "config/definition/DependencyTreeConfig.hpp"
-#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+#include "config/model/ModelConfig.hpp"
+#include "config/state/StateConfig.hpp"
+#include "config/duration/DurationConfig.hpp"
+#include "config/auxiliar/DependencyTreeConfig.hpp"
+#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
 namespace config {
 
@@ -94,18 +91,13 @@ class ConfigVisitor {
 
   virtual void visitOption(option::Model &) = 0;
   virtual void visitOption(option::Models &) = 0;
-
-  virtual void visitOption(option::training::State &) = 0;
-  virtual void visitOption(option::training::States &) = 0;
-  virtual void visitOption(option::training::Duration &) = 0;
-
-  virtual void visitOption(option::definition::State &) = 0;
-  virtual void visitOption(option::definition::States &) = 0;
-  virtual void visitOption(option::definition::Duration &) = 0;
-  virtual void visitOption(option::definition::DependencyTree &) = 0;
-  virtual void visitOption(option::definition::DependencyTrees &) = 0;
-  virtual void visitOption(option::definition::FeatureFunctionLibrary &) = 0;
-  virtual void visitOption(option::definition::FeatureFunctionLibraries &) = 0;
+  virtual void visitOption(option::State &) = 0;
+  virtual void visitOption(option::States &) = 0;
+  virtual void visitOption(option::Duration &) = 0;
+  virtual void visitOption(option::DependencyTree &) = 0;
+  virtual void visitOption(option::DependencyTrees &) = 0;
+  virtual void visitOption(option::FeatureFunctionLibrary &) = 0;
+  virtual void visitOption(option::FeatureFunctionLibraries &) = 0;
 };
 
 }  // namespace config

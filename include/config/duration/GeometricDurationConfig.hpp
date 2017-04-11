@@ -17,61 +17,33 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_GEOMETRIC_DURATION_CONFIG_
+#define CONFIG_GEOMETRIC_DURATION_CONFIG_
 
 // Standard headers
 #include <memory>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
-#include "config/Domain.hpp"
-
-#include "config/model/ModelConfig.hpp"
-#include "config/state/StateConfig.hpp"
 #include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef GeometricDurationConfig
+ * @brief Alias to intermediate representation of a model::GeometricDuration
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using GeometricDurationConfig
+  = config_with_options<>::extending<DurationConfig>
+                         ::type<class GeometricDurationConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef GeometricDurationConfigPtr
+ * @brief Alias of pointer to GeometricDurationConfig
+ */
+using GeometricDurationConfigPtr = std::shared_ptr<GeometricDurationConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
-
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
-
-}  // namespace lang
-
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
-
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_GEOMETRIC_DURATION_CONFIG_

@@ -31,8 +31,6 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
-namespace { namespace cot = co::training; }
-namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -65,7 +63,7 @@ void SingleFilePrinter::print(co::Domain domain) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cot::State state) {
+void SingleFilePrinter::print(co::State state) {
   openSection('[');
   state->accept(ModelConfigSerializer(
         Self::make(os_, depth_, ": ", ",\n")));
@@ -74,7 +72,7 @@ void SingleFilePrinter::print(cot::State state) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cot::Duration duration) {
+void SingleFilePrinter::print(co::Duration duration) {
   openFunction(duration->label());
   duration->accept(ModelConfigSerializer(
         Self::make(os_, depth_, "", ", ", "")));
@@ -83,25 +81,7 @@ void SingleFilePrinter::print(cot::Duration duration) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cod::State state) {
-  openSection('[');
-  state->accept(ModelConfigSerializer(
-        Self::make(os_, depth_, ": ", ",\n")));
-  closeSection(']');
-}
-
-/*----------------------------------------------------------------------------*/
-
-void SingleFilePrinter::print(cod::Duration duration) {
-  openFunction(duration->label());
-  duration->accept(ModelConfigSerializer(
-        Self::make(os_, depth_, "", ", ", "")));
-  closeFunction();
-}
-
-/*----------------------------------------------------------------------------*/
-
-void SingleFilePrinter::print(cod::DependencyTree tree) {
+void SingleFilePrinter::print(co::DependencyTree tree) {
   thread_local unsigned int depth_tree = 0;
 
   if (depth_tree == 0)
@@ -125,7 +105,7 @@ void SingleFilePrinter::print(cod::DependencyTree tree) {
 
 /*----------------------------------------------------------------------------*/
 
-void SingleFilePrinter::print(cod::FeatureFunctionLibrary library) {
+void SingleFilePrinter::print(co::FeatureFunctionLibrary library) {
   openSection('{');
   copy(library, os_);
   closeSection('}');

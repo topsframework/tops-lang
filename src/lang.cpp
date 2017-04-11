@@ -29,11 +29,11 @@
 #include "config/DiscreteConverter.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
-#include "config/training/ModelConfig.hpp"
-#include "config/training/DecodableModelConfig.hpp"
+#include "config/model/training/ModelConfig.hpp"
+#include "config/model/training/DecodableModelConfig.hpp"
 
-#include "config/definition/ModelConfig.hpp"
-#include "config/definition/DecodableModelConfig.hpp"
+#include "config/model/definition/ModelConfig.hpp"
+#include "config/model/definition/DecodableModelConfig.hpp"
 
 #include "lang/Interpreter.hpp"
 #include "lang/ModelConfigSerializer.hpp"

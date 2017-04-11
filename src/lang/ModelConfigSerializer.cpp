@@ -34,20 +34,14 @@
 #include "lang/MultipleFilePrinter.hpp"
 
 #include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
-
-#include "config/training/StateConfig.hpp"
-#include "config/training/DurationConfig.hpp"
-
-#include "config/definition/StateConfig.hpp"
-#include "config/definition/DurationConfig.hpp"
-#include "config/definition/DependencyTreeConfig.hpp"
-#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+#include "config/model/ModelConfig.hpp"
+#include "config/state/StateConfig.hpp"
+#include "config/duration/DurationConfig.hpp"
+#include "config/auxiliar/DependencyTreeConfig.hpp"
+#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
 // Namespace aliases
 namespace { namespace co = config::option; }
-namespace { namespace cot = co::training; }
-namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -167,62 +161,43 @@ void ModelConfigSerializer::visitOption(co::Models &visited) {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cot::State &visited) {
+void ModelConfigSerializer::visitOption(co::State &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cot::States &visited) {
+void ModelConfigSerializer::visitOption(co::States &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cot::Duration &visited) {
+void ModelConfigSerializer::visitOption(co::Duration &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cod::State &visited) {
+void ModelConfigSerializer::visitOption(co::DependencyTree &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cod::States &visited) {
+void ModelConfigSerializer::visitOption(co::DependencyTrees &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cod::Duration &visited) {
+void ModelConfigSerializer::visitOption(co::FeatureFunctionLibrary &visited) {
   printer_->print(visited);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigSerializer::visitOption(cod::DependencyTree &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(cod::DependencyTrees &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(cod::FeatureFunctionLibrary &visited) {
-  printer_->print(visited);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigSerializer::visitOption(
-    cod::FeatureFunctionLibraries &visited) {
+void ModelConfigSerializer::visitOption(co::FeatureFunctionLibraries &visited) {
   printer_->print(visited);
 }
 

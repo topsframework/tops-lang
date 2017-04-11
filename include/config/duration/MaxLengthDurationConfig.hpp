@@ -17,61 +17,35 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_MAX_LENGTH_DURATION_CONFIG_
+#define CONFIG_MAX_LENGTH_DURATION_CONFIG_
 
 // Standard headers
 #include <memory>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
-#include "config/Domain.hpp"
-
-#include "config/model/ModelConfig.hpp"
-#include "config/state/StateConfig.hpp"
+#include "config/Options.hpp"
 #include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef MaxLengthDurationConfig
+ * @brief Alias to intermediate representation of a model::MaxLengthDuration
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using MaxLengthDurationConfig
+  = config_with_options<
+      option::Size(decltype("size"_t))
+    >::extending<DurationConfig>::type<class MaxLengthDurationConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef MaxLengthDurationConfigPtr
+ * @brief Alias of pointer to MaxLengthDurationConfig
+ */
+using MaxLengthDurationConfigPtr = std::shared_ptr<MaxLengthDurationConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
-
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
-
-}  // namespace lang
-
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
-
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_MAX_LENGTH_DURATION_CONFIG_

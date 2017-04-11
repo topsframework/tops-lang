@@ -17,61 +17,46 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_DEPENDENCY_TREE_CONFIG_
+#define CONFIG_DEPENDENCY_TREE_CONFIG_
 
 // Standard headers
 #include <memory>
+#include <vector>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
-#include "config/Domain.hpp"
-
+#include "config/Options.hpp"
 #include "config/model/ModelConfig.hpp"
-#include "config/state/StateConfig.hpp"
-#include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef DependencyTreeConfig
+ * @brief Alias to helper IR of a dependency tree of a config::MDDConfig
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using DependencyTreeConfig
+  = config_with_options<
+      option::Pattern(decltype("position"_t)),
+      option::Model(decltype("configuration"_t))
+    >::type<class DependencyTreeConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef DependencyTreeConfigPtr
+ * @brief Alias of pointer to DependencyTreeConfig
+ */
+using DependencyTreeConfigPtr = std::shared_ptr<DependencyTreeConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
+namespace config {
+namespace option {
 
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
+using DependencyTree = config::DependencyTreeConfigPtr;
+using DependencyTrees = std::vector<DependencyTree>;
 
-}  // namespace lang
+}  // namespace option
+}  // namespace config
 
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
-
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_DEPENDENCY_TREE_CONFIG_

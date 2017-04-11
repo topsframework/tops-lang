@@ -17,61 +17,38 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_DURATION_CONFIG_
+#define CONFIG_DURATION_CONFIG_
 
 // Standard headers
 #include <memory>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
-#include "config/Domain.hpp"
-
-#include "config/model/ModelConfig.hpp"
-#include "config/state/StateConfig.hpp"
-#include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
-
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef DurationConfig
+ * @brief Alias to intermediate representation of a model::Duration
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using DurationConfig
+  = config_with_options<>::type<class DurationConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef DurationConfigPtr
+ * @brief Alias of pointer to DurationConfig
+ */
+using DurationConfigPtr = std::shared_ptr<DurationConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
+namespace config {
+namespace option {
 
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
+using Duration = config::DurationConfigPtr;
 
-}  // namespace lang
+}  // namespace option
+}  // namespace config
 
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
-
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_DURATION_CONFIG_

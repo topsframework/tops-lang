@@ -29,15 +29,11 @@
 #include "config/BasicConfig.hpp"
 
 #include "config/Options.hpp"
-#include "config/ModelConfig.hpp"
-
-#include "config/training/StateConfig.hpp"
-#include "config/training/DurationConfig.hpp"
-
-#include "config/definition/StateConfig.hpp"
-#include "config/definition/DurationConfig.hpp"
-#include "config/definition/DependencyTreeConfig.hpp"
-#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+#include "config/model/ModelConfig.hpp"
+#include "config/state/StateConfig.hpp"
+#include "config/duration/DurationConfig.hpp"
+#include "config/auxiliar/DependencyTreeConfig.hpp"
+#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
 // External headers
 #include "chaiscript/language/chaiscript_engine.hpp"
@@ -47,8 +43,6 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
-namespace { namespace cot = co::training; }
-namespace { namespace cod = co::definition; }
 
 // Remove!
 #include <iostream>
@@ -161,67 +155,47 @@ void ModelConfigRegister::visitOption(co::Models &visited) {
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cot::State &visited) {
-  visited = std::make_shared<typename cot::State::element_type>();
+void ModelConfigRegister::visitOption(co::State &visited) {
+  visited = std::make_shared<typename co::State::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cot::States &visited) {
+void ModelConfigRegister::visitOption(co::States &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cot::Duration &visited) {
-  visited = std::make_shared<typename cot::Duration::element_type>();
+void ModelConfigRegister::visitOption(co::Duration &visited) {
+  visited = std::make_shared<typename co::Duration::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cod::State &visited) {
-  visited = std::make_shared<typename cod::State::element_type>();
-  chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::States &visited) {
+void ModelConfigRegister::visitOption(co::DependencyTree &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cod::Duration &visited) {
-  visited = std::make_shared<typename cod::Duration::element_type>();
-  chai_.add(chaiscript::var(visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::DependencyTree &visited) {
+void ModelConfigRegister::visitOption(co::DependencyTrees &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cod::DependencyTrees &visited) {
-  chai_.add(chaiscript::var(&visited), tag_);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void ModelConfigRegister::visitOption(cod::FeatureFunctionLibrary &visited) {
+void ModelConfigRegister::visitOption(co::FeatureFunctionLibrary &visited) {
   visited
-    = std::make_shared<typename cod::FeatureFunctionLibrary::element_type>();
+    = std::make_shared<typename co::FeatureFunctionLibrary::element_type>();
   chai_.add(chaiscript::var(visited), tag_);
 }
 
 /*----------------------------------------------------------------------------*/
 
-void ModelConfigRegister::visitOption(cod::FeatureFunctionLibraries &visited) {
+void ModelConfigRegister::visitOption(co::FeatureFunctionLibraries &visited) {
   chai_.add(chaiscript::var(&visited), tag_);
 }
 

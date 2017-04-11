@@ -17,83 +17,49 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_DEPENDENCY_TREE_PARSER_
-#define LANG_DEPENDENCY_TREE_PARSER_
+#ifndef CONFIG_STATE_CONFIG_
+#define CONFIG_STATE_CONFIG_
 
 // Standard headers
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 // Internal headers
+#include "config/ConfigWithOptions.hpp"
+
 #include "config/Options.hpp"
 #include "config/model/ModelConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
+#include "config/duration/DurationConfig.hpp"
 
-namespace lang {
-
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-// Forward declarations
-class Interpreter;
+namespace config {
 
 /**
- * @class DependencyTreeParser
- * @brief Parser to dependency tree serialized file
+ * @typedef StateConfig
+ * @brief Alias to intermediate representation of a model::State
  */
-class DependencyTreeParser {
- public:
-  // Constructors
-  DependencyTreeParser(Interpreter* interpreter,
-                       std::string root_dir,
-                       std::string filename,
-                       std::vector<std::string> content);
+using StateConfig
+  = config_with_options<
+      option::Duration(decltype("duration"_t)),
+      option::Model(decltype("emission"_t))
+    >::type<class StateConfigID>;
 
-  // Concrete methods
-  co::DependencyTree parse();
+/**
+ * @typedef StateConfigPtr
+ * @brief Alias of pointer to StateConfig
+ */
+using StateConfigPtr = std::shared_ptr<StateConfig>;
 
- private:
-  // Concrete methods
-  void parseNode(std::string line);
+}  // namespace config
 
-  void resetEdgeIndex();
-  unsigned int nextEdgeIndex();
+namespace config {
+namespace option {
 
-  void parseLevel();
-  void parseChild();
-  void parseLastChild();
+using State = config::StateConfigPtr;
+using States = std::map<std::string, State>;
 
-  int parseSpaces();
-  std::string parseId();
-  std::string parseNumber();
-  std::string parseString();
+}  // namespace option
+}  // namespace config
 
-  void consume();
-  void consume(char c);
-
-  char next();
-  char next(int n);
-
-  // Instance variables
-  Interpreter* interpreter_;
-
-  std::string root_dir_;
-  std::string filename_;
-
-  std::vector<std::string> content_;
-  std::string::iterator it_;
-
-  std::vector<unsigned int> edges_;
-  std::vector<bool> leaves_;
-  std::vector<co::DependencyTree> nodes_;
-
-  unsigned int line_;
-  unsigned int column_;
-  unsigned int edge_index_;
-
-  bool reset_edge_index_;
-};
-
-}  // namespace lang
-
-#endif  // LANG_DEPENDENCY_TREE_PARSER_
+#endif  // CONFIG_STATE_CONFIG_

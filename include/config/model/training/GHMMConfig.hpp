@@ -17,61 +17,64 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_TRAINING_GHMM_CONFIG_
+#define CONFIG_TRAINING_GHMM_CONFIG_
 
 // Standard headers
 #include <memory>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
-#include "config/Domain.hpp"
-
-#include "config/model/ModelConfig.hpp"
+#include "config/Options.hpp"
 #include "config/state/StateConfig.hpp"
-#include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
+#include "config/model/training/DecodableModelConfig.hpp"
 
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
+namespace training {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef GHMMConfig
+ * Alias to IR of the parameters of the algorithms
+ * used to train a model::GeneralizedHiddenMarkovModel
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using GHMMConfig
+  = config_with_options<>::extending<DecodableModelConfig>
+                         ::type<class GHMMConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef GHMMConfigPtr
+ * @brief Alias of pointer to GHMMConfig
+ */
+using GHMMConfigPtr = std::shared_ptr<GHMMConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace training
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
+namespace config {
+namespace training {
+namespace GHMM {
 
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
+/**
+ * @typedef MaximumLikehoodConfig
+ * Alias to IR of the parameters of the Maximum Likehood algorithm,
+ * used to train a model::GeneralizedHiddenMarkovModel
+ */
+using MaximumLikehoodConfig
+  = config_with_options<
+      option::States(decltype("states"_t)),
+      option::Counter(decltype("pseudo_counter"_t))
+    >::extending<GHMMConfig>::type<class MaximumLikehoodConfigID>;
 
-}  // namespace lang
+/**
+ * @typedef MaximumLikehoodConfigPtr
+ * @brief Alias of pointer to MaximumLikehoodConfig
+ */
+using MaximumLikehoodConfigPtr
+  = std::shared_ptr<MaximumLikehoodConfig>;
 
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
+}  // namespace GHMM
+}  // namespace training
+}  // namespace config
 
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_TRAINING_GHMM_CONFIG_

@@ -124,7 +124,6 @@ chaiscript::ModulePtr Interpreter::makeInterpreterLibrary(
 
     registerTrainingTypes(interpreter_library, filepath);
     registerTrainingHelpers(interpreter_library, filepath);
-    registerTrainingAttributions(interpreter_library, filepath);
 
     initialized = true;
   }
@@ -150,7 +149,6 @@ chaiscript::ModulePtr Interpreter::makeInterpreterLibrary(
 
     registerDefinitionTypes(interpreter_library, filepath);
     registerDefinitionHelpers(interpreter_library, filepath);
-    registerDefinitionAttributions(interpreter_library, filepath);
 
     initialized = true;
   }

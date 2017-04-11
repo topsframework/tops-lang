@@ -29,20 +29,14 @@
 
 #include "config/Domain.hpp"
 
-#include "config/training/ModelConfig.hpp"
-#include "config/training/StateConfig.hpp"
-#include "config/training/DurationConfig.hpp"
-
-#include "config/definition/ModelConfig.hpp"
-#include "config/definition/StateConfig.hpp"
-#include "config/definition/DurationConfig.hpp"
-#include "config/definition/DependencyTreeConfig.hpp"
-#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+#include "config/model/ModelConfig.hpp"
+#include "config/state/StateConfig.hpp"
+#include "config/duration/DurationConfig.hpp"
+#include "config/auxiliar/DependencyTreeConfig.hpp"
+#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
 // Namespace aliases
 namespace { namespace co = config::option; }
-namespace { namespace cot = co::training; }
-namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -69,16 +63,12 @@ class MultipleFilePrinter : public FilePrinter {
   void startPrinting() override;
   void endPrinting() override;
 
-  void print(co::Model model) override;
   void print(co::Domain domain) override;
-
-  void print(cot::State state) override;
-  void print(cot::Duration duration) override;
-
-  void print(cod::State state) override;
-  void print(cod::Duration duration) override;
-  void print(cod::DependencyTree tree) override;
-  void print(cod::FeatureFunctionLibrary library) override;
+  void print(co::Model model) override;
+  void print(co::State state) override;
+  void print(co::Duration duration) override;
+  void print(co::DependencyTree tree) override;
+  void print(co::FeatureFunctionLibrary library) override;
 
  protected:
   // Instance variables
@@ -88,8 +78,8 @@ class MultipleFilePrinter : public FilePrinter {
   std::string working_dir_;
 
   std::list<co::Model> submodels_;
-  std::list<cod::DependencyTree> trees_;
-  std::list<cod::FeatureFunctionLibrary> libraries_;
+  std::list<co::DependencyTree> trees_;
+  std::list<co::FeatureFunctionLibrary> libraries_;
 
   // Constructors
   template<typename... Args>
@@ -102,8 +92,8 @@ class MultipleFilePrinter : public FilePrinter {
   std::string pathForHelperCall(const std::string &path);
 
   void printSubmodel(co::Model submodel);
-  void printTree(cod::DependencyTree tree);
-  void printLibrary(cod::FeatureFunctionLibrary library);
+  void printTree(co::DependencyTree tree);
+  void printLibrary(co::FeatureFunctionLibrary library);
 };
 
 }  // namespace lang

@@ -17,61 +17,47 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_FEATURE_FUNCTION_LIBRARY_CONFIG_
+#define CONFIG_FEATURE_FUNCTION_LIBRARY_CONFIG_
 
 // Standard headers
 #include <memory>
+#include <vector>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
-#include "config/Domain.hpp"
+#include "config/Options.hpp"
 
-#include "config/model/ModelConfig.hpp"
-#include "config/state/StateConfig.hpp"
-#include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
-
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef FeatureFunctionLibraryConfig
+ * @brief Alias to helper IR of a feature function library
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using FeatureFunctionLibraryConfig
+  = config_with_options<
+      option::Alphabet(decltype("observations"_t)),
+      option::Alphabet(decltype("labels"_t)),
+      option::FeatureFunctions(decltype("feature_functions"_t))
+    >::type<class FeatureFunctionLibraryConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef FeatureFunctionLibraryConfigPtr
+ * @brief Alias of pointer to FeatureFunctionLibraryConfig
+ */
+using FeatureFunctionLibraryConfigPtr
+  = std::shared_ptr<FeatureFunctionLibraryConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
+namespace config {
+namespace option {
 
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
+using FeatureFunctionLibrary = config::FeatureFunctionLibraryConfigPtr;
+using FeatureFunctionLibraries = std::vector<FeatureFunctionLibrary>;
 
-}  // namespace lang
+}  // namespace option
+}  // namespace config
 
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
-
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_FEATURE_FUNCTION_LIBRARY_CONFIG_

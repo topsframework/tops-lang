@@ -34,22 +34,16 @@
 #include "config/Domain.hpp"
 #include "config/BasicConfig.hpp"
 
-#include "config/training/ModelConfig.hpp"
-#include "config/training/StateConfig.hpp"
-#include "config/training/DurationConfig.hpp"
-
-#include "config/definition/ModelConfig.hpp"
-#include "config/definition/StateConfig.hpp"
-#include "config/definition/DurationConfig.hpp"
-#include "config/definition/DependencyTreeConfig.hpp"
-#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+#include "config/model/ModelConfig.hpp"
+#include "config/state/StateConfig.hpp"
+#include "config/duration/DurationConfig.hpp"
+#include "config/auxiliar/DependencyTreeConfig.hpp"
+#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
 namespace lang {
 
 // Namespace aliases
 namespace { namespace co = config::option; }
-namespace { namespace cot = co::training; }
-namespace { namespace cod = co::definition; }
 
 /**
  * @class FilePrinter
@@ -67,16 +61,12 @@ class FilePrinter {
   };
 
   // Purely virtual methods
-  virtual void print(co::Model model) = 0;
   virtual void print(co::Domain domain) = 0;
-
-  virtual void print(cot::State state) = 0;
-  virtual void print(cot::Duration duration) = 0;
-
-  virtual void print(cod::State state) = 0;
-  virtual void print(cod::Duration duration) = 0;
-  virtual void print(cod::DependencyTree tree) = 0;
-  virtual void print(cod::FeatureFunctionLibrary library) = 0;
+  virtual void print(co::Model model) = 0;
+  virtual void print(co::State state) = 0;
+  virtual void print(co::Duration duration) = 0;
+  virtual void print(co::DependencyTree tree) = 0;
+  virtual void print(co::FeatureFunctionLibrary library) = 0;
 
   // Virtual methods
   virtual void changeOstream(const std::string &/* path */);

@@ -29,21 +29,14 @@
 #include "config/ConfigVisitor.hpp"
 
 #include "config/Options.hpp"
-
-#include "config/training/ModelConfig.hpp"
-#include "config/training/StateConfig.hpp"
-#include "config/training/DurationConfig.hpp"
-
-#include "config/definition/ModelConfig.hpp"
-#include "config/definition/StateConfig.hpp"
-#include "config/definition/DurationConfig.hpp"
-#include "config/definition/DependencyTreeConfig.hpp"
-#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+#include "config/model/ModelConfig.hpp"
+#include "config/state/StateConfig.hpp"
+#include "config/duration/DurationConfig.hpp"
+#include "config/auxiliar/DependencyTreeConfig.hpp"
+#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
 // Namespace aliases
 namespace { namespace co = config::option; }
-namespace { namespace cot = co::training; }
-namespace { namespace cod = co::definition; }
 
 namespace lang {
 
@@ -82,18 +75,13 @@ class ModelConfigSerializer
 
   void visitOption(co::Model &visited) override;
   void visitOption(co::Models &visited) override;
-
-  void visitOption(cot::State &visited) override;
-  void visitOption(cot::States &visited) override;
-  void visitOption(cot::Duration &visited) override;
-
-  void visitOption(cod::State &visited) override;
-  void visitOption(cod::States &visited) override;
-  void visitOption(cod::Duration &visited) override;
-  void visitOption(cod::DependencyTree &visited) override;
-  void visitOption(cod::DependencyTrees &visited) override;
-  void visitOption(cod::FeatureFunctionLibrary &visited) override;
-  void visitOption(cod::FeatureFunctionLibraries &visited) override;
+  void visitOption(co::State &visited) override;
+  void visitOption(co::States &visited) override;
+  void visitOption(co::Duration &visited) override;
+  void visitOption(co::DependencyTree &visited) override;
+  void visitOption(co::DependencyTrees &visited) override;
+  void visitOption(co::FeatureFunctionLibrary &visited) override;
+  void visitOption(co::FeatureFunctionLibraries &visited) override;
 
   void visitTag(const std::string &tag, std::size_t count,
                                         std::size_t max) override;

@@ -38,49 +38,42 @@
 #include "lang/DependencyTreeParser.hpp"
 
 #include "config/Domain.hpp"
-#include "config/ModelConfig.hpp"
 #include "config/StringLiteralSuffix.hpp"
 
 #include "config/Options.hpp"
 
-#include "config/training/ModelConfig.hpp"
-#include "config/training/HMMConfig.hpp"
-#include "config/training/IIDConfig.hpp"
-#include "config/training/MDDConfig.hpp"
-#include "config/training/GHMMConfig.hpp"
-#include "config/training/VLMCConfig.hpp"
-#include "config/training/PeriodicIMCConfig.hpp"
+#include "config/model/ModelConfig.hpp"
 
-#include "config/training/StateConfig.hpp"
+#include "config/model/training/ModelConfig.hpp"
+#include "config/model/training/HMMConfig.hpp"
+#include "config/model/training/IIDConfig.hpp"
+#include "config/model/training/MDDConfig.hpp"
+#include "config/model/training/GHMMConfig.hpp"
+#include "config/model/training/VLMCConfig.hpp"
+#include "config/model/training/PeriodicIMCConfig.hpp"
 
-#include "config/training/DurationConfig.hpp"
-#include "config/training/FixedDurationConfig.hpp"
-#include "config/training/ExplicitDurationConfig.hpp"
-#include "config/training/GeometricDurationConfig.hpp"
-#include "config/training/MaxLengthDurationConfig.hpp"
+#include "config/model/definition/ModelConfig.hpp"
+#include "config/model/definition/HMMConfig.hpp"
+#include "config/model/definition/IIDConfig.hpp"
+#include "config/model/definition/IMCConfig.hpp"
+#include "config/model/definition/MDDConfig.hpp"
+#include "config/model/definition/MSMConfig.hpp"
+#include "config/model/definition/GHMMConfig.hpp"
+#include "config/model/definition/SBSWConfig.hpp"
+#include "config/model/definition/VLMCConfig.hpp"
+#include "config/model/definition/LCCRFConfig.hpp"
+#include "config/model/definition/PeriodicIMCConfig.hpp"
 
-#include "config/definition/ModelConfig.hpp"
-#include "config/definition/HMMConfig.hpp"
-#include "config/definition/IIDConfig.hpp"
-#include "config/definition/IMCConfig.hpp"
-#include "config/definition/MDDConfig.hpp"
-#include "config/definition/MSMConfig.hpp"
-#include "config/definition/GHMMConfig.hpp"
-#include "config/definition/SBSWConfig.hpp"
-#include "config/definition/VLMCConfig.hpp"
-#include "config/definition/LCCRFConfig.hpp"
-#include "config/definition/PeriodicIMCConfig.hpp"
+#include "config/state/StateConfig.hpp"
 
-#include "config/definition/StateConfig.hpp"
+#include "config/duration/DurationConfig.hpp"
+#include "config/duration/FixedDurationConfig.hpp"
+#include "config/duration/ExplicitDurationConfig.hpp"
+#include "config/duration/GeometricDurationConfig.hpp"
+#include "config/duration/MaxLengthDurationConfig.hpp"
 
-#include "config/definition/DurationConfig.hpp"
-#include "config/definition/FixedDurationConfig.hpp"
-#include "config/definition/ExplicitDurationConfig.hpp"
-#include "config/definition/GeometricDurationConfig.hpp"
-#include "config/definition/MaxLengthDurationConfig.hpp"
-
-#include "config/definition/DependencyTreeConfig.hpp"
-#include "config/definition/FeatureFunctionLibraryConfig.hpp"
+#include "config/auxiliar/DependencyTreeConfig.hpp"
+#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
 // External headers
 #include "chaiscript/language/chaiscript_engine.hpp"
@@ -208,29 +201,25 @@ void Interpreter::checkExtension(const std::string &filepath) {
 
 /*----------------------------------------------------------------------------*/
 
-cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
-  std::string untrained_model = "untrained_model";
-
+cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath,
+                                                const std::string &label) {
   auto model_type = getConfigOption<
-    ct::ModelConfig, decltype("model_type"_t)>(filepath);
+    ct::ModelConfig, decltype("model_type"_t)>(filepath, label);
   auto training_algorithm = getConfigOption<
-    ct::ModelConfig, decltype("training_algorithm"_t)>(filepath);
+    ct::ModelConfig, decltype("training_algorithm"_t)>(filepath, label);
 
   if (model_type == "GHMM") {
     if (training_algorithm == "MaximumLikehood") {
-      return fillConfig<ct::GHMM::MaximumLikehoodConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::GHMM::MaximumLikehoodConfig>(filepath, label);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "HMM") {
     if (training_algorithm == "MaximumLikehood") {
-      return fillConfig<ct::HMM::MaximumLikehoodConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::HMM::MaximumLikehoodConfig>(filepath, label);
     } else if (training_algorithm == "BaumWelch") {
-      return fillConfig<ct::HMM::BaumWelchConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::HMM::BaumWelchConfig>(filepath, label);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
@@ -238,43 +227,37 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
   } else if (model_type == "IID") {
     if (training_algorithm == "MaximumLikehood") {
       return fillConfig<ct::IID::MaximumLikehoodConfig>(
-          filepath, untrained_model);
+          filepath, label);
     } else if (training_algorithm == "SmoothedHistogramBurge") {
-      return fillConfig<ct::IID::SmoothedHistogramBurgeConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::IID::SmoothedHistogramBurgeConfig>(filepath, label);
     } else if (training_algorithm == "SmoothedHistogramStanke") {
       return fillConfig<ct::IID::SmoothedHistogramStankeConfig>(
-          filepath, untrained_model);
+          filepath, label);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "MDD") {
     if (training_algorithm == "Standard") {
-      return fillConfig<ct::MDD::StandardConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::MDD::StandardConfig>(filepath, label);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "PeriodicIMC") {
     if (training_algorithm == "Interpolation") {
-      return fillConfig<ct::PeriodicIMC::InterpolationConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::PeriodicIMC::InterpolationConfig>(filepath, label);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
     }
   } else if (model_type == "VLMC") {
     if (training_algorithm == "Context") {
-      return fillConfig<ct::VLMC::ContextConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::VLMC::ContextConfig>(filepath, label);
     } else if (training_algorithm == "FixedLength") {
-      return fillConfig<ct::VLMC::FixedLengthConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::VLMC::FixedLengthConfig>(filepath, label);
     } else if (training_algorithm == "Interpolation") {
-      return fillConfig<ct::VLMC::InterpolationConfig>(
-          filepath, untrained_model);
+      return fillConfig<ct::VLMC::InterpolationConfig>(filepath, label);
     } else {
       handleWrongStringOption(filepath, "training_algorithm",
                                          training_algorithm);
@@ -288,32 +271,31 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath) {
 
 /*----------------------------------------------------------------------------*/
 
-cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath) {
-  const std::string model = "model";
-
+cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath,
+                                                  const std::string &label) {
   auto model_type = getConfigOption<
     cd::ModelConfig, decltype("model_type"_t)>(filepath);
 
   if (model_type == "GHMM") {
-    return fillConfig<cd::GHMMConfig>(filepath, model);
+    return fillConfig<cd::GHMMConfig>(filepath, label);
   } else if (model_type == "HMM") {
-    return fillConfig<cd::HMMConfig>(filepath, model);
+    return fillConfig<cd::HMMConfig>(filepath, label);
   } else if (model_type == "LCCRF") {
-    return fillConfig<cd::LCCRFConfig>(filepath, model);
+    return fillConfig<cd::LCCRFConfig>(filepath, label);
   } else if (model_type == "IID") {
-    return fillConfig<cd::IIDConfig>(filepath, model);
+    return fillConfig<cd::IIDConfig>(filepath, label);
   } else if (model_type == "VLMC") {
-    return fillConfig<cd::VLMCConfig>(filepath, model);
+    return fillConfig<cd::VLMCConfig>(filepath, label);
   } else if (model_type == "IMC") {
-    return fillConfig<cd::IMCConfig>(filepath, model);
+    return fillConfig<cd::IMCConfig>(filepath, label);
   } else if (model_type == "PeriodicIMC") {
-    return fillConfig<cd::PeriodicIMCConfig>(filepath, model);
+    return fillConfig<cd::PeriodicIMCConfig>(filepath, label);
   } else if (model_type == "SBSW") {
-    return fillConfig<cd::SBSWConfig>(filepath, model);
+    return fillConfig<cd::SBSWConfig>(filepath, label);
   } else if (model_type == "MSM") {
-    return fillConfig<cd::MSMConfig>(filepath, model);
+    return fillConfig<cd::MSMConfig>(filepath, label);
   } else if (model_type == "MDD") {
-    return fillConfig<cd::MDDConfig>(filepath, model);
+    return fillConfig<cd::MDDConfig>(filepath, label);
   } else {
     handleWrongStringOption(filepath, "model_type", model_type);
   }
@@ -348,16 +330,22 @@ void Interpreter::registerCommonTypes(chaiscript::ModulePtr &module,
   // Ordinary types
   REGISTER_COMMON_TYPE(Size);
   REGISTER_COMMON_TYPE(Type);
+  REGISTER_COMMON_TYPE(State);
   REGISTER_COMMON_TYPE(Domain);
+  REGISTER_COMMON_TYPE(Duration);
   REGISTER_COMMON_TYPE(Probability);
+  REGISTER_COMMON_TYPE(DependencyTree);
   REGISTER_COMMON_TYPE(FeatureFunction);
 
+  REGISTER_COMMON_MAP(States);
   REGISTER_COMMON_MAP(Probabilities);
   REGISTER_COMMON_MAP(FeatureFunctions);
 
   REGISTER_COMMON_VECTOR(Domains);
   REGISTER_COMMON_VECTOR(Alphabet);
   REGISTER_COMMON_VECTOR(Alphabets);
+  REGISTER_COMMON_VECTOR(DependencyTrees);
+  REGISTER_COMMON_VECTOR(FeatureFunctionLibraries);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -366,16 +354,62 @@ void Interpreter::registerCommonHelpers(chaiscript::ModulePtr &module,
                                         const std::string &filepath) {
   using chaiscript::fun;
 
+  using config::Domain;
+
+  using config::FixedDurationConfig;
+  using config::GeometricDurationConfig;
+  using config::MaxLengthDurationConfig;
+
+  using config::DependencyTreeConfig;
+  using config::FeatureFunctionLibraryConfig;
+
   module->add(fun([this] (const co::Alphabet &alphabet) {
-    return std::make_shared<config::Domain>(
-        typename config::Domain::discrete_domain{}, alphabet);
+    return std::make_shared<Domain>(
+        typename Domain::discrete_domain{}, alphabet);
   }), "discrete_domain");
 
   module->add(fun([this] (const co::OutToInSymbolFunction &o2i,
                           const co::InToOutSymbolFunction &i2o) {
-    return std::make_shared<config::Domain>(
-        typename config::Domain::custom_domain{}, o2i, i2o);
+    return std::make_shared<Domain>(
+        typename Domain::custom_domain{}, o2i, i2o);
   }), "custom_domain");
+
+  module->add(fun([this, filepath]() {
+    auto duration = GeometricDurationConfig::make(filepath, "geometric");
+    return co::Duration(duration);
+  }), "geometric");
+
+  module->add(fun([this, filepath] (unsigned int size) {
+    auto duration = FixedDurationConfig::make(filepath, "fixed");
+    std::get<decltype("size"_t)>(*duration.get()) = size;
+    return co::Duration(duration);
+  }), "fixed");
+
+  module->add(fun([this, filepath] (unsigned int size) {
+    auto duration = MaxLengthDurationConfig::make(filepath, "max_length");
+    std::get<decltype("size"_t)>(*duration.get()) = size;
+    return co::Duration(duration);
+  }), "max_length");
+
+  module->add(fun([this, filepath] (const std::string &file) {
+    auto root_dir = extractDir(filepath);
+
+    std::ifstream src(root_dir + file);
+
+    std::string line;
+    std::vector<std::string> content;
+    while (std::getline(src, line)) {
+      content.push_back(line);
+    }
+
+    DependencyTreeParser parser(this, root_dir, file, content);
+    return parser.parse();
+  }), "tree");
+
+  module->add(fun([this, filepath] (const std::string &file) {
+    auto root_dir = extractDir(filepath);
+    return this->fillConfig<FeatureFunctionLibraryConfig>(root_dir + file);
+  }), "lib");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -418,6 +452,20 @@ void Interpreter::registerCommonAttributions(chaiscript::ModulePtr &module,
       conv.push_back(inner_conv);
     }
   }), "=");
+
+  module->add(fun([filepath] (co::States &conv, const Map &orig) {
+    for (auto &pair : orig) {
+      auto inner_orig = boxed_cast<Map &>(pair.second);
+
+      conv[pair.first] = config::StateConfig::make(filepath);
+
+      std::get<decltype("duration"_t)>(*conv[pair.first])
+        = boxed_cast<co::Duration>(inner_orig["duration"]);
+
+      std::get<decltype("emission"_t)>(*conv[pair.first])
+        = boxed_cast<co::Model>(inner_orig["emission"]);
+    }
+  }), "=");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -441,11 +489,6 @@ void Interpreter::registerTrainingTypes(chaiscript::ModulePtr &module,
                                         const std::string &/* filepath */) {
   // Definitions
   REGISTER_TRAINING_TYPE(Model);
-  REGISTER_TRAINING_TYPE(State);
-  REGISTER_TRAINING_TYPE(Duration);
-
-  REGISTER_TRAINING_MAP(States);
-
   REGISTER_TRAINING_VECTOR(Models);
 }
 
@@ -455,33 +498,24 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
                                           const std::string &filepath) {
   using chaiscript::fun;
 
-  using ct::FixedDurationConfig;
-  using ct::ExplicitDurationConfig;
-  using ct::GeometricDurationConfig;
-  using ct::MaxLengthDurationConfig;
+  using config::ExplicitDurationConfig;
 
   module->add(fun([this, filepath] (const std::string &file) {
-    auto untrained_model
-      = this->makeModelTrainingConfig(extractDir(filepath) + file);
-    return co::Model(untrained_model);
+    return co::Model(this->makeModelTrainingConfig(
+          extractDir(filepath) + file, "untrained_model"));
   }), "untrained_model");
 
   module->add(fun([this, filepath] (const std::string &file) {
-    auto pretrained_model
-      = this->makeModelDefinitionConfig(extractDir(filepath) + file);
-    return co::Model(pretrained_model);
+    return co::Model(this->makeModelDefinitionConfig(
+          extractDir(filepath) + file, "pretrained_model"));
   }), "pretrained_model");
-
-  module->add(fun([this, filepath]() {
-    auto duration = GeometricDurationConfig::make(filepath, "geometric");
-    return cot::Duration(duration);
-  }), "geometric");
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelTrainingConfig(extractDir(filepath) + file);
-    return cot::Duration(duration);
+      = this->makeModelDefinitionConfig(extractDir(filepath) + file,
+                                        "pretrained_model");
+    return co::Duration(duration);
   }), "explicit");
 
   module->add(fun([this, filepath] (const std::string &file,
@@ -489,8 +523,17 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("max_size"_t)>(*duration.get()) = size;
     std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelTrainingConfig(extractDir(filepath) + file);
-    return cot::Duration(duration);
+      = this->makeModelDefinitionConfig(extractDir(filepath) + file,
+                                        "pretrained_model");
+    return co::Duration(duration);
+  }), "explicit");
+
+  module->add(fun([this, filepath] (cod::Model model,
+                                    unsigned int size) {
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("max_size"_t)>(*duration.get()) = size;
+    std::get<decltype("model"_t)>(*duration.get()) = model;
+    return co::Duration(duration);
   }), "explicit");
 
   module->add(fun([this, filepath] (cot::Model model,
@@ -498,20 +541,8 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("max_size"_t)>(*duration.get()) = size;
     std::get<decltype("model"_t)>(*duration.get()) = model;
-    return cot::Duration(duration);
+    return co::Duration(duration);
   }), "explicit");
-
-  module->add(fun([this, filepath] (unsigned int size) {
-    auto duration = FixedDurationConfig::make(filepath, "fixed");
-    std::get<decltype("size"_t)>(*duration.get()) = size;
-    return cot::Duration(duration);
-  }), "fixed");
-
-  module->add(fun([this, filepath] (unsigned int size) {
-    auto duration = MaxLengthDurationConfig::make(filepath, "max_length");
-    std::get<decltype("size"_t)>(*duration.get()) = size;
-    return cot::Duration(duration);
-  }), "max_length");
 
   module->add(fun([this, filepath] (const std::string &file) {
     return extractDir(filepath) + file;
@@ -520,44 +551,11 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
 
 /*----------------------------------------------------------------------------*/
 
-void Interpreter::registerTrainingAttributions(chaiscript::ModulePtr &module,
-                                               const std::string &filepath) {
-  using chaiscript::fun;
-  using chaiscript::boxed_cast;
-
-  using chaiscript::Boxed_Value;
-  using Map = std::map<std::string, Boxed_Value>;
-
-  module->add(fun([filepath] (cot::States &conv, const Map &orig) {
-    for (auto &pair : orig) {
-      auto inner_orig = boxed_cast<Map &>(pair.second);
-
-      conv[pair.first] = ct::StateConfig::make(filepath);
-
-      std::get<decltype("duration"_t)>(*conv[pair.first])
-        = boxed_cast<cot::Duration>(inner_orig["duration"]);
-
-      std::get<decltype("emission"_t)>(*conv[pair.first])
-        = boxed_cast<co::Model>(inner_orig["emission"]);
-    }
-  }), "=");
-}
-
-/*----------------------------------------------------------------------------*/
-
 void Interpreter::registerDefinitionTypes(chaiscript::ModulePtr &module,
                                           const std::string &/* filepath */) {
   // Definitions
   REGISTER_DEFINITION_TYPE(Model);
-  REGISTER_DEFINITION_TYPE(State);
-  REGISTER_DEFINITION_TYPE(Duration);
-  REGISTER_DEFINITION_TYPE(DependencyTree);
-
-  REGISTER_DEFINITION_MAP(States);
-
   REGISTER_DEFINITION_VECTOR(Models);
-  REGISTER_DEFINITION_VECTOR(DependencyTrees);
-  REGISTER_DEFINITION_VECTOR(FeatureFunctionLibraries);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -566,28 +564,18 @@ void Interpreter::registerDefinitionHelpers(chaiscript::ModulePtr &module,
                                             const std::string &filepath) {
   using chaiscript::fun;
 
-  using cd::FixedDurationConfig;
-  using cd::ExplicitDurationConfig;
-  using cd::GeometricDurationConfig;
-  using cd::MaxLengthDurationConfig;
-  using cd::FeatureFunctionLibraryConfig;
-  using cd::DependencyTreeConfig;
+  using config::ExplicitDurationConfig;
 
   module->add(fun([this, filepath] (const std::string &file) {
-    auto root_dir = extractDir(filepath);
-    return co::Model(this->makeModelDefinitionConfig(root_dir + file));
+    return co::Model(this->makeModelDefinitionConfig(
+          extractDir(filepath) + file, "model"));
   }), "model");
-
-  module->add(fun([this, filepath]() {
-    auto duration = GeometricDurationConfig::make(filepath, "geometric");
-    return cod::Duration(duration);
-  }), "geometric");
 
   module->add(fun([this, filepath] (const std::string &file) {
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelDefinitionConfig(extractDir(filepath) + file);
-    return cod::Duration(duration);
+      = this->makeModelDefinitionConfig(extractDir(filepath) + file, "model");
+    return co::Duration(duration);
   }), "explicit");
 
   module->add(fun([this, filepath] (const std::string &file,
@@ -595,8 +583,8 @@ void Interpreter::registerDefinitionHelpers(chaiscript::ModulePtr &module,
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("max_size"_t)>(*duration.get()) = size;
     std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelDefinitionConfig(extractDir(filepath) + file);
-    return cod::Duration(duration);
+      = this->makeModelDefinitionConfig(extractDir(filepath) + file, "model");
+    return co::Duration(duration);
   }), "explicit");
 
   module->add(fun([this, filepath] (cod::Model model,
@@ -604,65 +592,8 @@ void Interpreter::registerDefinitionHelpers(chaiscript::ModulePtr &module,
     auto duration = ExplicitDurationConfig::make(filepath, "explicit");
     std::get<decltype("max_size"_t)>(*duration.get()) = size;
     std::get<decltype("model"_t)>(*duration.get()) = model;
-    return cod::Duration(duration);
+    return co::Duration(duration);
   }), "explicit");
-
-  module->add(fun([this, filepath] (unsigned int size) {
-    auto duration = FixedDurationConfig::make(filepath, "fixed");
-    std::get<decltype("size"_t)>(*duration.get()) = size;
-    return cod::Duration(duration);
-  }), "fixed");
-
-  module->add(fun([this, filepath] (unsigned int size) {
-    auto duration = MaxLengthDurationConfig::make(filepath, "max_length");
-    std::get<decltype("size"_t)>(*duration.get()) = size;
-    return cod::Duration(duration);
-  }), "max_length");
-
-  module->add(fun([this, filepath] (const std::string &file) {
-    auto root_dir = extractDir(filepath);
-    return this->fillConfig<FeatureFunctionLibraryConfig>(root_dir + file);
-  }), "lib");
-
-  module->add(fun([this, filepath] (const std::string &file) {
-    auto root_dir = extractDir(filepath);
-
-    std::ifstream src(root_dir + file);
-
-    std::string line;
-    std::vector<std::string> content;
-    while (std::getline(src, line)) {
-      content.push_back(line);
-    }
-
-    DependencyTreeParser parser(this, root_dir, file, content);
-    return parser.parse();
-  }), "tree");
-}
-
-/*----------------------------------------------------------------------------*/
-
-void Interpreter::registerDefinitionAttributions(chaiscript::ModulePtr &module,
-                                                 const std::string &filepath) {
-  using chaiscript::fun;
-  using chaiscript::boxed_cast;
-
-  using chaiscript::Boxed_Value;
-  using Map = std::map<std::string, Boxed_Value>;
-
-  module->add(fun([filepath] (cod::States &conv, const Map &orig) {
-    for (auto &pair : orig) {
-      auto inner_orig = boxed_cast<Map &>(pair.second);
-
-      conv[pair.first] = cd::StateConfig::make(filepath);
-
-      std::get<decltype("duration"_t)>(*conv[pair.first])
-        = boxed_cast<cod::Duration>(inner_orig["duration"]);
-
-      std::get<decltype("emission"_t)>(*conv[pair.first])
-        = boxed_cast<co::Model>(inner_orig["emission"]);
-    }
-  }), "=");
 }
 
 /*----------------------------------------------------------------------------*/

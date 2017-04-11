@@ -17,61 +17,40 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_DEFINITION_DECODABLE_MODEL_CONFIG_
+#define CONFIG_DEFINITION_DECODABLE_MODEL_CONFIG_
 
 // Standard headers
 #include <memory>
+#include <vector>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
 #include "config/Domain.hpp"
+#include "config/Options.hpp"
+#include "config/model/definition/ModelConfig.hpp"
 
-#include "config/model/ModelConfig.hpp"
-#include "config/state/StateConfig.hpp"
-#include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
-
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
+namespace definition {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef DecodableModelConfig
+ * @brief Alias to IR of a model::ProbabilisticDecodableModel
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using DecodableModelConfig
+  = config_with_options<
+      option::Domains(decltype("other_observations"_t)),
+      option::Domain(decltype("labels"_t))
+    >::extending<ModelConfig>::type<class DecodableModelConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef DecodableModelConfigPtr
+ * @brief Alias of pointer to DecodableModelConfig
+ */
+using DecodableModelConfigPtr = std::shared_ptr<DecodableModelConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace definition
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
-
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
-
-}  // namespace lang
-
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
-
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_DEFINITION_DECODABLE_MODEL_CONFIG_

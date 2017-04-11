@@ -28,8 +28,8 @@
 
 // Internal headers
 #include "config/Converter.hpp"
-#include "config/training/ModelConfig.hpp"
-#include "config/definition/ModelConfig.hpp"
+#include "config/model/training/ModelConfig.hpp"
+#include "config/model/definition/ModelConfig.hpp"
 
 // External headers
 #include "chaiscript/dispatchkit/dispatchkit.hpp"
@@ -57,8 +57,10 @@ class Interpreter {
   // Concrete methods
   void checkExtension(const std::string &filepath);
 
-  cot::Model makeModelTrainingConfig(const std::string &filepath);
-  cod::Model makeModelDefinitionConfig(const std::string &filepath);
+  cot::Model makeModelTrainingConfig(const std::string &filepath,
+                                     const std::string &label = "");
+  cod::Model makeModelDefinitionConfig(const std::string &filepath,
+                                       const std::string &label = "");
 
   void handleWrongStringOption(const std::string &filepath,
                                const std::string& option_name,
@@ -114,15 +116,11 @@ class Interpreter {
                              const std::string &filepath);
   void registerTrainingHelpers(chaiscript::ModulePtr &module,
                                const std::string &filepath);
-  void registerTrainingAttributions(chaiscript::ModulePtr &module,
-                                    const std::string &filepath);
 
   void registerDefinitionTypes(chaiscript::ModulePtr &module,
                                const std::string &filepath);
   void registerDefinitionHelpers(chaiscript::ModulePtr &module,
                                  const std::string &filepath);
-  void registerDefinitionAttributions(chaiscript::ModulePtr &module,
-                                      const std::string &filepath);
 };
 
 }  // namespace lang

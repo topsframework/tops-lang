@@ -17,61 +17,36 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_DEFINITION_IMC_CONFIG_
+#define CONFIG_DEFINITION_IMC_CONFIG_
 
 // Standard headers
 #include <memory>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
-#include "config/Domain.hpp"
+#include "config/model/definition/ModelConfig.hpp"
 
-#include "config/model/ModelConfig.hpp"
-#include "config/state/StateConfig.hpp"
-#include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
-
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
+namespace definition {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef IMCConfig
+ * @brief Alias to IR of a model::InhomogeneousMarkovChain
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using IMCConfig
+  = config_with_options<
+      option::Models(decltype("position_specific_distributions"_t))
+    >::extending<ModelConfig>::type<class IMCConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef IMCConfigPtr
+ * @brief Alias of pointer to IMCConfig
+ */
+using IMCConfigPtr = std::shared_ptr<IMCConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace definition
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
-
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
-
-}  // namespace lang
-
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
-
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_DEFINITION_IMC_CONFIG_

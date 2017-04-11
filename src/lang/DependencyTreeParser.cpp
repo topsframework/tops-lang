@@ -37,7 +37,6 @@
 
 // Namespace aliases
 namespace { namespace co = config::option; }
-namespace { namespace cod = co::definition; }
 
 // Using declarations
 using config::operator ""_t;
@@ -63,7 +62,7 @@ DependencyTreeParser::DependencyTreeParser(Interpreter* interpreter,
 /*                              CONCRETE METHODS                              */
 /*----------------------------------------------------------------------------*/
 
-cod::DependencyTree DependencyTreeParser::parse() {
+co::DependencyTree DependencyTreeParser::parse() {
   for (auto line : content_) {
     line_++;
     column_ = 1;
@@ -73,7 +72,7 @@ cod::DependencyTree DependencyTreeParser::parse() {
   edges_.insert(edges_.begin(), 0);
 
   std::stack<unsigned int> stack_edges;
-  std::stack<cod::DependencyTree> stack_nodes;
+  std::stack<co::DependencyTree> stack_nodes;
   for (unsigned int i = 0; i < edges_.size(); i++) {
     if (stack_edges.empty()) {
       stack_edges.push(edges_[i]);
@@ -130,12 +129,11 @@ void DependencyTreeParser::parseNode(std::string line) {
 
   auto filepath = parseString();
 
-  auto tree
-    = config::definition::DependencyTreeConfig::make(root_dir_ + filename_);
-  std::get<decltype("position"_t)>(*tree) = id;
-  std::get<decltype("configuration"_t)>(*tree)
-    = interpreter_->evalModelDefinition(root_dir_ + filepath);
-  nodes_.push_back(tree);
+  auto tree = config::DependencyTreeConfig::make(root_dir_ + filename_);
+  // std::get<decltype("position"_t)>(*tree) = id;
+  // std::get<decltype("configuration"_t)>(*tree)
+  //   = interpreter_->evalModelDefinition(root_dir_ + filepath);
+  // nodes_.push_back(tree);
 
   consume('"');
   consume(')');

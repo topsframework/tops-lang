@@ -17,61 +17,53 @@
 /*  MA 02110-1301, USA.                                                */
 /***********************************************************************/
 
-#ifndef LANG_SINGLE_FILE_PRINTER_
-#define LANG_SINGLE_FILE_PRINTER_
+#ifndef CONFIG_TRAINING_MODEL_CONFIG_
+#define CONFIG_TRAINING_MODEL_CONFIG_
 
 // Standard headers
 #include <memory>
+#include <vector>
 
 // Internal headers
-#include "lang/FilePrinter.hpp"
+#include "config/ConfigWithOptions.hpp"
 
 #include "config/Domain.hpp"
-
+#include "config/Options.hpp"
 #include "config/model/ModelConfig.hpp"
-#include "config/state/StateConfig.hpp"
-#include "config/duration/DurationConfig.hpp"
-#include "config/auxiliar/DependencyTreeConfig.hpp"
-#include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
-// Namespace aliases
-namespace { namespace co = config::option; }
-
-namespace lang {
+namespace config {
+namespace training {
 
 /**
- * @class SingleFilePrinter
- * @brief Class to print config::BasicConfig in a single file
+ * @typedef ModelConfig
+ * @brief Alias to IR of a training of model::ProbabilisticModel
  */
-class SingleFilePrinter : public FilePrinter {
- public:
-  // Aliases
-  using Base = FilePrinter;
-  using Self = SingleFilePrinter;
+using ModelConfig
+  = config_with_options<
+      option::Type(decltype("model_type"_t)),
+      option::Domain(decltype("observations"_t)),
+      option::Dataset(decltype("training_set"_t)),
+      option::Algorithm(decltype("training_algorithm"_t))
+    >::extending<ModelConfig>::type<class ModelConfigID>;
 
-  // Constructors
-  explicit SingleFilePrinter(std::shared_ptr<std::ostream> os);
+/**
+ * @typedef ModelConfigPtr
+ * @brief Alias of pointer to ModelConfig
+ */
+using ModelConfigPtr = std::shared_ptr<ModelConfig>;
 
-  // Static methods
-  template<typename... Args>
-  static decltype(auto) make(Args&&... args);
+}  // namespace training
+}  // namespace config
 
-  // Overriden methods
-  void print(co::Domain domain) override;
-  void print(co::Model model) override;
-  void print(co::State state) override;
-  void print(co::Duration duration) override;
-  void print(co::DependencyTree tree) override;
-  void print(co::FeatureFunctionLibrary library) override;
+namespace config {
+namespace option {
+namespace training {
 
- protected:
-  // Hidden constructor inheritance
-  using Base::Base;
-};
+using Model = config::training::ModelConfigPtr;
+using Models = std::vector<Model>;
 
-}  // namespace lang
+}  // namespace training
+}  // namespace option
+}  // namespace config
 
-// Implementation header
-#include "lang/SingleFilePrinter.ipp"
-
-#endif  // LANG_SINGLE_FILE_PRINTER_
+#endif  // CONFIG_TRAINING_MODEL_CONFIG_
