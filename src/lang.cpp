@@ -155,7 +155,7 @@ int main(int argc, char **argv) try {
 
   switch (argc) {
     case 3: /* fall through */
-      case 4: cfg->accept(lang::ModelConfigSerializer(std::cerr)); break;
+    case 4: cfg->accept(lang::ModelConfigSerializer(std::cerr)); break;
     case 5: cfg->accept(lang::ModelConfigSerializer(argv[4])); break;
   }
 
