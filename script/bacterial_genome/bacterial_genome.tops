@@ -23,7 +23,7 @@ states = [
   "NonCoding" : [ duration : geometric(),
                   emission : model("NonCodingEmission.tops") ],
 
-  "Coding"    : [ duration : explicit("CodingDuration.tops"),
+  "Coding"    : [ duration : explicit(model("CodingDuration.tops")),
                   emission : model("CodingEmission.tops") ],
 
   "Start"     : [ duration : fixed(27),
