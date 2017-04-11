@@ -47,9 +47,11 @@ SingleFilePrinter::SingleFilePrinter(std::shared_ptr<std::ostream> os)
 /*----------------------------------------------------------------------------*/
 
 void SingleFilePrinter::print(co::Model model) {
+  openFunction(model->label());
   openSection('{');
   model->accept(ModelConfigSerializer(Self::make(os_, depth_)));
   closeSection('}');
+  closeFunction();
 }
 
 /*----------------------------------------------------------------------------*/
