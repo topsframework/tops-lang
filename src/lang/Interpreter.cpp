@@ -357,6 +357,7 @@ void Interpreter::registerCommonHelpers(chaiscript::ModulePtr &module,
   using config::Domain;
 
   using config::FixedDurationConfig;
+  using config::ExplicitDurationConfig;
   using config::GeometricDurationConfig;
   using config::MaxLengthDurationConfig;
 
@@ -374,16 +375,30 @@ void Interpreter::registerCommonHelpers(chaiscript::ModulePtr &module,
         typename Domain::custom_domain{}, o2i, i2o);
   }), "custom_domain");
 
-  module->add(fun([this, filepath]() {
-    auto duration = GeometricDurationConfig::make(filepath, "geometric");
-    return co::Duration(duration);
-  }), "geometric");
-
   module->add(fun([this, filepath] (unsigned int size) {
     auto duration = FixedDurationConfig::make(filepath, "fixed");
     std::get<decltype("size"_t)>(*duration.get()) = size;
     return co::Duration(duration);
   }), "fixed");
+
+  module->add(fun([this, filepath] (co::Model model) {
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("model"_t)>(*duration.get()) = model;
+    return co::Duration(duration);
+  }), "explicit");
+
+  module->add(fun([this, filepath] (co::Model model,
+                                    unsigned int size) {
+    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
+    std::get<decltype("max_size"_t)>(*duration.get()) = size;
+    std::get<decltype("model"_t)>(*duration.get()) = model;
+    return co::Duration(duration);
+  }), "explicit");
+
+  module->add(fun([this, filepath]() {
+    auto duration = GeometricDurationConfig::make(filepath, "geometric");
+    return co::Duration(duration);
+  }), "geometric");
 
   module->add(fun([this, filepath] (unsigned int size) {
     auto duration = MaxLengthDurationConfig::make(filepath, "max_length");
@@ -498,8 +513,6 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
                                           const std::string &filepath) {
   using chaiscript::fun;
 
-  using config::ExplicitDurationConfig;
-
   module->add(fun([this, filepath] (const std::string &file) {
     return co::Model(this->makeModelTrainingConfig(
           extractDir(filepath) + file, "untrained_model"));
@@ -509,40 +522,6 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
     return co::Model(this->makeModelDefinitionConfig(
           extractDir(filepath) + file, "pretrained_model"));
   }), "pretrained_model");
-
-  module->add(fun([this, filepath] (const std::string &file) {
-    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelDefinitionConfig(extractDir(filepath) + file,
-                                        "pretrained_model");
-    return co::Duration(duration);
-  }), "explicit");
-
-  module->add(fun([this, filepath] (const std::string &file,
-                                    unsigned int size) {
-    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("max_size"_t)>(*duration.get()) = size;
-    std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelDefinitionConfig(extractDir(filepath) + file,
-                                        "pretrained_model");
-    return co::Duration(duration);
-  }), "explicit");
-
-  module->add(fun([this, filepath] (cod::Model model,
-                                    unsigned int size) {
-    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("max_size"_t)>(*duration.get()) = size;
-    std::get<decltype("model"_t)>(*duration.get()) = model;
-    return co::Duration(duration);
-  }), "explicit");
-
-  module->add(fun([this, filepath] (cot::Model model,
-                                    unsigned int size) {
-    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("max_size"_t)>(*duration.get()) = size;
-    std::get<decltype("model"_t)>(*duration.get()) = model;
-    return co::Duration(duration);
-  }), "explicit");
 
   module->add(fun([this, filepath] (const std::string &file) {
     return extractDir(filepath) + file;
@@ -564,36 +543,10 @@ void Interpreter::registerDefinitionHelpers(chaiscript::ModulePtr &module,
                                             const std::string &filepath) {
   using chaiscript::fun;
 
-  using config::ExplicitDurationConfig;
-
   module->add(fun([this, filepath] (const std::string &file) {
     return co::Model(this->makeModelDefinitionConfig(
           extractDir(filepath) + file, "model"));
   }), "model");
-
-  module->add(fun([this, filepath] (const std::string &file) {
-    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelDefinitionConfig(extractDir(filepath) + file, "model");
-    return co::Duration(duration);
-  }), "explicit");
-
-  module->add(fun([this, filepath] (const std::string &file,
-                                    unsigned int size) {
-    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("max_size"_t)>(*duration.get()) = size;
-    std::get<decltype("model"_t)>(*duration.get())
-      = this->makeModelDefinitionConfig(extractDir(filepath) + file, "model");
-    return co::Duration(duration);
-  }), "explicit");
-
-  module->add(fun([this, filepath] (cod::Model model,
-                                    unsigned int size) {
-    auto duration = ExplicitDurationConfig::make(filepath, "explicit");
-    std::get<decltype("max_size"_t)>(*duration.get()) = size;
-    std::get<decltype("model"_t)>(*duration.get()) = model;
-    return co::Duration(duration);
-  }), "explicit");
 }
 
 /*----------------------------------------------------------------------------*/
