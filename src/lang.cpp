@@ -124,7 +124,7 @@ int main(int argc, char **argv) try {
                                   ct::DecodableModelConfig>(cfg);
     }
 
-    std::fstream dataset(argv[2]);
+    std::fstream dataset(argv[3]);
     std::string line;
 
     // Header
