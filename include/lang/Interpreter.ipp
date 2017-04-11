@@ -21,6 +21,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <iostream>
 
 // Internal headers
 #include "lang/Util.hpp"
@@ -63,8 +64,8 @@ bool Interpreter::hasConfigOption(const std::string &filepath,
 /*----------------------------------------------------------------------------*/
 
 template<typename Config, typename Option>
-decltype(auto) Interpreter::getConfigOption(const std::string &filepath,
-                                            const std::string &label) {
+auto Interpreter::getConfigOption(const std::string &filepath,
+                                  const std::string &label) {
   auto root_dir = extractDir(filepath);
 
   std::vector<std::string> modulepaths;

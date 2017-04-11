@@ -260,7 +260,7 @@ cot::Model Interpreter::makeModelTrainingConfig(const std::string &filepath,
 cod::Model Interpreter::makeModelDefinitionConfig(const std::string &filepath,
                                                   const std::string &label) {
   auto model_type = getConfigOption<
-    cd::ModelConfig, decltype("model_type"_t)>(filepath);
+    cd::ModelConfig, decltype("model_type"_t)>(filepath, label);
 
   if (model_type == "GHMM") {
     return fillConfig<cd::GHMMConfig>(filepath, label);

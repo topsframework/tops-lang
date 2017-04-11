@@ -72,8 +72,8 @@ class Interpreter {
                        const std::string &label = "");
 
   template<typename Config, typename Option>
-  decltype(auto) getConfigOption(const std::string &filepath,
-                                 const std::string &label = "");
+  auto getConfigOption(const std::string &filepath,
+                       const std::string &label = "");
 
   template<typename Config>
   std::shared_ptr<Config> fillConfig(const std::string &filepath,
