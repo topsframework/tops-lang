@@ -132,15 +132,6 @@ using get_inner_t = typename get_inner<T>::type;
     assignable_type<registered_type>(name, module); \
   } while (false)
 
-#define REGISTER_VECTOR(type, name) \
-  do { \
-    using chaiscript::vector_conversion; \
-    using chaiscript::bootstrap::standard_library::vector_type; \
-    using registered_type = get_inner_t<type>; \
-    module->add(vector_type<registered_type>(name)); \
-    module->add(vector_conversion<registered_type>()); \
-  } while (false)
-
 #define REGISTER_MAP(type, name) \
   do { \
     using chaiscript::map_conversion; \
@@ -150,26 +141,21 @@ using get_inner_t = typename get_inner<T>::type;
     module->add(map_conversion<registered_type>()); \
   } while (false)
 
+#define REGISTER_VECTOR(type, name) \
+  do { \
+    using chaiscript::vector_conversion; \
+    using chaiscript::bootstrap::standard_library::vector_type; \
+    using registered_type = get_inner_t<type>; \
+    module->add(vector_type<registered_type>(name)); \
+    module->add(vector_conversion<registered_type>()); \
+  } while (false)
+
 #define REGISTER_COMMON_TYPE(type) \
   REGISTER_TYPE(co::type, #type)
-#define REGISTER_TRAINING_TYPE(type) \
-  REGISTER_TYPE(cot::type, #type "Training")
-#define REGISTER_DEFINITION_TYPE(type) \
-  REGISTER_TYPE(cod::type, #type "Definition")
-
-#define REGISTER_COMMON_VECTOR(type) \
-  REGISTER_COMMON_TYPE(type); REGISTER_VECTOR(co::type, #type)
-#define REGISTER_TRAINING_VECTOR(type) \
-  REGISTER_TRAINING_TYPE(type); REGISTER_VECTOR(cot::type, #type "Training")
-#define REGISTER_DEFINITION_VECTOR(type) \
-  REGISTER_DEFINITION_TYPE(type); REGISTER_VECTOR(cod::type, #type "Definition")
-
 #define REGISTER_COMMON_MAP(type) \
   REGISTER_COMMON_TYPE(type); REGISTER_MAP(co::type, #type)
-#define REGISTER_TRAINING_MAP(type) \
-  REGISTER_TRAINING_TYPE(type); REGISTER_MAP(cot::type, #type "Training")
-#define REGISTER_DEFINITION_MAP(type) \
-  REGISTER_DEFINITION_TYPE(type); REGISTER_MAP(cod::type, #type "Definition")
+#define REGISTER_COMMON_VECTOR(type) \
+  REGISTER_COMMON_TYPE(type); REGISTER_VECTOR(co::type, #type)
 
 /*----------------------------------------------------------------------------*/
 /*                              CONCRETE METHODS                              */
@@ -330,6 +316,7 @@ void Interpreter::registerCommonTypes(chaiscript::ModulePtr &module,
   // Ordinary types
   REGISTER_COMMON_TYPE(Size);
   REGISTER_COMMON_TYPE(Type);
+  REGISTER_COMMON_TYPE(Model);
   REGISTER_COMMON_TYPE(State);
   REGISTER_COMMON_TYPE(Domain);
   REGISTER_COMMON_TYPE(Duration);
@@ -341,6 +328,7 @@ void Interpreter::registerCommonTypes(chaiscript::ModulePtr &module,
   REGISTER_COMMON_MAP(Probabilities);
   REGISTER_COMMON_MAP(FeatureFunctions);
 
+  REGISTER_COMMON_VECTOR(Models);
   REGISTER_COMMON_VECTOR(Domains);
   REGISTER_COMMON_VECTOR(Alphabet);
   REGISTER_COMMON_VECTOR(Alphabets);
@@ -500,15 +488,6 @@ void Interpreter::registerCommonConcatenations(
 
 /*----------------------------------------------------------------------------*/
 
-void Interpreter::registerTrainingTypes(chaiscript::ModulePtr &module,
-                                        const std::string &/* filepath */) {
-  // Definitions
-  REGISTER_TRAINING_TYPE(Model);
-  REGISTER_TRAINING_VECTOR(Models);
-}
-
-/*----------------------------------------------------------------------------*/
-
 void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
                                           const std::string &filepath) {
   using chaiscript::fun;
@@ -526,15 +505,6 @@ void Interpreter::registerTrainingHelpers(chaiscript::ModulePtr &module,
   module->add(fun([this, filepath] (const std::string &file) {
     return extractDir(filepath) + file;
   }), "dataset");
-}
-
-/*----------------------------------------------------------------------------*/
-
-void Interpreter::registerDefinitionTypes(chaiscript::ModulePtr &module,
-                                          const std::string &/* filepath */) {
-  // Definitions
-  REGISTER_DEFINITION_TYPE(Model);
-  REGISTER_DEFINITION_VECTOR(Models);
 }
 
 /*----------------------------------------------------------------------------*/

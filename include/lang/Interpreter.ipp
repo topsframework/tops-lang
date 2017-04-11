@@ -122,7 +122,6 @@ chaiscript::ModulePtr Interpreter::makeInterpreterLibrary(
     registerCommonAttributions(interpreter_library, filepath);
     registerCommonConcatenations(interpreter_library, filepath);
 
-    registerTrainingTypes(interpreter_library, filepath);
     registerTrainingHelpers(interpreter_library, filepath);
 
     initialized = true;
@@ -147,7 +146,6 @@ chaiscript::ModulePtr Interpreter::makeInterpreterLibrary(
     registerCommonAttributions(interpreter_library, filepath);
     registerCommonConcatenations(interpreter_library, filepath);
 
-    registerDefinitionTypes(interpreter_library, filepath);
     registerDefinitionHelpers(interpreter_library, filepath);
 
     initialized = true;
