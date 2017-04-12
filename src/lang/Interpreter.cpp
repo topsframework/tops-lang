@@ -163,14 +163,14 @@ using get_inner_t = typename get_inner<T>::type;
 
 cot::Model Interpreter::evalModelTraining(const std::string &filepath) {
   checkExtension(filepath);
-  return makeModelTrainingConfig(filepath);
+  return makeModelTrainingConfig(filepath, "untrained_model");
 }
 
 /*----------------------------------------------------------------------------*/
 
 cod::Model Interpreter::evalModelDefinition(const std::string &filepath) {
   checkExtension(filepath);
-  return makeModelDefinitionConfig(filepath);
+  return makeModelDefinitionConfig(filepath, "model");
 }
 
 /*----------------------------------------------------------------------------*/

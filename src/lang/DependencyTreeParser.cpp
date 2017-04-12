@@ -130,10 +130,10 @@ void DependencyTreeParser::parseNode(std::string line) {
   auto filepath = parseString();
 
   auto tree = config::DependencyTreeConfig::make(root_dir_ + filename_);
-  // std::get<decltype("position"_t)>(*tree) = id;
-  // std::get<decltype("configuration"_t)>(*tree)
-  //   = interpreter_->evalModelDefinition(root_dir_ + filepath);
-  // nodes_.push_back(tree);
+  std::get<decltype("position"_t)>(*tree) = id;
+  std::get<decltype("configuration"_t)>(*tree)
+    = interpreter_->evalModelDefinition(root_dir_ + filepath);
+  nodes_.push_back(tree);
 
   consume('"');
   consume(')');
