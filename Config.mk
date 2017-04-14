@@ -44,8 +44,15 @@
 # CPPFLAGS        := # Precompiler Flags
 # ASFLAGS         := # Assembly Flags
 # CFLAGS          := # C Flags
-CXXFLAGS        := -std=c++14 -O3 # -Wall -Wextra -Wshadow
-# LDFLAGS         := # Linker flags
+CXXFLAGS        += -std=c++14 \
+                   -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast \
+                   -Wcast-align -Wmissing-include-dirs -Wredundant-decls \
+                   -Werror -O2
+LDFLAGS         := # Linker flags
+
+ifeq ($(CXX),clang++)
+CXXFLAGS += -Wno-gnu-string-literal-operator-template
+endif
 
 # Documentation
 # ===============
