@@ -76,15 +76,7 @@
 #include "config/auxiliar/FeatureFunctionLibraryConfig.hpp"
 
 // External headers
-#include "chaiscript/language/chaiscript_engine.hpp"
-
-#include "chaiscript/dispatchkit/any.hpp"
-#include "chaiscript/dispatchkit/type_info.hpp"
-#include "chaiscript/dispatchkit/boxed_cast.hpp"
-#include "chaiscript/dispatchkit/boxed_value.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
-#include "chaiscript/dispatchkit/type_conversions.hpp"
-#include "chaiscript/dispatchkit/register_function.hpp"
 
 // Using declarations
 using config::operator ""_t;
@@ -129,7 +121,7 @@ using get_inner_t = typename get_inner<T>::type;
     using chaiscript::bootstrap::standard_library::assignable_type; \
     using registered_type = get_inner_t<type>; \
     module->add(chaiscript::user_type<registered_type>(), name); \
-    assignable_type<registered_type>(name, module); \
+    assignable_type<registered_type>(name, *module); \
   } while (false)
 
 #define REGISTER_MAP(type, name) \
@@ -137,7 +129,7 @@ using get_inner_t = typename get_inner<T>::type;
     using chaiscript::map_conversion; \
     using chaiscript::bootstrap::standard_library::map_type; \
     using registered_type = get_inner_t<type>; \
-    module->add(map_type<registered_type>(name)); \
+    map_type<registered_type>(name, *module); \
     module->add(map_conversion<registered_type>()); \
   } while (false)
 
@@ -146,7 +138,7 @@ using get_inner_t = typename get_inner<T>::type;
     using chaiscript::vector_conversion; \
     using chaiscript::bootstrap::standard_library::vector_type; \
     using registered_type = get_inner_t<type>; \
-    module->add(vector_type<registered_type>(name)); \
+    vector_type<registered_type>(name, *module); \
     module->add(vector_conversion<registered_type>()); \
   } while (false)
 
